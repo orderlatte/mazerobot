@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+/Debug/
+/.settings
+/.cproject
+/.project
