@@ -50,7 +50,16 @@
 #define VL53L0X_BETTER_ACCURACY_MODE     1  // Better Accuracy mode
 #define VL53L0X_BEST_ACCURACY_MODE       2  // Best Accuracy mode
 #define VL53L0X_LONG_RANGE_MODE          3  // Longe Range mode
-#define VL53L0X_HIGH_SPEED_MODE          4  // High Speed mode
+#define VL53L0X_HIGH_SPEED_MODE          4  // High Speed mode#
+
+#define INIT 0
+#define STOP 1
+#define FOWARD 2
+#define LEFT 3
+#define RIGHT 4
+
+
+
 
 static uint32_t GetTiming(int object_number); 
 
@@ -82,7 +91,7 @@ static CvCapture *    capture=NULL;
 static TUdpLocalPort *UdpLocalPort=NULL;
 static TUdpDest      *UdpDest=NULL;
 static TPID           PID;  
-static bool           Run=false;
+static int           Run=INIT;
 
 int trigger = 28;
 int echo = 29;
@@ -97,7 +106,9 @@ static void  CleanUp(void);
 static void  Control_C_Handler(int s);
 static void  HandleInputChar(void);
 double sonar(void);
-int32_t laser(void);
+int32_t laser_right(void);
+int32_t laser_left(void);
+
 
 double sonar(void)
 {
@@ -107,8 +118,7 @@ double sonar(void)
 	return sonar_distance;
 }
 
-
-int32_t laser(void)
+int32_t laser_right(void)
 {
 #ifndef UBUNTU		// For building in ubuntu. Below code sould be built in raspberry pi.
 
@@ -119,6 +129,16 @@ int32_t laser(void)
 	if (distance > 0)
         printf("0: %d mm, %d cm, %d\n",distance, (distance/10),count);
 	
+	usleep(timing);
+	count++;
+	return distance;
+}
+
+int32_t laser_left(void)
+{
+	int32_t distance;
+	unsigned int	count=0;
+	// Get distance from VL53L0X  on TCA9548A bus 1 
 	distance=getDistance(ObjectNum_1);
 	if (distance > 0)
         printf("1: %d mm, %d cm, %d\n",distance, (distance/10),count);
@@ -141,9 +161,9 @@ void *sonar_thread(void *value) {
 
 	while (1) {
 		distance = sonar();
-		if(distance>0 && distance<10)
+		if(distance>0 && distance<5 && Run == FOWARD)
 		{
-			Run=false;                         // Set Run Mode off
+			Run=STOP;                         // Set Run Mode off
 			SetWheelSpeed(0,0);        // Stop wheel servos
 		}
 	}
@@ -154,10 +174,23 @@ void *sonar_thread(void *value) {
 //----------------------
 void *laser_thread(void *value) {
 
-	int32_t		distance;
+	int32_t		distance_left;
+	int32_t		distance_right;
 
 	while (1) {
-		distance = laser();
+		distance_left = laser_left();
+		distance_right = laser_right();
+		if(Run == STOP)
+		{
+			if(distance_left > distance_right)
+			{
+				Run = LEFT;
+			}
+			else
+			{
+				Run = RIGHT;
+			}
+		}
 	}
 }
 
@@ -294,7 +327,7 @@ int main(int argc, const char** argv)
     SetError(PID,offset); // Set PID with the line offset
 
 
-    if (Run)              // If in line mode 
+    if (Run == FOWARD)              // If in line mode 
       {
        double correction, left, right;
        correction=RunPID(PID);         // compute PID correction
@@ -305,6 +338,43 @@ int main(int argc, const char** argv)
        //printf("time %ld\n",time_ms());
        
       }
+	else if(Run == LEFT)
+	{
+		static unsigned char flag = 0;
+		double correction, left, right;
+       correction=RunPID(PID);         // compute PID correction
+       left = -6;  // Compute left wheel speed 
+       right = 6; // Compute right wheel speed 
+		SetWheelSpeed(left,right);      // Set wheel speeds
+		if(flag == 0)
+		{
+			usleep(900*1000);
+		}
+		//if(correction < 5 && correction > -5)
+		{
+			Run = FOWARD;
+			flag = 0;
+		}
+	}
+	else if(Run == RIGHT)
+	{
+		static unsigned char flag = 0;
+		double correction, left, right;
+       correction=RunPID(PID);         // compute PID correction
+       left = 6;  // Compute left wheel speed 
+       right = -6; // Compute right wheel speed 
+		SetWheelSpeed(left,right);      // Set wheel speeds
+		if(flag == 0)
+		{
+			usleep(900*1000);
+		}
+		//if(correction < 5 && correction > -5)
+		{
+			Run = FOWARD;
+			flag = 0;
+		}
+	}
+	printf("Run = %d\n",Run);
 	printf("val = %f\n",offset);
 
     UdpSendImageAsJpeg(UdpLocalPort,UdpDest,image);   // Send processed UDP image to detination
@@ -440,11 +510,11 @@ static void HandleInputChar(void)
     */
 	if  (ch=='r')
 	{
-		Run=true;                          // Set Run Mode on
+		Run=FOWARD;                          // Set Run Mode on
     }
 	else if  (ch=='s')
     {
-     Run=false;                         // Set Run Mode off
+     Run=INIT;                         // Set Run Mode off
      speed=0;
      SetWheelSpeed(speed,speed);        // Stop wheel servos
     }
@@ -480,7 +550,6 @@ static void HandleInputChar(void)
 
   printf("pan=%d tilt=%d speed=%d\n",Pan,Tilt,speed);
 }
-
 //----------------------------------------------------------------
 // VL53L0X_GetTiming
 //----------------------------------------------------------------

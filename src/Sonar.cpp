@@ -26,7 +26,7 @@ double SonarDistance(int timeout)
   double distanceCm;
 
     if ((trigger==-1) || (echo==-1)) return(-1.0);
-
+    
     delay(10);
     digitalWrite(trigger, HIGH);
     delayMicroseconds(10);
