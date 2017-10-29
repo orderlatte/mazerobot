@@ -35,10 +35,10 @@
 
 #ifndef UBUNTU		// For building in ubuntu. Below code sould be built in raspberry pi.
 #include <wiringPi.h>
-#include "user_api/vl53l0x.h"
 #endif //UBUNTU
 
 #include "Sonar.h"
+#include "user_api/vl53l0x.h"
 
 #include <stdio.h>
 #include <stdlib.h>
