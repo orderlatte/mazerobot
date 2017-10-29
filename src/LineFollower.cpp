@@ -132,10 +132,16 @@ int32_t laser_right(void)
 	usleep(timing);
 	count++;
 	return distance;
+
+#else //UBUNTU
+	return 0;
+#endif //UBUNTU
 }
 
 int32_t laser_left(void)
 {
+#ifndef UBUNTU		// For building in ubuntu. Below code sould be built in raspberry pi.
+
 	int32_t distance;
 	unsigned int	count=0;
 	// Get distance from VL53L0X  on TCA9548A bus 1 
