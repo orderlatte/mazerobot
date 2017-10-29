@@ -32,10 +32,14 @@
 #include "Servos.h"
 #include "ImageProcessing.h"
 #include <iostream>
+
+#ifndef UBUNTU		// For building in ubuntu. Below code sould be built in raspberry pi.
 #include <wiringPi.h>
+#include "user_api/vl53l0x.h"
+#endif //UBUNTU
+
 #include "Sonar.h"
 
-#include "user_api/vl53l0x.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
@@ -103,8 +107,11 @@ double sonar(void)
 	return sonar_distance;
 }
 
+
 int32_t laser(void)
 {
+#ifndef UBUNTU		// For building in ubuntu. Below code sould be built in raspberry pi.
+
 	int32_t distance;
 	unsigned int	count=0;
 	// Get distance from VL53L0X  on TCA9548A bus 1 
@@ -119,7 +126,12 @@ int32_t laser(void)
 	usleep(timing);
 	count++;
 	return distance;
+
+#else //UBUNTU
+	return 0;
+#endif //UBUNTU
 }
+
 
 //----------------------
 // Sonar Thread
@@ -161,7 +173,8 @@ int main(int argc, const char** argv)
 
 
 
-  
+#ifndef UBUNTU		// For building in ubuntu. Below code sould be built in raspberry pi.
+
   if(VL53L0X_i2c_init("/dev/i2c-1")==-1)
   {
    printf("VL53L0X_i2c_init failed\n");
@@ -172,6 +185,9 @@ int main(int argc, const char** argv)
   startRanging(ObjectNum_0, VL53L0X_BETTER_ACCURACY_MODE, 0x29, 1, 0x70);
   // Start ranging on TCA9548A bus 2
   startRanging(ObjectNum_1, VL53L0X_BETTER_ACCURACY_MODE, 0x29, 2, 0x70);
+
+#endif //UBUNTU
+
   
   if ((timing=GetTiming(ObjectNum_0))==0)
   {
@@ -242,7 +258,9 @@ int main(int argc, const char** argv)
   printf("Width = %d\n",AWidth );
   printf("Height = %d\n", AHeight);
 
+#ifndef UBUNTU		// For building in ubuntu. Below code sould be built in raspberry pi.
   if (wiringPiSetup() == -1) return -1;
+#endif //UBUNTU
 
   SonarInit(trigger, echo);
 
@@ -462,23 +480,30 @@ static void HandleInputChar(void)
 
   printf("pan=%d tilt=%d speed=%d\n",Pan,Tilt,speed);
 }
+
 //----------------------------------------------------------------
 // VL53L0X_GetTiming
 //----------------------------------------------------------------
 uint32_t GetTiming(int object_number) 
 {
- VL53L0X_Error status;
- uint32_t      budget;
- VL53L0X_DEV   dev;
+#ifndef UBUNTU		// For building in ubuntu. Below code sould be built in raspberry pi.
+
+	VL53L0X_Error status;
+	uint32_t      budget;
+	VL53L0X_DEV   dev;
+
+	dev=getDev(object_number);
+	status=VL53L0X_GetMeasurementTimingBudgetMicroSeconds(dev,&budget);
+	if  (status==VL53L0X_ERROR_NONE)
+	{
+		printf("sleep time %d\n",budget);
+		return(budget+1000);
+	}
+	else return (0);
  
- dev=getDev(object_number);
- status=VL53L0X_GetMeasurementTimingBudgetMicroSeconds(dev,&budget);
- if  (status==VL53L0X_ERROR_NONE)
- {
-  printf("sleep time %d\n",budget);
-  return(budget+1000);
- }
- else return (0);
+#else //UBUNTU
+	return 0;
+#endif //UBUNTU
 }
 
 
