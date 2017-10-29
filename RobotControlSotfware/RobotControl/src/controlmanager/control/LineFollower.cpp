@@ -26,20 +26,20 @@
 #include <signal.h>
 #include <iostream>
 
-#include "../../robotmanager/robotvision/PI3OpencvCompat.h"
-#include "../../robotmanager/sorvocontrol/PID.h"
-#include "../../robotmanager/sorvocontrol/Servos.h"
-#include "../networkmanager/NetworkUDP.h"
-#include "../networkmanager/UdpSendRecvJpeg.h"
+#include "ImageProcessing.h"
+#include "PI3OpencvCompat.h"
+#include "PID.h"
+#include "Servos.h"
+#include "NetworkUDP.h"
+#include "UdpSendRecvJpeg.h"
 #include "KeyboardSetup.h"
-#include "../../robotmanager/robotvision/ImageProcessing.h"
 
 #ifndef UBUNTU		// For building in ubuntu. Below code sould be built in raspberry pi.
 #include <wiringPi.h>
 #endif //UBUNTU
 
-#include "../../robotmanager/sensormonitor/Sonar.h"
-#include "../../robotmanager/sensormonitor/user_api/vl53l0x.h"
+#include "Sonar.h"
+#include "vl53l0x.h"
 
 #include <stdio.h>
 #include <stdlib.h>

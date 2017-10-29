@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _VL53L0X_TUNING_H_
 #define _VL53L0X_TUNING_H_
 
-#include "../../../robotmanager/sensormonitor/Api/core/inc/vl53l0x_def.h"
+#include "vl53l0x_def.h"
 
 
 #ifdef __cplusplus

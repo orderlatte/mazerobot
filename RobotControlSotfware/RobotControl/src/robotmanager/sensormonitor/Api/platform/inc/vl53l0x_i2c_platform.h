@@ -21,7 +21,7 @@
 #ifndef _VL53L0X_I2C_PLATFORM_H_
 #define _VL53L0X_I2C_PLATFORM_H_
 
-#include "../../../robotmanager/sensormonitor/Api/core/inc/vl53l0x_def.h"
+#include "vl53l0x_def.h"
 
 #ifdef __cplusplus
 extern "C" {

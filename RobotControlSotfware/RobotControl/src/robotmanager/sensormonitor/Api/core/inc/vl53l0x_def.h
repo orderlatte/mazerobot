@@ -87,8 +87,8 @@ extern "C" {
 #define VL53L0X_MAX_STRING_LENGTH 32
 
 
-#include "../../../robotmanager/sensormonitor/Api/core/inc/vl53l0x_device.h"
-#include "../../../robotmanager/sensormonitor/Api/platform/inc/vl53l0x_types.h"
+#include "vl53l0x_device.h"
+#include "vl53l0x_types.h"
 
 
 /****************************************

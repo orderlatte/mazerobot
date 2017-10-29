@@ -29,8 +29,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef _VL53L0X_API_CALIBRATION_H_
 #define _VL53L0X_API_CALIBRATION_H_
 
-#include "../../../robotmanager/sensormonitor/Api/core/inc/vl53l0x_def.h"
-#include "../../../robotmanager/sensormonitor/Api/platform/inc/vl53l0x_platform.h"
+#include "vl53l0x_def.h"
+#include "vl53l0x_platform.h"
 
 
 #ifdef __cplusplus
