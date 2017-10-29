@@ -31,6 +31,25 @@
 #include "KeyboardSetup.h"
 #include "Servos.h"
 #include "ImageProcessing.h"
+#include <iostream>
+#include <wiringPi.h>
+#include "Sonar.h"
+
+#include "user_api/vl53l0x.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+#include <unistd.h>
+#define ObjectNum_0 0
+#define ObjectNum_1 1
+#define VL53L0X_GOOD_ACCURACY_MODE       0  // Good Accuracy mode
+#define VL53L0X_BETTER_ACCURACY_MODE     1  // Better Accuracy mode
+#define VL53L0X_BEST_ACCURACY_MODE       2  // Best Accuracy mode
+#define VL53L0X_LONG_RANGE_MODE          3  // Longe Range mode
+#define VL53L0X_HIGH_SPEED_MODE          4  // High Speed mode
+
+static uint32_t GetTiming(int object_number); 
+
 
 using namespace cv;
 using namespace std;
@@ -61,18 +80,72 @@ static TUdpDest      *UdpDest=NULL;
 static TPID           PID;  
 static bool           Run=false;
 
+int trigger = 28;
+int echo = 29;
+uint32_t	  timing;
+
+
+
+
+
 static void  Setup_Control_C_Signal_Handler_And_Keyboard_No_Enter(void);
 static void  CleanUp(void);
 static void  Control_C_Handler(int s);
 static void  HandleInputChar(void);
+double sonar(void);
+int32_t laser(void);
+
+double sonar(void)
+{
+	double sonar_distance;
+	sonar_distance = SonarDistance(30000);
+	cout << "Distance is " << sonar_distance << " cm." << endl;
+	return sonar_distance;
+}
+
+int32_t laser(void)
+{
+	int32_t distance;
+	unsigned int	count=0;
+	// Get distance from VL53L0X  on TCA9548A bus 1 
+	distance=getDistance(ObjectNum_0);
+	if (distance > 0)
+        printf("0: %d mm, %d cm, %d\n",distance, (distance/10),count);
+	
+	distance=getDistance(ObjectNum_1);
+	if (distance > 0)
+        printf("1: %d mm, %d cm, %d\n",distance, (distance/10),count);
+	
+	usleep(timing);
+	count++;
+	return distance;
+}
 
 //----------------------
-// Thread Test function
+// Sonar Thread
 //----------------------
-void *thread_test(void *value) {
+void *sonar_thread(void *value) {
+	int32_t		distance;
+
 	while (1) {
-		printf("Thread is running!\n");
-		sleep(1);
+		distance = sonar();
+		if(distance>0 && distance<10)
+		{
+			Run=false;                         // Set Run Mode off
+			SetWheelSpeed(0,0);        // Stop wheel servos
+		}
+	}
+}
+
+//----------------------
+// Sonar Thread
+//----------------------
+void *laser_thread(void *value) {
+
+	int32_t		distance;
+
+	while (1) {
+		distance = laser();
 	}
 }
 
@@ -85,6 +158,30 @@ int main(int argc, const char** argv)
   IplImage * iplCameraImage; // camera image in IplImage format 
   Mat        image;          // camera image in Mat format 
   float      offset;         // computed robot deviation from the line 
+
+
+
+  
+  if(VL53L0X_i2c_init("/dev/i2c-1")==-1)
+  {
+   printf("VL53L0X_i2c_init failed\n");
+   exit(0);
+  }
+  
+  // Start ranging on TCA9548A bus 1 
+  startRanging(ObjectNum_0, VL53L0X_BETTER_ACCURACY_MODE, 0x29, 1, 0x70);
+  // Start ranging on TCA9548A bus 2
+  startRanging(ObjectNum_1, VL53L0X_BETTER_ACCURACY_MODE, 0x29, 2, 0x70);
+  
+  if ((timing=GetTiming(ObjectNum_0))==0)
+  {
+   printf("Error Getting Timing Budget\n");
+   CleanUp();
+  }
+  
+  if (timing < 20000) timing = 20000;
+  printf("Timing %d ms\n", timing/1000);
+
 
 
    if (argc !=3) {
@@ -145,19 +242,31 @@ int main(int argc, const char** argv)
   printf("Width = %d\n",AWidth );
   printf("Height = %d\n", AHeight);
 
-  if (!IsPi3) namedWindow( "camera", CV_WINDOW_AUTOSIZE ); // If not running on PI3 open local Window
+  if (wiringPiSetup() == -1) return -1;
 
-  // Test Thread
+  SonarInit(trigger, echo);
+
+  if (!IsPi3) namedWindow( "camera", CV_WINDOW_AUTOSIZE ); // If not running on PI3 open local Window
+ 
+ //if (!IsPi3) namedWindow( "processed", CV_WINDOW_AUTOSIZE );  // If not running on PI3 open local Window
+
+  // Sonar thread
   pthread_t thread;
   int x = 0;
-  if (pthread_create(&thread, NULL, &thread_test, &x) != 0) {
+  if (pthread_create(&thread, NULL, &sonar_thread, &x) != 0) {
 	  printf("Filed to create the thread\n");
 	  return 1;
   }
- 
- //if (!IsPi3) namedWindow( "processed", CV_WINDOW_AUTOSIZE );  // If not running on PI3 open local Window
+
+  // Lasor thread
+  if (pthread_create(&thread, NULL, &laser_thread, &x) != 0) {
+  	  printf("Filed to create the thread\n");
+  	  return 1;
+   }
+
   do
    {
+
     iplCameraImage = cvQueryFrame(capture); // Get Camera image
     image= cv::cvarrToMat(iplCameraImage);  // Convert Camera image to Mat format
     if (IsPi3) flip(image, image,-1);       // if running on PI3 flip(-1)=180 degrees
@@ -165,17 +274,20 @@ int main(int argc, const char** argv)
     offset=FindLineInImageAndComputeOffset(image); // Process camera image / locat line and compute offset from line
 
     SetError(PID,offset); // Set PID with the line offset
+
+
     if (Run)              // If in line mode 
       {
        double correction, left, right;
        correction=RunPID(PID);         // compute PID correction
        left = BASESPEED - correction;  // Compute left wheel speed 
        right = BASESPEED + correction; // Compute right wheel speed 
-       SetWheelSpeed(left,right);      // Set wheel speeds
+		SetWheelSpeed(left,right);      // Set wheel speeds
        //printf("PID:correction %lf left %lf right %lf delta %lf\n",correction,left,right, left-right);
        //printf("time %ld\n",time_ms());
-       //printf("val = %f\n",offset);
+       
       }
+	printf("val = %f\n",offset);
 
     UdpSendImageAsJpeg(UdpLocalPort,UdpDest,image);   // Send processed UDP image to detination
   
@@ -183,13 +295,12 @@ int main(int argc, const char** argv)
     HandleInputChar();                                // Handle Keyboard Input
     if (!IsPi3) cv::waitKey(1);                       // must be call show image locally work with imshow
 
+
   } while (1);
 
 
   return 0;
 }
-
-
 //-----------------------------------------------------------------
 // END main
 //-----------------------------------------------------------------
@@ -261,7 +372,8 @@ static void HandleInputChar(void)
      {
        return;
      }
-  if ((ch=='j') || (ch=='l'))           // servo pan keys
+  /*
+  	if ((ch=='j') || (ch=='l'))           // servo pan keys
      {
       if  (ch=='l')Pan--;               // pan left
       else if  (ch=='j')   Pan++;       // pan right
@@ -307,9 +419,70 @@ static void HandleInputChar(void)
      speed=0;
      SetWheelSpeed(speed,speed);        // Stop wheel servos
     }
+    */
+	if  (ch=='r')
+	{
+		Run=true;                          // Set Run Mode on
+    }
+	else if  (ch=='s')
+    {
+     Run=false;                         // Set Run Mode off
+     speed=0;
+     SetWheelSpeed(speed,speed);        // Stop wheel servos
+    }
+	/*
+	else if  (ch=='s')
+	{
+     	speed=3;
+     	SetWheelSpeed(-speed,-speed);       // Stop wheel servos 
+	}
+	else if(ch=='w')
+	{
+		speed = 3;
+		SetWheelSpeed(speed, speed);
+	}
+	else if(ch=='d')
+	{
+		speed = 3;
+		SetWheelSpeed(speed, -speed);
+	}
+	else if(ch=='a')
+	{
+		speed = 3;
+		SetWheelSpeed(-speed, speed);
+	}
+	else
+	{
+		speed=0;
+    	SetWheelSpeed(speed,speed);       // Stop wheel servos 
+	}
+	*/
+		
+	
 
   printf("pan=%d tilt=%d speed=%d\n",Pan,Tilt,speed);
 }
+//----------------------------------------------------------------
+// VL53L0X_GetTiming
+//----------------------------------------------------------------
+uint32_t GetTiming(int object_number) 
+{
+ VL53L0X_Error status;
+ uint32_t      budget;
+ VL53L0X_DEV   dev;
+ 
+ dev=getDev(object_number);
+ status=VL53L0X_GetMeasurementTimingBudgetMicroSeconds(dev,&budget);
+ if  (status==VL53L0X_ERROR_NONE)
+ {
+  printf("sleep time %d\n",budget);
+  return(budget+1000);
+ }
+ else return (0);
+}
+
+
+
 //-----------------------------------------------------------------
 // END HandleInputChar
 //-----------------------------------------------------------------
