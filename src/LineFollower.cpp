@@ -66,6 +66,15 @@ static void  CleanUp(void);
 static void  Control_C_Handler(int s);
 static void  HandleInputChar(void);
 
+//----------------------
+// Thread Test function
+//----------------------
+void *thread_test(void *value) {
+	while (1) {
+		printf("Thread is running!\n");
+		sleep(1);
+	}
+}
 
 //----------------------------------------------------------------
 // main - This is the main program for the line follower and 
@@ -137,6 +146,14 @@ int main(int argc, const char** argv)
   printf("Height = %d\n", AHeight);
 
   if (!IsPi3) namedWindow( "camera", CV_WINDOW_AUTOSIZE ); // If not running on PI3 open local Window
+
+  // Test Thread
+  pthread_t thread;
+  int x = 0;
+  if (pthread_create(&thread, NULL, &thread_test, &x) != 0) {
+	  printf("Filed to create the thread\n");
+	  return 1;
+  }
  
  //if (!IsPi3) namedWindow( "processed", CV_WINDOW_AUTOSIZE );  // If not running on PI3 open local Window
   do
@@ -171,6 +188,8 @@ int main(int argc, const char** argv)
 
   return 0;
 }
+
+
 //-----------------------------------------------------------------
 // END main
 //-----------------------------------------------------------------
