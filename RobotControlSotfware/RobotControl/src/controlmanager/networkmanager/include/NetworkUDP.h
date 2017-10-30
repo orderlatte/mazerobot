@@ -31,7 +31,6 @@
 //------------------------------------------------------------------------------------------------
 // Types
 //------------------------------------------------------------------------------------------------
-
 typedef struct
 {
  SOCKET_FD_TYPE UdpFd;
@@ -42,20 +41,19 @@ typedef struct
  struct sockaddr_in remaddr;
 } TUdpDest;
 
+class NetworkUDP {
+
 //------------------------------------------------------------------------------------------------
 //  Function Prototypes 
 //------------------------------------------------------------------------------------------------
-TUdpLocalPort* OpenUdpPort(short localport);
-
-void CloseUdpPort(TUdpLocalPort **UdpLocalPort);
-
-TUdpDest * GetUdpDest(const char *remotehostname, const char * remoteportno);
-
-void DeleteUdpDest(TUdpDest **dest);
-
-int SendUDPMsg(TUdpLocalPort * UdpLocalPort,TUdpDest *dest, unsigned char *msg, size_t length);
-
-int RecvUDPMsg(TUdpLocalPort * UdpLocalPort, unsigned char *msg, size_t length,struct sockaddr *src_addr, socklen_t *addrlen);
+public:
+	TUdpLocalPort* OpenUdpPort(short localport);
+	void CloseUdpPort(TUdpLocalPort **UdpLocalPort);
+	TUdpDest * GetUdpDest(const char *remotehostname, const char * remoteportno);
+	void DeleteUdpDest(TUdpDest **dest);
+	int SendUDPMsg(TUdpLocalPort * UdpLocalPort,TUdpDest *dest, unsigned char *msg, size_t length);
+	int RecvUDPMsg(TUdpLocalPort * UdpLocalPort, unsigned char *msg, size_t length,struct sockaddr *src_addr, socklen_t *addrlen);
+};
 
 #endif
 //------------------------------------------------------------------------------------------------

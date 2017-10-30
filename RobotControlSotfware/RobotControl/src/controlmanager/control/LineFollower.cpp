@@ -31,7 +31,7 @@
 #include "PID.h"
 #include "Servos.h"
 #include "NetworkUDP.h"
-#include "UdpSendRecvJpeg.h"
+#include "UdpSendJpeg.h"
 #include "KeyboardSetup.h"
 
 #ifndef UBUNTU		// For building in ubuntu. Below code sould be built in raspberry pi.
@@ -69,8 +69,7 @@ static int            AHeight;
 static int            Pan;
 static int            Tilt;
 static CvCapture *    capture=NULL;
-static TUdpLocalPort *UdpLocalPort=NULL;
-static TUdpDest      *UdpDest=NULL;
+static UdpSendJpeg    VideoSender;
 static TPID           PID;  
 static int           Run=INIT;
 
@@ -105,19 +104,14 @@ int main(int argc, const char** argv)
   Setup_Control_C_Signal_Handler_And_Keyboard_No_Enter(); // Set Control-c handler to properly exit cleanly 
 
 
-  if  ((UdpLocalPort=OpenUdpPort(0))==NULL)  // Open UDP Network port
-     {
-       printf("OpenUdpPort Failed\n");
-       CleanUp();
-       return(-1); 
-     }
 
- if  ((UdpDest=GetUdpDest(argv[1],argv[2]))==NULL)  // Setup remote network destination to send images
-     {
-       printf("GetUdpDest Failed\n");
-       CleanUp();
-       return(-1); 
-     }
+
+  if (VideoSender.OpenUdp(argv[1],argv[2]) == 0) // Setup remote network destination to send images
+  {
+	  printf("OpenUdpPort Failed\n");
+	  CleanUp();
+	  return(-1);
+  }
 
   capture =cvCreateCameraCapture(0);   // Open default Camera
     if(!capture)
@@ -157,7 +151,7 @@ int main(int argc, const char** argv)
 
     offset=FindLineInImageAndComputeOffset(image); // Process camera image / locat line and compute offset from line
 
-    UdpSendImageAsJpeg(UdpLocalPort,UdpDest,image);   // Send processed UDP image to detination
+	VideoSender.UdpSendImageAsJpeg(image);
   
     if (!IsPi3) imshow("camera", image );             // Show image locally if not running on PI 3
     HandleInputChar();                                // Handle Keyboard Input
@@ -205,8 +199,7 @@ static void CleanUp(void)
        capture=NULL;
       }
 
- CloseUdpPort(&UdpLocalPort);      // Close network port
- DeleteUdpDest(&UdpDest);          // Delete Remote Dest
+ VideoSender.CloseUdp();
  ResetServos();                    // Reset servos to center or stopped
  CloseServos();                    // Close servo device driver
  printf("restored\n");
