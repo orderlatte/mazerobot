@@ -16,7 +16,7 @@
 // increases the internal send/receive buffer sizes and then 
 // returns a handle to the port on success and NULL on failure
 //-----------------------------------------------------------------
-TUdpLocalPort* OpenUdpPort(short localport)
+TUdpLocalPort* NetworkUDP::OpenUdpPort(short localport)
 {
   TUdpLocalPort *UdpLocalPort;
   struct sockaddr_in myaddr;
@@ -55,7 +55,7 @@ TUdpLocalPort* OpenUdpPort(short localport)
 
   if (bind(UdpLocalPort->UdpFd, (struct sockaddr *)&myaddr, sizeof(myaddr)) < 0)
     {
-      CloseUdpPort(&UdpLocalPort);
+	  CloseUdpPort(&UdpLocalPort);
       perror("bind failed");
       return(NULL); 
     }
@@ -63,13 +63,13 @@ TUdpLocalPort* OpenUdpPort(short localport)
   int bufsize = 200 * 1024;
   if (setsockopt(UdpLocalPort->UdpFd, SOL_SOCKET, SO_SNDBUF, (char *)&bufsize, sizeof(bufsize)) == -1)
 	{
-         CloseUdpPort(&UdpLocalPort);
+	     CloseUdpPort(&UdpLocalPort);
          perror("setsockopt SO_SNDBUF failed");
          return(NULL);
 	}
   if (setsockopt(UdpLocalPort->UdpFd, SOL_SOCKET, SO_RCVBUF, (char *)&bufsize, sizeof(bufsize)) == -1)
 	{
-         CloseUdpPort(&UdpLocalPort);
+	     CloseUdpPort(&UdpLocalPort);
          perror("setsockopt SO_SNDBUF failed");
          return(NULL);
 	}
@@ -82,7 +82,7 @@ TUdpLocalPort* OpenUdpPort(short localport)
 //-----------------------------------------------------------------
 // CloseUdpPort - Closes the specified local UDP port
 //-----------------------------------------------------------------
-void CloseUdpPort(TUdpLocalPort **UdpLocalPort)
+void NetworkUDP::CloseUdpPort(TUdpLocalPort **UdpLocalPort)
 {
   if ((*UdpLocalPort)==NULL) return;
   if ((*UdpLocalPort)->UdpFd!=BAD_SOCKET_FD)  
@@ -103,7 +103,7 @@ void CloseUdpPort(TUdpLocalPort **UdpLocalPort)
 // GetUdpDest - Provides a handle the remote jhost and port on
 // success and NULL on failure
 //-----------------------------------------------------------------
-TUdpDest * GetUdpDest(const char *remotehostname, const char * remoteportno)
+TUdpDest * NetworkUDP::GetUdpDest(const char *remotehostname, const char * remoteportno)
 {
    TUdpDest * dest;
    int                s;
@@ -147,7 +147,7 @@ TUdpDest * GetUdpDest(const char *remotehostname, const char * remoteportno)
 //-----------------------------------------------------------------
 // DeleteUdpDest - Deletes the handle to the remote host and port
 //-----------------------------------------------------------------
-void DeleteUdpDest(TUdpDest **dest)
+void NetworkUDP::DeleteUdpDest(TUdpDest **dest)
 {
   if ((*dest)==NULL) return;
    delete (*dest);
@@ -160,7 +160,7 @@ void DeleteUdpDest(TUdpDest **dest)
 // SendUDPMsg - Sends a UDP Message on the specified UDP local port
 // and Destination. return bytes sent on success and -1 on failure
 //-----------------------------------------------------------------
-int SendUDPMsg(TUdpLocalPort * UdpLocalPort,TUdpDest *dest, unsigned char *msg, size_t length)
+int NetworkUDP::SendUDPMsg(TUdpLocalPort * UdpLocalPort,TUdpDest *dest, unsigned char *msg, size_t length)
 {
   int  slen;
   int  retval;
@@ -182,7 +182,7 @@ int SendUDPMsg(TUdpLocalPort * UdpLocalPort,TUdpDest *dest, unsigned char *msg, 
 // RecvUDPMsg - Receives a UDP Message on the specified UDP local port
 // return bytes received on success and -1 on failure
 //-----------------------------------------------------------------
-int RecvUDPMsg(TUdpLocalPort * UdpLocalPort, unsigned char *msg, size_t length,struct sockaddr *src_addr, socklen_t *addrlen)
+int NetworkUDP::RecvUDPMsg(TUdpLocalPort * UdpLocalPort, unsigned char *msg, size_t length,struct sockaddr *src_addr, socklen_t *addrlen)
 {
   int  recvlen;
   if (UdpLocalPort==NULL) return(-1);
