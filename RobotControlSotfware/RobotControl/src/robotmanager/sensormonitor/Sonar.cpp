@@ -7,11 +7,12 @@
 static int  trigger=-1;
 static int  echo=-1;
 
+
 void SonarInit(int _trigger, int _echo)
 {
 #ifndef UBUNTU		// For building in ubuntu. Below code sould be built in raspberry pi.
-    trigger=_trigger;
-    echo=_echo;
+	trigger=_trigger;
+	echo=_echo;
     pinMode(trigger, OUTPUT);
     pinMode(echo, INPUT);
     digitalWrite(trigger, LOW);
@@ -37,13 +38,13 @@ double SonarDistance(int timeout)
 
     while (digitalRead(echo) == LOW)
        {
-         if ( micros()-timeoutstart>=timeout) return (-1.0);
+         if ( micros()-timeoutstart>=timeout) return (-2.0);
        }
     startTimeUsec = micros();
     while ( digitalRead(echo) == HIGH )
        {
         endTimeUsec = micros();
-        if (endTimeUsec-timeoutstart>=timeout) return (-1.0);
+        if (endTimeUsec-timeoutstart>=timeout) return (-3.0);
        }
 
     travelTimeUsec = endTimeUsec - startTimeUsec;
