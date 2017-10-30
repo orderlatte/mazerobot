@@ -109,7 +109,32 @@ void sensor_manager_init(void)
 double sonar(void)
 {
 	double sonar_distance;
-	sonar_distance = SonarDistance(30000);
+	double sonar_distance_sum = 0;
+	double sonar_distance_min = 0;
+	double sonar_distance_max = 0;
+	
+	for(int i =0 ; i<10 ; i++)
+	{
+		sonar_distance = SonarDistance(30000);
+		if(i == 0)
+		{
+			sonar_distance_min = sonar_distance;
+			sonar_distance_max = sonar_distance;
+		}
+
+		sonar_distance_sum += sonar_distance;
+		if(sonar_distance < sonar_distance_min)
+		{
+			sonar_distance_min = sonar_distance;
+		}
+		if(sonar_distance > sonar_distance_max)
+		{
+			sonar_distance_max = sonar_distance;
+		}
+		
+	}
+	sonar_distance_sum = sonar_distance_sum - sonar_distance_min - sonar_distance_max;
+	sonar_distance = sonar_distance_sum/8;
 	cout << "Distance is " << sonar_distance << " cm." << endl;
 	return sonar_distance;
 }
