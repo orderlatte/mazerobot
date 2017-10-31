@@ -98,8 +98,8 @@ int main(int argc, const char** argv)
 
 
 
-   if (argc !=3) {
-       fprintf(stderr,"usage %s hostname port\n", argv[0]);
+   if (argc !=4) {
+       fprintf(stderr,"usage %s hostname video_port map_port\n", argv[0]);
        exit(0);
     }
 
@@ -115,7 +115,7 @@ int main(int argc, const char** argv)
 	  return(-1);
   }
 
-  if (MapSender.OpenUdp(argv[1], "30002") == 0) // Setup remote network destination to send images
+  if (MapSender.OpenUdp(argv[1], argv[3]) == 0) // Setup remote network destination to send images
   {
 	  printf("MapSender.OpenUdp Failed\n");
 	  CleanUp();
