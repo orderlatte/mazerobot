@@ -8,8 +8,6 @@
 #ifndef UDPSendJPEGH
 #define UDPSendJPEGH
 
-using namespace std;
-
 #include <opencv2/highgui/highgui.hpp>
 #include "NetworkUDP.h"
 

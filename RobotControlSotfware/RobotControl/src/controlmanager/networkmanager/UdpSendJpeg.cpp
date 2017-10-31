@@ -1,11 +1,13 @@
 //------------------------------------------------------------------------------------------------
-// File: UdpSendRecvJpeg.cpp
+// File: UdpSendJpeg.cpp
 // Project: LG Exec Ed Program
 // Versions:
 // 1.0 April 2017 - initial version
 // Send and receives OpenCV Mat Images in a UDP message commpressed as Jpeg images 
 //------------------------------------------------------------------------------------------------
 #include "UdpSendJpeg.h"
+
+using namespace std;
 
 static int init_values[2] = { cv::IMWRITE_JPEG_QUALITY,80 }; //default(95) 0-100
 static std::vector<int> param (&init_values[0], &init_values[0]+2);
