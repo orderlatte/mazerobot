@@ -32,6 +32,7 @@
 #include "Servos.h"
 #include "NetworkUDP.h"
 #include "UdpSendJpeg.h"
+#include "UdpSendMap.h"
 #include "KeyboardSetup.h"
 
 #ifndef UBUNTU		// For building in ubuntu. Below code sould be built in raspberry pi.
@@ -70,6 +71,7 @@ static int            Pan;
 static int            Tilt;
 static CvCapture *    capture=NULL;
 static UdpSendJpeg    VideoSender;
+static UdpSendMap	  MapSender;
 static TPID           PID;  
 static int           Run=INIT;
 
@@ -96,8 +98,8 @@ int main(int argc, const char** argv)
 
 
 
-   if (argc !=3) {
-       fprintf(stderr,"usage %s hostname port\n", argv[0]);
+   if (argc !=4) {
+       fprintf(stderr,"usage %s hostname video_port map_port\n", argv[0]);
        exit(0);
     }
 
@@ -108,10 +110,19 @@ int main(int argc, const char** argv)
 
   if (VideoSender.OpenUdp(argv[1],argv[2]) == 0) // Setup remote network destination to send images
   {
-	  printf("OpenUdpPort Failed\n");
+	  printf("VideoSender.OpenUdp Failed\n");
 	  CleanUp();
 	  return(-1);
   }
+
+  if (MapSender.OpenUdp(argv[1], argv[3]) == 0) // Setup remote network destination to send images
+  {
+	  printf("MapSender.OpenUdp Failed\n");
+	  CleanUp();
+	  return(-1);
+  }
+
+  printf("cvCreateCameraCapture()\n");
 
   capture =cvCreateCameraCapture(0);   // Open default Camera
     if(!capture)
@@ -200,6 +211,7 @@ static void CleanUp(void)
       }
 
  VideoSender.CloseUdp();
+ MapSender.CloseUdp();
  ResetServos();                    // Reset servos to center or stopped
  CloseServos();                    // Close servo device driver
  printf("restored\n");
