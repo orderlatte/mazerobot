@@ -9,7 +9,9 @@ RobotVisionManager::RobotVisionManager()
 	m_bDebug = false;
 
 	m_sParameter.thresBlueAreaOfROI = (float)0.2;
-	m_sParameter.thresCrossAreaOfROI = (float)0.5;
+	m_sParameter.thresCrossAreaOfROI = (float)0.7;
+
+	initialize();
 }
 
 
@@ -32,52 +34,52 @@ void RobotVisionManager::initialize()
 	/////////////////////////////////////////////
 
 
-	Mat camera;
-	Mat greyImg;
-	Mat lineFollowingImg;
-	Mat crossImg, lineImg;
+	//Mat camera;
+	//Mat greyImg;
+	//Mat lineFollowingImg;
+	//Mat crossImg, lineImg;
 
-	//Symbol symbols[10];
-	//if (readRefImages(symbols) == -1) {
-	//	printf("Error reading reference symbols\n");
-	//	return -1;
+	////Symbol symbols[10];
+	////if (readRefImages(symbols) == -1) {
+	////	printf("Error reading reference symbols\n");
+	////	return -1;
+	////}
+
+	////createTrackbar("Min Threshold:", "A", &lowThreshold, 100, CannyThreshold);
+
+	//double t = (double)getTickCount();
+	//// do something ...
+	////t = ((double)getTickCount() - t)/getTickFrequency();
+	////cout << "Times passed in seconds: " << t << endl;
+
+	//cap >> camera;
+
+
+	//Mat new_image;
+
+	//while (1) {
+
+	//	t = (double)getTickCount() - t;
+
+	//	cap >> camera;
+	//	cap >> lineFollowingImg;
+	//	cap >> crossImg;
+	//	cap >> lineImg;
+
+
+	//	///////////////////////////////////
+	//	//float offset = FindLineInImageAndComputeOffset(lineFollowingImg); // Process camera image / locat line and compute offset from line
+
+	//	//FindCrossPoint(crossImg);
+	//	//FindCornerPoint(crossImg);
+	//	//FindLine(lineImg);
+	//	//bool ret = FindGoalArea(camera);
+	//	//if (ret) printf("Find GoalArea!!!!!\n");
+	//	//FindRedDot(camera);
+	//	//bool ret = FindCrossArea(camera);
+	//	//if(ret) printf("Find CrossArea!!!!!\n");
+	//	///////////////////////////////////
 	//}
-
-	//createTrackbar("Min Threshold:", "A", &lowThreshold, 100, CannyThreshold);
-
-	double t = (double)getTickCount();
-	// do something ...
-	//t = ((double)getTickCount() - t)/getTickFrequency();
-	//cout << "Times passed in seconds: " << t << endl;
-
-	cap >> camera;
-
-
-	Mat new_image;
-
-	while (1) {
-
-		t = (double)getTickCount() - t;
-
-		cap >> camera;
-		cap >> lineFollowingImg;
-		cap >> crossImg;
-		cap >> lineImg;
-
-
-		///////////////////////////////////
-		//float offset = FindLineInImageAndComputeOffset(lineFollowingImg); // Process camera image / locat line and compute offset from line
-
-		//FindCrossPoint(crossImg);
-		//FindCornerPoint(crossImg);
-		//FindLine(lineImg);
-		//bool ret = FindGoalArea(camera);
-		//if (ret) printf("Find GoalArea!!!!!\n");
-		//FindRedDot(camera);
-		//bool ret = FindCrossArea(camera);
-		//if(ret) printf("Find CrossArea!!!!!\n");
-		///////////////////////////////////
-	}
 }
 
 void RobotVisionManager::initialize(VisionParameter param)

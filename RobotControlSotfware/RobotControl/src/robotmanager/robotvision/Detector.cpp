@@ -55,7 +55,7 @@ bool Detector::findRedDot(cv::Mat& CameraImage,bool bDebug)
 	{
 		rectangle(CameraImage, RoiRec, ROI_COLOR2, 3); // draw region of interest on camera image
 		imshow("threshold_redDot", threshold);
-		imshow("result", result);
+		imshow("result_redDot", result);
 
 		for (size_t current_circle = 0; current_circle < circles.size(); ++current_circle)
 		{
@@ -63,6 +63,7 @@ bool Detector::findRedDot(cv::Mat& CameraImage,bool bDebug)
 			int radius = std::round(circles[current_circle][2]);
 			cv::circle(CameraImage, cvPoint(center.x + RoiRec.x, center.y + RoiRec.y), radius, cv::Scalar(0, 255, 0), 5);
 		}
+		imshow("camera_reddot", CameraImage);
 	}
 
 	return ret;
@@ -94,9 +95,10 @@ bool Detector::findGoalArea(cv::Mat& CameraImage, const float thresBlueAreaOfROI
 	{
 		rectangle(CameraImage, RoiRec, ROI_COLOR3, 3); // draw region of interest on camera image
 		imshow("threshold_goalArea", threshold);
-		imshow("result", result);
+		imshow("result_goalArea", result);
 
 		cout << "area" << RoiRec.area() << " bluepoint:" << cnt << endl;
+		imshow("camera_goal", CameraImage);
 	}
 
 	if (cnt > (RoiRec.area()*thresBlueAreaOfROI))
@@ -130,21 +132,67 @@ bool Detector::findCrossArea(cv::Mat& CameraImage, const float thresCrossAreaOfR
 
 	findContours(dilateImg, contours, hierarchy, RETR_LIST, CHAIN_APPROX_SIMPLE);// Find the contours of the frame
 
-	if (bDebug)
-	{
-		rectangle(CameraImage, RoiRec, ROI_COLOR, 3); // draw region of interest on camera image
-	}
+
+	//////////////////////////////////
+	//	find corner
+	//Mat dst, dst_norm, dst_norm_scaled;
+	//dst = Mat::zeros(dst.size(), CV_32FC1);
+
+	//// Detecting corners
+	//cornerHarris(mono, dst, 7, 5, 0.05, BORDER_DEFAULT);
+
+	//// Normalizing
+	//normalize(dst, dst_norm, 0, 255, NORM_MINMAX, CV_32FC1, Mat());
+	//convertScaleAbs(dst_norm, dst_norm_scaled);
+
+	//int cnt = 0;
+	//// Drawing a circle around corners
+	//for (int j = 0; j < dst_norm.rows; j++)
+	//{
+	//	for (int i = 0; i < dst_norm.cols; i++)
+	//	{
+	//		if ((int)dst_norm.at<float>(j, i) > 200)
+	//		{
+	//			//if(bDebug) circle(CameraImage, Point(i+RoiRec.x, j+RoiRec.y), 5, Scalar(0, 255, 0), 2, 8, 0);
+	//			cnt++;
+	//		}
+	//	}
+	//}
+	//////////////////////////////////////
 
 	double minMaxCx = -DBL_MAX;
 	Rect selected_edge(0, 0, 0, 0); //Edge beging followed
 	Rect nav_point(0, 0, 0, 0);
+	double area, width;
+
 	for (unsigned int i = 0; i<contours.size(); i++)  //Find the biggest contour 
 	{
-		Moments mu = moments(contours[i]);
+		//Moments mu = moments(contours[i]);
+		Rect r = boundingRect(contours[i]);
+		area = r.area();
 
-		if (mu.m00 >(RoiRec.area()*thresCrossAreaOfROI)) ret = true;
+		//if (mu.m00 > minMaxCx) minMaxCx = mu.m00;
+		if (area > minMaxCx) {
+			minMaxCx = area;
+			width = r.width;
+		}
 
+		//if (mu.m00 > (RoiRec.area()*thresCrossAreaOfROI))
+		if (area > (RoiRec.area()*thresCrossAreaOfROI))
+		//if(area > (RoiRec.area()*thresCrossAreaOfROI) && cnt >= 2)   // corner+
+		{
+			ret = true;
+		}
 	}
+
+	if (bDebug)
+	{
+		rectangle(CameraImage, RoiRec, ROI_COLOR, 3); // draw region of interest on camera image
+		imshow("camera_cross", CameraImage);
+		cout << "ROI_area" << RoiRec.area() << " cross_area:" << minMaxCx << " width: " << width <<  endl;
+		//cout << cnt << endl;
+	}
+	
 
 	return ret;
 }
