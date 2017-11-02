@@ -1,6 +1,4 @@
-#include "stdafx.h"
-#include "Detector.h"
-
+#include "include/Detector.h"
 
 static const cv::Scalar ROI_COLOR(0.0, 255.0, 0.0);
 static const cv::Scalar ROI_COLOR2(255.0, 0.0, 255.0); // for find reddot
@@ -59,8 +57,8 @@ bool Detector::findRedDot(cv::Mat& CameraImage,bool bDebug)
 
 		for (size_t current_circle = 0; current_circle < circles.size(); ++current_circle)
 		{
-			cv::Point center(std::round(circles[current_circle][0]), std::round(circles[current_circle][1]));
-			int radius = std::round(circles[current_circle][2]);
+			cv::Point center(round(circles[current_circle][0]), round(circles[current_circle][1]));
+			int radius = round(circles[current_circle][2]);
 			cv::circle(CameraImage, cvPoint(center.x + RoiRec.x, center.y + RoiRec.y), radius, cv::Scalar(0, 255, 0), 5);
 		}
 		imshow("camera_reddot", CameraImage);
@@ -73,7 +71,7 @@ bool Detector::findGoalArea(cv::Mat& CameraImage, const float thresBlueAreaOfROI
 {
 	bool ret = false;
 
-	//const float thresBlueAreaOfROI = 0.2;  // blue point °¹¼ö ºñÀ² // need tuning
+	//const float thresBlueAreaOfROI = 0.2;  // blue point ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ // need tuning
 
 	Rect RoiRec(10, 3 * CameraImage.rows / 4, CameraImage.cols - 20, CameraImage.rows / 12); //Define region of interest rectangle
 
@@ -111,7 +109,7 @@ bool Detector::findGoalArea(cv::Mat& CameraImage, const float thresBlueAreaOfROI
 
 bool Detector::findCrossArea(cv::Mat& CameraImage, const float thresCrossAreaOfROI, bool bDebug)
 {
-	//const float thresCrossAreaOfROI = 0.5; // ROI¿¡¼­ Â÷ÁöÇÏ´Â Cross AreaÀÇ ºñÀ²
+	//const float thresCrossAreaOfROI = 0.5; // ROIï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ Cross Areaï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 	bool ret = false;
 
 	vector<vector<Point> > contours;
@@ -261,7 +259,7 @@ float Detector::FindLineInImageAndComputeOffset(cv::Mat& CameraImage, bool bDebu
 	line(CameraImage, Point(CameraImage.cols / 2, 0), Point(CameraImage.cols / 2, CameraImage.rows), Scalar(0, 0, 0), 2, 8);
 	//if (!IsPi3) imshow( "processed", dilateImg );
 	offsetfromcenter = 1.0f - 2.0f*(float)minMaxCx / roi.cols;
-	sprintf_s(text, "Nav Value %f", offsetfromcenter);
+	sprintf(text, "Nav Value %f", offsetfromcenter);
 	cv::putText(CameraImage, text, cv::Point(10, 50), CV_FONT_HERSHEY_PLAIN, 2, CV_RGB(0, 0, 0), 3);
 	return offsetfromcenter + FUDGE_BIAS;
 }
