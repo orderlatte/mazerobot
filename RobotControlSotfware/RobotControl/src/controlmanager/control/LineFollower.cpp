@@ -86,6 +86,7 @@ static void  Setup_Control_C_Signal_Handler_And_Keyboard_No_Enter(void);
 static void  CleanUp(void);
 static void  Control_C_Handler(int s);
 static void  HandleInputChar(void);
+static void  stopRobot(int direction);
 
 //----------------------------------------------------------------
 // main - This is the main program for the line follower and 
@@ -150,26 +151,25 @@ int main(int argc, const char** argv)
 
   if (!IsPi3) namedWindow( "camera", CV_WINDOW_AUTOSIZE ); // If not running on PI3 open local Window
  
- //if (!IsPi3) namedWindow( "processed", CV_WINDOW_AUTOSIZE );  // If not running on PI3 open local Window
+  sensor_manager_main(&stopRobot);
+  servos_manager_main();
+  //if (!IsPi3) namedWindow( "processed", CV_WINDOW_AUTOSIZE );  // If not running on PI3 open local Window
+
   do
    {
-	sensor_manager_main();
-	servos_manager_main();
-
     iplCameraImage = cvQueryFrame(capture); // Get Camera image
     image= cv::cvarrToMat(iplCameraImage);  // Convert Camera image to Mat format
     if (IsPi3) flip(image, image,-1);       // if running on PI3 flip(-1)=180 degrees
 
     offset=FindLineInImageAndComputeOffset(image); // Process camera image / locat line and compute offset from line
 
-	VideoSender.UdpSendImageAsJpeg(image);
+	VideoSender.SetImage(&image);
   
     if (!IsPi3) imshow("camera", image );             // Show image locally if not running on PI 3
     HandleInputChar();                                // Handle Keyboard Input
     if (!IsPi3) cv::waitKey(1);                       // must be call show image locally work with imshow
 
   } while (1);
-
 
   return 0;
 }
@@ -265,8 +265,24 @@ static void HandleInputChar(void)
 	{
 		robot_mode_setting(ROBOT_STOP,offset);
 	}
-	
+}
 
+static void stopRobot(int direction)
+{
+	switch (direction) {
+	case 1: 	// Forward
+		// TODO: Stop robot
+		break;
+	case 2:		// Right
+		// TODO: Turn left
+		break;
+	case 3:		// Left
+		// TODO: Turn right
+		break;
+	default:
+		printf("Direction(%d) is invalid!", direction);
+		break;
+	}
 }
 
 //-----------------------------------------------------------------

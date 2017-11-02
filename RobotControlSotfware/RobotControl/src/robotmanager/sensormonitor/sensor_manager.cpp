@@ -27,6 +27,8 @@ int32_t laser_right(void);
 int32_t laser_left(void);
 
 T_SensorData sensor_data = {0,};
+T_CellData cell_data = {0, };
+fp_robot_stop stopRobot;
 
 unsigned int timing;
 
@@ -39,17 +41,27 @@ void *sonar_thread(void *value) {
 
 	while (1) {
 		sensor_data.sonar_distance= sonar();
+		// If distance of sonar is less than threshold, call stopRobot callback to handle robot at control manager;
+		// Example)
+		// if (threshold < 4) {
+		//     stopRobot(1);
+		// }
 	}
 }
 
 //----------------------
-// Sonar Thread
+// Laser Thread
 //----------------------
 void *laser_thread(void *value) {
 
 	while (1) {
 		sensor_data.laser_left_distance = laser_left();
 		sensor_data.laser_right_distance = laser_right();
+		// If distance of laser is less than threshold, call stopRobot callback to handle robot at control manager;
+		// Example)
+		// if (threshold < 4) {
+		//     stopRobot(2);
+		// }
 	}
 }
 
@@ -88,7 +100,7 @@ void laser_init(void)
 
 
 
-void sensor_manager_init(void)
+void sensor_manager_init(fp_robot_stop fpstop)
 {
 	static unsigned char sensor_manager_initialize_flag = 0;
 
@@ -101,6 +113,7 @@ void sensor_manager_init(void)
 		laser_init();
 		creat_thread();
 		sensor_manager_initialize_flag = 1;
+		stopRobot = fpstop;
 	}
 }
 
@@ -209,13 +222,17 @@ unsigned int GetTiming(int object_number)
 
 
 
-void sensor_manager_main(void)
+void sensor_manager_main(fp_robot_stop fpstop)
 {
-	sensor_manager_init();	
+	sensor_manager_init(fpstop);
 }
 
 T_SensorData get_sensor_data(void)
 {
 	return sensor_data;
+}
+
+T_CellData get_CellData(void) {
+	return cell_data;
 }
 
