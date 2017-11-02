@@ -29,5 +29,6 @@ public:
 	bool findGoalArea(cv::Mat& CameraImage, const float thresBlueAreaOfROI, bool  bDebug=false);
 	bool findCrossArea(cv::Mat& CameraImage, const float thresCrossAreaOfROI, bool bDebug=false);
 	float FindLineInImageAndComputeOffset(cv::Mat& CameraImage, bool bDebug = false);
+	float FindLineInImageAndComputeOffsetAndWidth(cv::Mat& CameraImage, int& selectedWidth, bool bDebug = false);
 };
 

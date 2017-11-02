@@ -1,4 +1,4 @@
-#include "include/Recognizer.h"
+#include "Recognizer.h"
 
 
 Recognizer::Recognizer()
