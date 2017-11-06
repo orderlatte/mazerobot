@@ -34,6 +34,7 @@
 #include "UdpSendJpeg.h"
 #include "UdpSendMap.h"
 #include "KeyboardSetup.h"
+#include "RobotVisionManager.h"
 
 #ifndef UBUNTU		// For building in ubuntu. Below code sould be built in raspberry pi.
 #include <wiringPi.h>
@@ -69,7 +70,7 @@ static int            AWidth;
 static int            AHeight;
 static int            Pan;
 static int            Tilt;
-static CvCapture *    capture=NULL;
+//static CvCapture *    capture=NULL;
 static UdpSendJpeg    VideoSender;
 static UdpSendMap	  MapSender;
 static TPID           PID;  
@@ -122,31 +123,40 @@ int main(int argc, const char** argv)
 	  return(-1);
   }
 
-  printf("cvCreateCameraCapture()\n");
 
-  capture =cvCreateCameraCapture(0);   // Open default Camera
-    if(!capture)
-      {
-        printf("Camera Not Initialized\n");
-        CleanUp();
-        return 0;
-      }
 
-  if (cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH,WIDTH)==0) // Set camera width 
-    {
-      printf("cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH,WIDTH) Failed)\n");
-    }
 
- if (cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT,HEIGHT)==0) // Set camera height
-    {
-      printf("cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT,HEIGHT) Failed)\n");
-    }
 
-  AWidth=cvGetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH);
-  AHeight=cvGetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT);
+//  printf("cvCreateCameraCapture()\n");
+//
+//
+//  capture =cvCreateCameraCapture(0);   // Open default Camera
+//    if(!capture)
+//      {
+//        printf("Camera Not Initialized\n");
+//        CleanUp();
+//        return 0;
+//      }
+//
+//  if (cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH,WIDTH)==0) // Set camera width
+//    {
+//      printf("cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH,WIDTH) Failed)\n");
+//    }
+//
+// if (cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT,HEIGHT)==0) // Set camera height
+//    {
+//      printf("cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT,HEIGHT) Failed)\n");
+//    }
+//
+//  AWidth=cvGetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH);
+//  AHeight=cvGetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT);
+//
+//
+//  printf("Width = %d\n",AWidth );
+//  printf("Height = %d\n", AHeight);
 
-  printf("Width = %d\n",AWidth );
-  printf("Height = %d\n", AHeight);
+
+  RobotVisionManager rvm;
 
   if (!IsPi3) namedWindow( "camera", CV_WINDOW_AUTOSIZE ); // If not running on PI3 open local Window
  
@@ -156,11 +166,15 @@ int main(int argc, const char** argv)
 	sensor_manager_main();
 	servos_manager_main();
 
-    iplCameraImage = cvQueryFrame(capture); // Get Camera image
-    image= cv::cvarrToMat(iplCameraImage);  // Convert Camera image to Mat format
+    //iplCameraImage = cvQueryFrame(capture); // Get Camera image
+	//image= cv::cvarrToMat(iplCameraImage);  // Convert Camera image to Mat format
+
+	rvm.GetCamImage(image);  // Get Camera image
+
     if (IsPi3) flip(image, image,-1);       // if running on PI3 flip(-1)=180 degrees
 
-    offset=FindLineInImageAndComputeOffset(image); // Process camera image / locat line and compute offset from line
+    //offset=FindLineInImageAndComputeOffset(image); // Process camera image / locat line and compute offset from line
+    offset=rvm.FindLineInImageAndComputeOffset(image);
 
 	VideoSender.UdpSendImageAsJpeg(image);
   
@@ -204,11 +218,11 @@ static void CleanUp(void)
 {
  RestoreKeyboard();                // restore Keyboard
  
-  if (capture!=NULL)  
-      {
-       cvReleaseCapture(&capture); // Close camera
-       capture=NULL;
-      }
+//  if (capture!=NULL)
+//      {
+//       cvReleaseCapture(&capture); // Close camera
+//       capture=NULL;
+//      }
 
  VideoSender.CloseUdp();
  MapSender.CloseUdp();
