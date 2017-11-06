@@ -68,6 +68,8 @@ using namespace std;
 
 
 
+static int            AWidth;
+static int            AHeight;
 static int            Pan;
 static int            Tilt;
 //static CvCapture *    capture=NULL;
@@ -95,7 +97,9 @@ static void  stopRobot(int direction);
 //-----------------------------------------------------------------
 int main(int argc, const char** argv)
 {
+  IplImage * iplCameraImage; // camera image in IplImage format 
   Mat        image;          // camera image in Mat format 
+
 
 
    if (argc !=4) {
@@ -104,6 +108,8 @@ int main(int argc, const char** argv)
     }
 
   Setup_Control_C_Signal_Handler_And_Keyboard_No_Enter(); // Set Control-c handler to properly exit cleanly 
+
+
 
 
   if (VideoSender.OpenUdp(argv[1],argv[2]) == 0) // Setup remote network destination to send images
@@ -158,9 +164,14 @@ int main(int argc, const char** argv)
   if (!IsPi3) namedWindow( "camera", CV_WINDOW_AUTOSIZE ); // If not running on PI3 open local Window
  
  //if (!IsPi3) namedWindow( "processed", CV_WINDOW_AUTOSIZE );  // If not running on PI3 open local Window
+
+  sensor_manager_main(&stopRobot);
+  servos_manager_main();
+
+
   do
    {
-//    iplCameraImage = cvQueryFrame(capture); // Get Camera image
+
 
     //iplCameraImage = cvQueryFrame(capture); // Get Camera image
 	//image= cv::cvarrToMat(iplCameraImage);  // Convert Camera image to Mat format
@@ -179,6 +190,7 @@ int main(int argc, const char** argv)
     if (!IsPi3) cv::waitKey(1);                       // must be call show image locally work with imshow
 
   } while (1);
+
 
   return 0;
 }

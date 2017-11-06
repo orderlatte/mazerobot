@@ -11,7 +11,7 @@
 #define WIDTH 640
 #define HEIGHT 480
 
-//static CvCapture *    capture=NULL;
+static CvCapture *    capture=NULL;
 
 
 RobotVisionManager::RobotVisionManager()
@@ -70,12 +70,6 @@ bool RobotVisionManager::Initialize()
 
 	//return true;
 
-//	if (capture != NULL)
-//	{
-//		cvReleaseCapture(&capture); // Close camera
-//		capture = NULL;
-//	}
-//
 //	capture = cvCreateCameraCapture(0);   // Open default Camera
 //	if (!capture)
 //	{
