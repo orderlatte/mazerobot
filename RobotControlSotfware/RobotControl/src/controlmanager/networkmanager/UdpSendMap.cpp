@@ -162,8 +162,8 @@ int UdpSendMap::OpenUdp(const char *remotehostname, const char *remoteportno) {
 
 	// For debugging
 	printf("Map size: %d\n", size);
-	printf("int size: %d\n", sizeof(int));
-	printf("double size: %d\n", sizeof(double));
+	printf("int size: %d\n", (int)sizeof(int));
+	printf("double size: %d\n", (int)sizeof(double));
 
 	// Start thread for sending map to Remote UI
 	CreateThreadToSendMap();

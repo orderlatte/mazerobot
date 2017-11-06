@@ -11,6 +11,8 @@
 #define WIDTH 640
 #define HEIGHT 480
 
+static CvCapture *    capture=NULL;
+
 
 RobotVisionManager::RobotVisionManager()
 {
@@ -21,6 +23,8 @@ RobotVisionManager::RobotVisionManager()
 
 	m_sParameter.thresBlueAreaOfROI = (float)0.2;
 	m_sParameter.thresCrossAreaOfROI = (float)0.7;
+
+	//cout << "camera open try...!!!" << endl;
 
 	if(!Initialize()) cout<< "[RobotVisionManager] Initialization fail !!!!!!" << endl;
 }
@@ -36,45 +40,57 @@ RobotVisionManager::~RobotVisionManager()
 		cap.release();
 	}
 
-	//if (capture != NULL)
-	//{
-	//	cvReleaseCapture(&capture); // Close camera
-	//	capture = NULL;
-	//}
+//	if (capture != NULL)
+//	{
+//		cvReleaseCapture(&capture); // Close camera
+//		capture = NULL;
+//	}
 }
 
 bool RobotVisionManager::Initialize()
 {
+	if (cap.isOpened())
+	{
+		cap.release();
+	}
+
 	if (!cap.open(0))
 	{
+		cap.set(CAP_PROP_FRAME_WIDTH, WIDTH);
+		cap.set(CAP_PROP_FRAME_HEIGHT, HEIGHT);
+
 		fprintf(stderr, "Camera Failed to Initialize\n");
 		return false;
 	}
+
+	cout << "camera open success!!!" << endl;
+
 	cap.set(CAP_PROP_FRAME_WIDTH, WIDTH);
 	cap.set(CAP_PROP_FRAME_HEIGHT, HEIGHT);
 
-	return true;
+	//return true;
 
-	//capture = cvCreateCameraCapture(0);   // Open default Camera
-	//if (!capture)
-	//{
-	//	printf("Camera Not Initialized\n");
-	//	//CleanUp();
-	//	return 0;
-	//}
-
-	//if (cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH, WIDTH) == 0) // Set camera width 
-	//{
-	//	printf("cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH,WIDTH) Failed)\n");
-	//}
-
-	//if (cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT, HEIGHT) == 0) // Set camera height
-	//{
-	//	printf("cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT,HEIGHT) Failed)\n");
-	//}
+//	capture = cvCreateCameraCapture(0);   // Open default Camera
+//	if (!capture)
+//	{
+//		printf("Camera Not Initialized\n");
+//		//CleanUp();
+//		return 0;
+//	}
+//
+//	if (cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH, WIDTH) == 0) // Set camera width
+//	{
+//		printf("cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH,WIDTH) Failed)\n");
+//	}
+//
+//	if (cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT, HEIGHT) == 0) // Set camera height
+//	{
+//		printf("cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT,HEIGHT) Failed)\n");
+//	}
 
 	//AWidth = cvGetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH);
 	//AHeight = cvGetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT);
+	return true;
 }
 
 void RobotVisionManager::Initialize(VisionParameter param)
@@ -144,8 +160,6 @@ float RobotVisionManager::FindLineInImageAndComputeOffsetAndWidth(cv::Mat& camer
 {
 	return m_detector->FindLineInImageAndComputeOffsetAndWidth(cameraimg, selectedWidth, m_bDebug);
 }
-
-
 
 void RobotVisionManager::SetDebug(bool bDebug)
 {
