@@ -32,13 +32,23 @@ public:
 	RobotVisionManager();
 	~RobotVisionManager();
 
-	void initialize();
-	void initialize(VisionParameter param);
-	bool findRedDot();
-	bool findGoalArea();
-	bool findCrossArea();
+	bool Initialize();
+	void Initialize(VisionParameter param);
+	bool FindRedDot();
+	bool FindGoalArea();
+	bool FindCrossArea();
 	float FindLineInImageAndComputeOffset();
-	void setDebug(bool bDebug);
+	float FindLineInImageAndComputeOffsetAndWidth(int& selectedWidth);
+
+	bool FindRedDot(cv::Mat& cameraimg);
+	bool FindGoalArea(cv::Mat& cameraimg);
+	bool FindCrossArea(cv::Mat& cameraimg);
+	float FindLineInImageAndComputeOffset(cv::Mat& cameraimg);
+	float FindLineInImageAndComputeOffsetAndWidth(cv::Mat& camimage, int& selectedWidth);
+
+	bool GetCamImage(cv::Mat& capimage);
+
+	void SetDebug(bool bDebug);
 
 private:
 	VisionParameter m_sParameter;
@@ -48,8 +58,5 @@ private:
 	bool m_bDebug;
 
 	VideoCapture cap;
-
-	
-
 };
 
