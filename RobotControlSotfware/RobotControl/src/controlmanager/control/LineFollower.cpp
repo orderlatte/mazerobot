@@ -31,10 +31,12 @@
 #include "PID.h"
 #include "Servos.h"
 #include "NetworkUDP.h"
-#include "UdpSendJpeg.h"
 #include "UdpSendMap.h"
 #include "KeyboardSetup.h"
 #include "RobotVisionManager.h"
+
+#include "UdpSendJpeg.h"
+#include "RobotStatus.h"
 
 #ifndef UBUNTU		// For building in ubuntu. Below code sould be built in raspberry pi.
 #include <wiringPi.h>
@@ -101,8 +103,6 @@ int main(int argc, const char** argv)
     }
 
   Setup_Control_C_Signal_Handler_And_Keyboard_No_Enter(); // Set Control-c handler to properly exit cleanly 
-
-
 
 
   if (VideoSender.OpenUdp(argv[1],argv[2]) == 0) // Setup remote network destination to send images
