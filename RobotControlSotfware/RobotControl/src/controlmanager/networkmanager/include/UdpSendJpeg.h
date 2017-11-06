@@ -8,6 +8,7 @@
 #ifndef UDPSendJPEGH
 #define UDPSendJPEGH
 
+#include <thread>
 #include <opencv2/highgui/highgui.hpp>
 #include "NetworkUDP.h"
 
@@ -17,11 +18,17 @@ private:
 	TUdpLocalPort *UdpLocalPort=NULL;
 	TUdpDest      *UdpDest=NULL;
 	NetworkUDP     UdpSender;
+	std::thread	  *JpegThread=NULL;
 
 public:
 	int OpenUdp(const char *remotehostname, const char *remoteportno);
-	int UdpSendImageAsJpeg(cv::Mat Image);
+	void SetImage(cv::Mat *image);
 	void CloseUdp();
+
+
+private:
+	void SendJpeg();
+	void CreateThreadToSendJpeg(void);
 };
 
 

@@ -31,10 +31,12 @@
 #include "PID.h"
 #include "Servos.h"
 #include "NetworkUDP.h"
-#include "UdpSendJpeg.h"
 #include "UdpSendMap.h"
 #include "KeyboardSetup.h"
 #include "RobotVisionManager.h"
+
+#include "UdpSendJpeg.h"
+#include "RobotStatus.h"
 
 #ifndef UBUNTU		// For building in ubuntu. Below code sould be built in raspberry pi.
 #include <wiringPi.h>
@@ -66,8 +68,6 @@ using namespace std;
 
 
 
-static int            AWidth;
-static int            AHeight;
 static int            Pan;
 static int            Tilt;
 //static CvCapture *    capture=NULL;
@@ -87,6 +87,7 @@ static void  Setup_Control_C_Signal_Handler_And_Keyboard_No_Enter(void);
 static void  CleanUp(void);
 static void  Control_C_Handler(int s);
 static void  HandleInputChar(void);
+static void  stopRobot(int direction);
 
 //----------------------------------------------------------------
 // main - This is the main program for the line follower and 
@@ -94,9 +95,7 @@ static void  HandleInputChar(void);
 //-----------------------------------------------------------------
 int main(int argc, const char** argv)
 {
-  IplImage * iplCameraImage; // camera image in IplImage format 
   Mat        image;          // camera image in Mat format 
-
 
 
    if (argc !=4) {
@@ -105,8 +104,6 @@ int main(int argc, const char** argv)
     }
 
   Setup_Control_C_Signal_Handler_And_Keyboard_No_Enter(); // Set Control-c handler to properly exit cleanly 
-
-
 
 
   if (VideoSender.OpenUdp(argv[1],argv[2]) == 0) // Setup remote network destination to send images
@@ -163,8 +160,7 @@ int main(int argc, const char** argv)
  //if (!IsPi3) namedWindow( "processed", CV_WINDOW_AUTOSIZE );  // If not running on PI3 open local Window
   do
    {
-	sensor_manager_main();
-	servos_manager_main();
+//    iplCameraImage = cvQueryFrame(capture); // Get Camera image
 
     //iplCameraImage = cvQueryFrame(capture); // Get Camera image
 	//image= cv::cvarrToMat(iplCameraImage);  // Convert Camera image to Mat format
@@ -176,14 +172,13 @@ int main(int argc, const char** argv)
     //offset=FindLineInImageAndComputeOffset(image); // Process camera image / locat line and compute offset from line
     offset=rvm.FindLineInImageAndComputeOffset(image);
 
-	VideoSender.UdpSendImageAsJpeg(image);
+	VideoSender.SetImage(&image);
   
     if (!IsPi3) imshow("camera", image );             // Show image locally if not running on PI 3
     HandleInputChar();                                // Handle Keyboard Input
     if (!IsPi3) cv::waitKey(1);                       // must be call show image locally work with imshow
 
   } while (1);
-
 
   return 0;
 }
@@ -279,8 +274,24 @@ static void HandleInputChar(void)
 	{
 		robot_mode_setting(ROBOT_STOP,offset);
 	}
-	
+}
 
+static void stopRobot(int direction)
+{
+	switch (direction) {
+	case 1: 	// Forward
+		// TODO: Stop robot
+		break;
+	case 2:		// Right
+		// TODO: Turn left
+		break;
+	case 3:		// Left
+		// TODO: Turn right
+		break;
+	default:
+		printf("Direction(%d) is invalid!", direction);
+		break;
+	}
 }
 
 //-----------------------------------------------------------------

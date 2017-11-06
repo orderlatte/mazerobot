@@ -1,7 +1,5 @@
 package robot_algorithm;
 
-import robot_algorithm.Maze.Position;
-
 public class Cell {
 	byte[] data = new byte[8];
 
@@ -18,10 +16,6 @@ public class Cell {
 	
 	public byte[] getCellAsBytes(){
 		return data;
-	}
-
-	public void setCell(byte[] cell) {
-
 	}
 
 	public boolean hasCheckedCell() {
@@ -45,12 +39,6 @@ public class Cell {
 		return ds;
 	}
 	
-	public boolean hasRobot() {
-		if (this.data[0] != 0x0)
-			return true;
-		return false;
-	}
-
 	class DirectionSet {
 		boolean east = false;
 		boolean west = false;

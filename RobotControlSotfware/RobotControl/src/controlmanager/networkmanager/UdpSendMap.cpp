@@ -9,11 +9,12 @@
 #include <stdlib.h>
 #include <iostream>
 #include <cstring>
+#include <mutex>
 #include "UdpSendMap.h"
 
 using namespace std;
 
-#define MAP_SIZE (20*20*sizeof(double)
+#define MAP_SIZE (20*20*sizeof(double))
 
 // For testing
 static double map1[20][20] =
@@ -131,6 +132,8 @@ static double map5[20][20] =
 		{0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000},	//20
 };
 
+static std::mutex mapmutex;
+
 int UdpSendMap::OpenUdp(const char *remotehostname, const char *remoteportno) {
 	if ((UdpLocalPort=UdpMapSender.OpenUdpPort(0))==NULL)  // Open UDP Network port
 	{
@@ -146,18 +149,21 @@ int UdpSendMap::OpenUdp(const char *remotehostname, const char *remoteportno) {
 		return 0;
 	}
 
-	// TODO: Eliminate after testing
-	// For testing
-	MapSize = sizeof(unsigned char) + (sizeof(unsigned char)*MAP_SIZE)); // 1 byte header + (20 x 20 map and 8byte map information)
-	Map = (unsigned char *)malloc(MapSize);
+	int size = sizeof(unsigned char) + (sizeof(unsigned char)*MAP_SIZE); // 1 byte header + (20 x 20 map and 8byte map information)
+	Map = (unsigned char *)malloc(size);
+	memset(Map, 0x00, size);
+
 	unsigned char header = 0x4;
 	std::memcpy(Map, &header, sizeof(unsigned char));
-	std::memcpy(Map+sizeof(unsigned char), &map1, MAP_SIZE));
+
+	// TODO: Eliminate after testing
+	// For testing
+	std::memcpy(Map+sizeof(unsigned char), &map1, MAP_SIZE);
 
 	// For debugging
-	printf("Map size: %d\n", MapSize);
-	printf("int size: %d\n", sizeof(int));
-	printf("double size: %d\n", sizeof(double));
+	printf("Map size: %d\n", size);
+	printf("int size: %d\n", (int)sizeof(int));
+	printf("double size: %d\n", (int)sizeof(double));
 
 	// Start thread for sending map to Remote UI
 	CreateThreadToSendMap();
@@ -172,6 +178,10 @@ int UdpSendMap::OpenUdp(const char *remotehostname, const char *remoteportno) {
 //-----------------------------------------------------------------
 void UdpSendMap::SetMap(unsigned char *map)
 {
+	mapmutex.lock();
+	std::memcpy(Map+sizeof(unsigned char), &map1, MAP_SIZE);
+	mapmutex.unlock();
+
 	return;
 }
 
@@ -200,9 +210,11 @@ void UdpSendMap::SendMap()
 			continue;
 		}
 
-		if((UdpMapSender.SendUDPMsg(UdpLocalPort, UdpDest, Map+sizeof(unsigned char), MapSize)) == -1) {
+		mapmutex.lock();
+		if((UdpMapSender.SendUDPMsg(UdpLocalPort, UdpDest, Map+sizeof(unsigned char), MAP_SIZE)) == -1) {
 			printf("Error to send map to Remote UI");
 		}
+		mapmutex.unlock();
 
 		// For debugging
 		printf("Send map!\n");
@@ -214,16 +226,16 @@ void UdpSendMap::SendMap()
 
 		switch (count) {
 		case 3:
-			std::memcpy(Map+sizeof(unsigned char), &map2, MAP_SIZE));
+			std::memcpy(Map+sizeof(unsigned char), &map2, MAP_SIZE);
 			break;
 		case 6:
-			std::memcpy(Map+sizeof(unsigned char), &map3, MAP_SIZE));
+			std::memcpy(Map+sizeof(unsigned char), &map3, MAP_SIZE);
 			break;
 		case 9:
-			std::memcpy(Map+sizeof(unsigned char), &map4, MAP_SIZE));
+			std::memcpy(Map+sizeof(unsigned char), &map4, MAP_SIZE);
 			break;
 		case 12:
-			std::memcpy(Map+sizeof(unsigned char), &map5, MAP_SIZE));
+			std::memcpy(Map+sizeof(unsigned char), &map5, MAP_SIZE);
 			count =0;
 			break;
 		}

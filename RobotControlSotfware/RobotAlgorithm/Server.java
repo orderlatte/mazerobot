@@ -2,29 +2,16 @@ package robot_algorithm;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
 
 public class Server {
 
-	Maze maze = new Maze();
-	MazeSolver solver = new MazeSolver(maze);
-
 	public Server() throws Exception {
-
-		System.out.println("서버: Wating Connect ..");
-		Socket sock = new ServerSocket(19000).accept();
-
-		InetAddress inetaddr = sock.getInetAddress();
-		System.out.println("서버:connecting from " + inetaddr.getHostAddress());
-
-		PrintWriter pw = new PrintWriter(new OutputStreamWriter(sock.getOutputStream()));
+		System.out.println("Maze Solver Server Ready. Wait on port 31000");
+		Socket sock = new ServerSocket(31000).accept();
 		this.response(sock);
-
 		sock.close();
 	}
 
@@ -32,14 +19,18 @@ public class Server {
 		InputStream in = sock.getInputStream();
 		OutputStream out = sock.getOutputStream();
 		byte[] bytes = new byte[13];
+		Maze maze = new Maze();
+		MazeSolverAlgorithm solver = new MazeSolver_Test();
+		solver.init(maze);
 
 		while (true) {
 			in.read(bytes);
-			process(bytes, out);
+			process(bytes, out, solver, maze);
 		}
 	}
 
-	private void process(byte[] bytes, OutputStream out) throws Exception {
+	private void process(byte[] bytes, OutputStream out, MazeSolverAlgorithm solver, Maze maze) throws Exception {
+
 		switch (bytes[0]) {
 		case 0x1:// full map 요청
 			byte[] mazeBytes = maze.getMazeAsBytes();

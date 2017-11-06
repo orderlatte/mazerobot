@@ -18,7 +18,6 @@ private:
 	TUdpDest      *UdpDest=NULL;
 	NetworkUDP     UdpMapSender;
 	unsigned char *Map=NULL;
-	int			   MapSize=0;
 	std::thread	  *MapThread=NULL;
 
 public:
