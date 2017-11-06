@@ -8,8 +8,8 @@ public class Maze {
 	Cell[][] maze;
 	Position robot = new Position(0, 0);
 	
-	public static final int mx = 6;//20
-	public static final int my = 6;//10
+	public static final int mx = 20;
+	public static final int my = 20;
 
 	public Maze() {
 		maze = new Cell[my][mx];
@@ -19,7 +19,7 @@ public class Maze {
 	}
 
 	public byte[] getMazeAsBytes() {
-		byte[] rv = new byte[mx * my * 8];
+		byte[] rv = new byte[mx * my * 8 + 1];
 		int c = 0;
 		rv[c++] = 0x2;
 		for (int i = 0; i < my; i++)
@@ -61,6 +61,10 @@ public class Maze {
 
 	public Cell getRobotCell() {
 		return maze[this.robot.y][this.robot.x];
+	}
+	
+	public Position getRobotPosition(){
+		return this.robot;
 	}
 
 	class Position {
