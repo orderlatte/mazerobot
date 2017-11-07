@@ -8,8 +8,8 @@ public class Maze {
 	Cell[][] maze;
 	Position robot = new Position(0, 0);
 
-	public static final int mx = 20;
-	public static final int my = 20;
+	public static final int mx = 11;
+	public static final int my = 11;
 
 	public Maze() {
 		maze = new Cell[my][mx];

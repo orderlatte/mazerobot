@@ -3,7 +3,7 @@ package robot_algorithm;
 import java.util.HashSet;
 import java.util.Set;
 
-import robot_algorithm.Cell.DirectionSet;
+import robot_algorithm.Cell.DirectionWallSet;
 
 public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 
@@ -20,18 +20,25 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 	// 갈곳이없어서부모로돌아갈때위큐가비어있다면 풀리매핑!
 	@Override
 	public byte[] getNext() {
-
 		Position p = maze.getRobotPosition();
 		Node curNode = new Node(p);
+
+		System.out.println("==================================");
+		System.out.println("Unvisited : "+this.unvisitedNodes);
+		System.out.println("Visited : "+this.visitedNodes);
+		System.out.println("Current Node : "+curNode);
+		
 		curNode.visited = true;
 		this.unvisitedNodes.remove(curNode);
 		this.visitedNodes.add(curNode);
 
 		Node togo = null;
 		byte[] togoValue = null;
-		DirectionSet ds = maze.getRobotCell().getWall();
+		DirectionWallSet ds = maze.getRobotCell().getWall();
 
-		if (ds.east) {
+		
+		
+		if (!ds.east) {
 			Node east = new Node(p.getEast());
 			if (!visitedNodes.contains(east)) {
 				this.unvisitedNodes.add(east);
@@ -39,7 +46,7 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 				togoValue = EAST;
 			}
 		}
-		if (ds.south) {
+		if (!ds.south) {
 			Node south = new Node(p.getSouth());
 			if (!visitedNodes.contains(south)) {
 				this.unvisitedNodes.add(south);
@@ -49,7 +56,7 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 				}
 			}
 		}
-		if (ds.west) {
+		if (!ds.west) {
 			Node west = new Node(p.getWest());
 			if (!visitedNodes.contains(west)) {
 				this.unvisitedNodes.add(west);
@@ -59,7 +66,7 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 				}
 			}
 		}
-		if (ds.north) {
+		if (!ds.north) {
 			Node north = new Node(p.getNorth());
 			if (!visitedNodes.contains(north)) {
 				this.unvisitedNodes.add(north);
@@ -70,6 +77,9 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 			}
 		}
 
+		System.out.println("Unvisited : "+this.unvisitedNodes);
+		System.out.println("Visited : "+this.visitedNodes);
+		
 		if (togo == null) {
 			if (this.unvisitedNodes.size() == 0) {// fully mapping 완료
 				return FULLYMAPPED;
@@ -80,6 +90,12 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 			curNode.chilren.add(togo);
 			togo.parent = curNode;
 			return togoValue;
+		}
+	}
+	
+	public void printNodeSet(Set<Node> s){
+		for(Node n : s){
+			
 		}
 	}
 
@@ -123,5 +139,13 @@ class Node {
 	public boolean equals(Object obj) {
 		return this.cur.equals(((Node) obj).cur);
 	}
+
+	@Override
+	public String toString() {
+//		return "Node [cur=" + cur + ", parent=" + parent + ", chilren=" + chilren + "]";
+		return "Node [cur=" + cur;
+	}
+	
+	
 
 }
