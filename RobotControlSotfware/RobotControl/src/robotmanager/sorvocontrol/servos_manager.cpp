@@ -75,7 +75,7 @@ void robot_mode_setting(T_robot_moving_mode robot_moving_mode, float offset)
 			robot_line_tracking_operation(offset);
 		break;
 
-		case ROBOT_FOWARD_MOVING:
+		case ROBOT_FORWARD_MOVING:
 			SetWheelSpeed(BASESPEED, BASESPEED);
 		break;
 

@@ -41,11 +41,10 @@ void *sonar_thread(void *value) {
 
 	while (1) {
 		sensor_data.sonar_distance= sonar();
-		// If distance of sonar is less than threshold, call stopRobot callback to handle robot at control manager;
-		// Example)
-		// if (threshold < 4) {
-		//     stopRobot(1);
-		// }
+
+		if (sensor_data.sonar_distance < 4) {	// Below 4cm
+			stopRobot(SENSOR_TYPE_SONAR);
+		}
 	}
 }
 
@@ -57,11 +56,14 @@ void *laser_thread(void *value) {
 	while (1) {
 		sensor_data.laser_left_distance = laser_left();
 		sensor_data.laser_right_distance = laser_right();
-		// If distance of laser is less than threshold, call stopRobot callback to handle robot at control manager;
-		// Example)
-		// if (threshold < 4) {
-		//     stopRobot(2);
-		// }
+
+		if (sensor_data.laser_left_distance < 40) {	// Below 40mm (4cm)
+			stopRobot(SENSOR_TYPE_LASER_LEFT);
+		}
+
+		if (sensor_data.laser_right_distance < 40) {	// Below 40mm (4cm)
+			stopRobot(SENSOR_TYPE_LASER_RIGHT);
+		}
 	}
 }
 

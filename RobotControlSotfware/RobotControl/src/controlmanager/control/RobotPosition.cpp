@@ -5,23 +5,24 @@
 // 1.0 April 2017 - initial version
 // Send and receives OpenCV Mat Images in a UDP message commpressed as Jpeg images 
 //------------------------------------------------------------------------------------------------
+#include "RobotPosition.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
-#include "RobotStatus.h"
 
 using namespace std;
 
 
-RobotStatus::RobotStatus() {
+RobotPosition::RobotPosition() {
 	CurrentX = 10;
 	CurrentY = 10;
 	CurrentDirection = NORTH;
 	NextDirection = NORTH;
 }
 
-T_robot_moving_direction RobotStatus::SetDirectionToMove(int nextDirection) {
-	printf("NextDirection is %d", nextDirection);
+T_robot_moving_direction RobotPosition::SetEWSNDirectionToMove(int nextDirection) {
+	printf("NextEWSNDirection is %d\n", nextDirection);
 
 	NextDirection = nextDirection;
 
@@ -40,7 +41,7 @@ T_robot_moving_direction RobotStatus::SetDirectionToMove(int nextDirection) {
 	}
 }
 
-void RobotStatus::SuccessToMove() {
+void RobotPosition::SuccessToMove() {
 	switch(NextDirection) {
 	case EAST:
 		CurrentX += 1;
@@ -64,7 +65,11 @@ void RobotStatus::SuccessToMove() {
 	PrintDebugLog();
 }
 
-void RobotStatus::PrintDebugLog() {
+int RobotPosition::getCurrentEWSNDirection() {
+	return CurrentDirection;
+}
+
+void RobotPosition::PrintDebugLog() {
 	printf("CurrentX: %d\n", CurrentX);
 	printf("CurrentY: %d\n", CurrentY);
 	printf("CurrentDirection: %d\n", CurrentDirection);
@@ -73,7 +78,7 @@ void RobotStatus::PrintDebugLog() {
 
 
 
-T_robot_moving_direction RobotStatus::GetEastDirectionToMove(int direction) {
+T_robot_moving_direction RobotPosition::GetEastDirectionToMove(int direction) {
 	switch (direction) {
 	case EAST:
 		return ROBOT_MOVING_DIRECTION_FORWARD;
@@ -89,7 +94,7 @@ T_robot_moving_direction RobotStatus::GetEastDirectionToMove(int direction) {
 	}
 }
 
-T_robot_moving_direction RobotStatus::GetWestDirectionToMove(int direction) {
+T_robot_moving_direction RobotPosition::GetWestDirectionToMove(int direction) {
 	switch (direction) {
 	case EAST:
 		return ROBOT_MOVING_DIRECTION_BACK;
@@ -105,7 +110,7 @@ T_robot_moving_direction RobotStatus::GetWestDirectionToMove(int direction) {
 	}
 }
 
-T_robot_moving_direction RobotStatus::GetSouthDirectionToMove(int direction) {
+T_robot_moving_direction RobotPosition::GetSouthDirectionToMove(int direction) {
 	switch (direction) {
 	case EAST:
 		return ROBOT_MOVING_DIRECTION_LEFT;
@@ -121,7 +126,7 @@ T_robot_moving_direction RobotStatus::GetSouthDirectionToMove(int direction) {
 	}
 }
 
-T_robot_moving_direction RobotStatus::GetNorthDirectionToMove(int direction) {
+T_robot_moving_direction RobotPosition::GetNorthDirectionToMove(int direction) {
 	switch (direction) {
 	case EAST:
 		return ROBOT_MOVING_DIRECTION_RIGHT;
@@ -134,6 +139,109 @@ T_robot_moving_direction RobotStatus::GetNorthDirectionToMove(int direction) {
 	default:
 		printf("Fault - Unknown direction: %d\n", direction);
 		return ROBOT_MOVING_DIRECTION_ERROR;
+	}
+}
+
+
+void RobotPosition::SetDirectionToMove(T_robot_moving_direction nextDirection) {
+	printf("Next direction is %d\n", nextDirection);
+
+	switch (CurrentDirection) {
+	case EAST:
+		SetEastDirectionToMove(nextDirection);
+		break;
+	case WEST:
+		SetWestDirectionToMove(nextDirection);
+		break;
+	case SOUTH:
+		SetSouthDirectionToMove(nextDirection);
+		break;
+	case NORTH:
+		SetNorthDirectionToMove(nextDirection);
+		break;
+	default:
+		printf("It's not supported EWSN direction.(%d)\n", CurrentDirection);
+		break;
+	}
+}
+
+void RobotPosition::SetEastDirectionToMove(T_robot_moving_direction nextDirection) {
+	switch(nextDirection) {
+	case ROBOT_MOVING_DIRECTION_FORWARD:
+		NextDirection = EAST;
+		break;
+	case ROBOT_MOVING_DIRECTION_BACK:
+		NextDirection = WEST;
+		break;
+	case ROBOT_MOVING_DIRECTION_LEFT:
+		NextDirection = NORTH;
+		break;
+	case ROBOT_MOVING_DIRECTION_RIGHT:
+		NextDirection = SOUTH;
+		break;
+	default:
+		printf("It's not supported direction(%d)\n", nextDirection);
+		break;
+	}
+}
+
+void RobotPosition::SetWestDirectionToMove(T_robot_moving_direction nextDirection) {
+	switch(nextDirection) {
+	case ROBOT_MOVING_DIRECTION_FORWARD:
+		NextDirection = WEST;
+		break;
+	case ROBOT_MOVING_DIRECTION_BACK:
+		NextDirection = EAST;
+		break;
+	case ROBOT_MOVING_DIRECTION_LEFT:
+		NextDirection = SOUTH;
+		break;
+	case ROBOT_MOVING_DIRECTION_RIGHT:
+		NextDirection = NORTH;
+		break;
+	default:
+		printf("It's not supported direction(%d)\n", nextDirection);
+		break;
+	}
+}
+
+void RobotPosition::SetSouthDirectionToMove(T_robot_moving_direction nextDirection) {
+	switch(nextDirection) {
+	case ROBOT_MOVING_DIRECTION_FORWARD:
+		NextDirection = SOUTH;
+		break;
+	case ROBOT_MOVING_DIRECTION_BACK:
+		NextDirection = NORTH;
+		break;
+	case ROBOT_MOVING_DIRECTION_LEFT:
+		NextDirection = EAST;
+		break;
+	case ROBOT_MOVING_DIRECTION_RIGHT:
+		NextDirection = WEST;
+		break;
+	default:
+		printf("It's not supported direction(%d)\n", nextDirection);
+		break;
+	}
+}
+
+void RobotPosition::SetNorthDirectionToMove(T_robot_moving_direction nextDirection) {
+	switch(nextDirection) {
+	case ROBOT_MOVING_DIRECTION_FORWARD:
+		NextDirection = NORTH;
+		break;
+	case ROBOT_MOVING_DIRECTION_BACK:
+		NextDirection = SOUTH;
+		break;
+	case ROBOT_MOVING_DIRECTION_LEFT:
+		NextDirection = WEST;
+		break;
+	case ROBOT_MOVING_DIRECTION_RIGHT:
+		NextDirection = EAST;
+		break;
+	default:
+		printf("It's not supported direction(%d)\n", nextDirection);
+		break;
 	}
 }
 
