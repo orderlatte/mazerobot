@@ -8,6 +8,7 @@ import robot_algorithm.Cell.DirectionSet;
 public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 
 	private Set<Node> unvisitedNodes = new HashSet<>();
+	private Set<Node> visitedNodes = new HashSet<>();
 
 	// <<트래버설 알고리즘>>
 	// 1.동서남북 순서로 안간곳이면 거기로 간다
@@ -24,6 +25,7 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 		Node curNode = new Node(p);
 		curNode.visited = true;
 		this.unvisitedNodes.remove(curNode);
+		this.visitedNodes.add(curNode);
 
 		Node togo = null;
 		byte[] togoValue = null;
@@ -31,7 +33,7 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 
 		if (ds.east) {
 			Node east = new Node(p.getEast());
-			if (!curNode.chilren.contains(east) && !curNode.parent.equals(east)) {
+			if (!visitedNodes.contains(east)) {
 				this.unvisitedNodes.add(east);
 				togo = east;
 				togoValue = EAST;
@@ -39,7 +41,7 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 		}
 		if (ds.south) {
 			Node south = new Node(p.getSouth());
-			if (!curNode.chilren.contains(south) && !curNode.parent.equals(south)) {
+			if (!visitedNodes.contains(south)) {
 				this.unvisitedNodes.add(south);
 				if (togo == null) {
 					togo = south;
@@ -49,7 +51,7 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 		}
 		if (ds.west) {
 			Node west = new Node(p.getWest());
-			if (!curNode.chilren.contains(west) && !curNode.parent.equals(west)) {
+			if (!visitedNodes.contains(west)) {
 				this.unvisitedNodes.add(west);
 				if (togo == null) {
 					togo = west;
@@ -59,7 +61,7 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 		}
 		if (ds.north) {
 			Node north = new Node(p.getNorth());
-			if (!curNode.chilren.contains(north) && !curNode.parent.equals(north)) {
+			if (!visitedNodes.contains(north)) {
 				this.unvisitedNodes.add(north);
 				if (togo == null) {
 					togo = north;
@@ -72,7 +74,7 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 			if (this.unvisitedNodes.size() == 0) {// fully mapping 완료
 				return FULLYMAPPED;
 			} else {// 부모노드로 back 이동
-				return curNode.getParentDirection();
+				return curNode.getParentDirectionAsByte();
 			}
 		} else {//새로운 노드로 이동
 			curNode.chilren.add(togo);
@@ -96,7 +98,7 @@ class Node {
 		cur = p;
 	}
 
-	public byte[] getParentDirection() {
+	public byte[] getParentDirectionAsByte() {
 		int px = parent.cur.x;
 		int py = parent.cur.y;
 		if (px - cur.x == 0) {

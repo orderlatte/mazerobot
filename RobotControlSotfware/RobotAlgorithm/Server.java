@@ -20,7 +20,7 @@ public class Server {
 		OutputStream out = sock.getOutputStream();
 		byte[] bytes = new byte[13];
 		Maze maze = new Maze();
-		MazeSolverAlgorithm solver = new MazeSolver_Test();
+		MazeSolverAlgorithm solver = new MazeSolver_DepthFirst();
 		solver.init(maze);
 
 		while (true) {

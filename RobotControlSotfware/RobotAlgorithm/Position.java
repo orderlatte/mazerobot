@@ -2,30 +2,28 @@ package robot_algorithm;
 
 class Position {
 
-	private final Maze Position;
 	public int x;
 	public int y;
 
-	public Position(Maze maze, int x, int y) {
-		Position = maze;
+	public Position(int x, int y) {
 		this.x = x;
 		this.y = y;
 	}
 
 	public Position getEast() {
-		return new Position(Position, x + 1, y);
+		return new Position(x + 1, y);
 	}
 
 	public Position getSouth() {
-		return new Position(Position, x, y - 1);
+		return new Position(x, y - 1);
 	}
 
 	public Position getWest() {
-		return new Position(Position, x - 1, y);
+		return new Position(x - 1, y);
 	}
 
 	public Position getNorth() {
-		return new Position(Position, x, y + 1);
+		return new Position(x, y + 1);
 	}
 
 	@Override
