@@ -31,10 +31,10 @@ typedef struct visionParameter
 class RobotVisionManager
 {
 public:
+
 	RobotVisionManager();
 	~RobotVisionManager();
 
-	bool Initialize();
 	void Initialize(VisionParameter param);
 	bool FindRedDot();
 	bool FindGoalArea();
@@ -55,6 +55,10 @@ public:
 	int RecognizeImage(cv::Mat& cameraimg);
 
 private:
+
+
+	bool Initialize();
+
 	VisionParameter m_sParameter;
 	Recognizer* m_recognizer;
 	Detector* m_detector;

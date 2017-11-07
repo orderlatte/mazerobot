@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "TemplateMatch.h"
 #include "PI3OpencvCompat.h"
 
@@ -10,11 +9,8 @@ void CannyThreshold(int, void*) {
 
 TemplateMatch::TemplateMatch()
 {
-	namedWindow("A", CV_WINDOW_AUTOSIZE);
-	namedWindow("B", CV_WINDOW_AUTOSIZE);
-	namedWindow("C", CV_WINDOW_AUTOSIZE);
 
-	createTrackbar("Min Threshold:", "A", &lowThreshold, 100, CannyThreshold);
+
 }
 
 
@@ -47,6 +43,14 @@ void TemplateMatch::sortCorners(std::vector<cv::Point2f>& corners, cv::Point2f c
 
 int TemplateMatch::Recognize(Mat& camera)
 {
+	if (!IsPi3 && m_bDebug) {
+		namedWindow("A", CV_WINDOW_AUTOSIZE);
+		namedWindow("B", CV_WINDOW_AUTOSIZE);
+		namedWindow("C", CV_WINDOW_AUTOSIZE);
+
+		createTrackbar("Min Threshold:", "A", &lowThreshold, 100, CannyThreshold);
+	}
+
 	int match=-1;
 
 	Mat new_image,greyImg;
@@ -169,7 +173,6 @@ int TemplateMatch::Recognize(Mat& camera)
 
 				//imshow("B", correctedImg);
 
-
 				if (match != -1) {
 					putText(camera, symbols[match].name, Point(320, 30), 1,
 						2, Scalar(0, 255, 0), 2);
@@ -179,12 +182,10 @@ int TemplateMatch::Recognize(Mat& camera)
 				else printf("No Match\n");
 
 				//break;
-
 			}
 
 		}
 	}
-
 
 	if (!IsPi3 && m_bDebug) imshow("A", camera);
 

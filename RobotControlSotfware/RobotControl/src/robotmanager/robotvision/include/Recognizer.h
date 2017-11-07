@@ -37,7 +37,7 @@ class Recognizer
 {
 public:
 	Recognizer();
-	~Recognizer();
+	virtual ~Recognizer();
 
 	virtual int Recognize(Mat& img)=0;
 	void SetDebug(bool bDebug);

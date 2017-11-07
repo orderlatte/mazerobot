@@ -26,7 +26,6 @@
 #include <signal.h>
 #include <iostream>
 
-#include "ImageProcessing.h"
 #include "PI3OpencvCompat.h"
 #include "PID.h"
 #include "Servos.h"
@@ -161,6 +160,8 @@ int main(int argc, const char** argv)
 
   RobotVisionManager rvm;
 
+  //rvm.SetDebug(true);
+
   if (!IsPi3) namedWindow( "camera", CV_WINDOW_AUTOSIZE ); // If not running on PI3 open local Window
  
  //if (!IsPi3) namedWindow( "processed", CV_WINDOW_AUTOSIZE );  // If not running on PI3 open local Window
@@ -183,7 +184,9 @@ int main(int argc, const char** argv)
     //offset=FindLineInImageAndComputeOffset(image); // Process camera image / locat line and compute offset from line
     offset=rvm.FindLineInImageAndComputeOffset(image);
 
-	VideoSender.SetImage(&image);
+    rvm.RecognizeImage(image);
+
+    VideoSender.SetImage(&image);
   
     if (!IsPi3) imshow("camera", image );             // Show image locally if not running on PI 3
     HandleInputChar();                                // Handle Keyboard Input
@@ -230,6 +233,7 @@ static void CleanUp(void)
 //       cvReleaseCapture(&capture); // Close camera
 //       capture=NULL;
 //      }
+
 
  VideoSender.CloseUdp();
  MapSender.CloseUdp();
