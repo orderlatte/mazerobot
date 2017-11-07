@@ -6,7 +6,7 @@ import java.util.Arrays;
 public class Maze {
 
 	Cell[][] maze;
-	Position robot = new Position(0, 0);
+	Position robot = new Position(this, 0, 0);
 	
 	public static final int mx = 20;
 	public static final int my = 20;
@@ -65,15 +65,5 @@ public class Maze {
 	
 	public Position getRobotPosition(){
 		return this.robot;
-	}
-
-	class Position {
-		public int x;
-		public int y;
-
-		public Position(int x, int y) {
-			this.x = x;
-			this.y = y;
-		}
 	}
 }
