@@ -20,12 +20,12 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 	// 갈곳이없어서부모로돌아갈때위큐가비어있다면 풀리매핑!
 	@Override
 	public byte[] getNext() {
-		Position p = maze.getRobotPosition();
-		Node curNode = new Node(p);
+		Position p = new Position(maze.getRobotPosition());
+		Node curNode = getNodeFromSet(p, unvisitedNodes);
+		if(curNode==null) curNode = getNodeFromSet(p, visitedNodes);
+		if(curNode==null) curNode = new Node(p);
 
 		System.out.println("==================================");
-		System.out.println("Unvisited : "+this.unvisitedNodes);
-		System.out.println("Visited : "+this.visitedNodes);
 		System.out.println("Current Node : "+curNode);
 		
 		curNode.visited = true;
@@ -93,16 +93,15 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 		}
 	}
 	
-	public void printNodeSet(Set<Node> s){
-		for(Node n : s){
-			
-		}
+	private Node getNodeFromSet(Position p, Set<Node> set){
+		for(Node n : set)
+			if(n.position.equals(p)) return n;
+		return null;
 	}
-
 }
 
 class Node {
-	Position cur;
+	Position position;
 	boolean visited = false;
 	Node parent;
 	Set<Node> chilren = new HashSet<>();
@@ -111,19 +110,19 @@ class Node {
 	}
 
 	public Node(Position p) {
-		cur = p;
+		position = p;
 	}
 
 	public byte[] getParentDirectionAsByte() {
-		int px = parent.cur.x;
-		int py = parent.cur.y;
-		if (px - cur.x == 0) {
-			if (py > cur.y)
+		int px = parent.position.x;
+		int py = parent.position.y;
+		if (px - position.x == 0) {
+			if (py > position.y)
 				return MazeSolverAlgorithm.NORTH;
 			else
 				return MazeSolverAlgorithm.SOUTH;
 		} else {
-			if (px > cur.x)
+			if (px > position.x)
 				return MazeSolverAlgorithm.EAST;
 			else
 				return MazeSolverAlgorithm.WEST;
@@ -132,18 +131,18 @@ class Node {
 
 	@Override
 	public int hashCode() {
-		return cur.hashCode();
+		return position.hashCode();
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		return this.cur.equals(((Node) obj).cur);
+		Position p = ((Node)obj).position;
+		return this.position.equals(p);
 	}
 
 	@Override
 	public String toString() {
-//		return "Node [cur=" + cur + ", parent=" + parent + ", chilren=" + chilren + "]";
-		return "Node [cur=" + cur;
+		return "Node[" + position;
 	}
 	
 	

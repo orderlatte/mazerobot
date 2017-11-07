@@ -9,6 +9,11 @@ class Position {
 		this.x = x;
 		this.y = y;
 	}
+	
+	public Position(Position p) {
+		this.x = p.x;
+		this.y = p.y;
+	}
 
 	public Position getEast() {
 		return new Position(x + 1, y);
@@ -53,7 +58,7 @@ class Position {
 
 	@Override
 	public String toString() {
-		return "Position [x=" + x + ", y=" + y + "]";
+		return "[x=" + x + ", y=" + y + "]";
 	}
 	
 	

@@ -32,6 +32,7 @@ public class Client {
 		 test(false, false, false, true, (byte) 6, (byte) 5);//2
 		 test(true, false, false, false, (byte) 6, (byte) 4);//5
 		 test(true, true, true, false, (byte) 6, (byte) 3);//6
+		 test(true, false, false, false, (byte) 6, (byte) 4);//5
 		 test(false, true, true, false, (byte) 5, (byte) 4);//7
 
 		System.out.println("The End of Client");
@@ -48,7 +49,7 @@ public class Client {
 		mSocket.getOutputStream().write(this.getDirectionAndPositionAsBytes(east, west, south, north, x, y));
 		mSocket.getOutputStream().flush();
 		mSocket.getInputStream().read(inBytes);
-//		System.out.println(" Ŭ:" + this.byteArrayToHex(inBytes));
+		System.out.println(" Ŭ:" + this.byteArrayToHex(inBytes));
 	}
 
 	public byte[] getDirectionAndPositionAsBytes(boolean east, boolean west, boolean south, boolean north, byte x,
