@@ -70,12 +70,13 @@ void *laser_thread(void *value) {
 
 void creat_thread(void)
 {
-	pthread_t thread;
+	pthread_t thread1;
+	pthread_t thread2;
 	int x = 0;
 	// Sonar thread
-	pthread_create(&thread, NULL, &sonar_thread, &x);
+	pthread_create(&thread1, NULL, &sonar_thread, &x);
 	// Lasor thread
-	 pthread_create(&thread, NULL, &laser_thread, &x);
+	 pthread_create(&thread2, NULL, &laser_thread, &x);
 }
 
 void laser_init(void)
@@ -124,33 +125,11 @@ void sensor_manager_init(fp_robot_stop fpstop)
 double sonar(void)
 {
 	double sonar_distance;
-	double sonar_distance_sum = 0;
-	double sonar_distance_min = 0;
-	double sonar_distance_max = 0;
 	
-	for(int i =0 ; i<10 ; i++)
-	{
-		sonar_distance = SonarDistance(30000);
-		if(i == 0)
-		{
-			sonar_distance_min = sonar_distance;
-			sonar_distance_max = sonar_distance;
-		}
-
-		sonar_distance_sum += sonar_distance;
-		if(sonar_distance < sonar_distance_min)
-		{
-			sonar_distance_min = sonar_distance;
-		}
-		if(sonar_distance > sonar_distance_max)
-		{
-			sonar_distance_max = sonar_distance;
-		}
-		
-	}
-	sonar_distance_sum = sonar_distance_sum - sonar_distance_min - sonar_distance_max;
-	sonar_distance = sonar_distance_sum/8;
-	cout << "Distance is " << sonar_distance << " cm." << endl;
+	sonar_distance = SonarDistance(30000);
+	
+	//cout << "Distance is " << sonar_distance << " cm." << endl;
+	
 	return sonar_distance;
 }
 
@@ -163,7 +142,7 @@ int32_t laser_right(void)
 	// Get distance from VL53L0X  on TCA9548A bus 1 
 	distance=getDistance(ObjectNum_0);
 	if (distance > 0)
-        printf("0: %d mm, %d cm, %d\n",distance, (distance/10),count);
+        //printf("0: %d mm, %d cm, %d\n",distance, (distance/10),count);
 	
 	usleep(timing);
 	count++;
@@ -183,7 +162,7 @@ int32_t laser_left(void)
 	// Get distance from VL53L0X  on TCA9548A bus 1 
 	distance=getDistance(ObjectNum_1);
 	if (distance > 0)
-        printf("1: %d mm, %d cm, %d\n",distance, (distance/10),count);
+       // printf("1: %d mm, %d cm, %d\n",distance, (distance/10),count);
 	
 	usleep(timing);
 	count++;

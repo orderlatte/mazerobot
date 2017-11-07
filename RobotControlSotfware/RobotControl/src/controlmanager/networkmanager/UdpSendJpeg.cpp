@@ -65,7 +65,7 @@ void UdpSendJpeg::SendJpeg()
 
 	while (1)
 	{
-		usleep(10000);	// sleep 10 milliseconds
+		usleep(500000);	// sleep 500 milliseconds
 
 		if (isSetImage == false) {
 			continue;

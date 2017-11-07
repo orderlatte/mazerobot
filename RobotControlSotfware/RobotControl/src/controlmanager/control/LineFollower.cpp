@@ -26,11 +26,11 @@
 #include "UdpSendMap.h"
 #include "KeyboardSetup.h"
 #include "RobotVisionManager.h"
+#include "robot_operation.h"
 #include "UdpSendJpeg.h"
 #include "Direction.h"
 #include "RobotPosition.h"
 #include "sensor_manager.h"
-#include "servos_manager.h"
 #include "Servos.h"
 
 #define INIT 0
@@ -65,7 +65,6 @@ typedef struct
 
 static UdpSendJpeg    VideoSender;
 static UdpSendMap	  MapSender;
-static float	      ImageOffset;		   // computed robot deviation from the line
 static T_robot_status CurrentStatus;
 static T_robot_moving_direction CurrentMovingDirection;
 static int            EWSNDirection = NORTH;
@@ -73,6 +72,8 @@ static bool           HitTheFrontWall;
 static bool			  HitTheLeftWall;
 static bool 		  HitTheRightWall;
 static RobotPosition  CurrentPosition;
+float	      ImageOffset;		   // computed robot deviation from the line
+int 			  linewidth;
 
 static void  Setup_Control_C_Signal_Handler_And_Keyboard_No_Enter(void);
 static void  CleanUp(void);
@@ -118,7 +119,7 @@ int main(int argc, const char** argv)
   }
 
   sensor_manager_main(&stopRobot);
-  servos_manager_main();
+  robot_operation_init();
 
   creat_image_capture_thread();
 
@@ -275,31 +276,23 @@ static void moveNextCellAuto() {
 
 	switch (CurrentMovingDirection) {
 	case ROBOT_MOVING_DIRECTION_FORWARD:
-		robot_mode_setting(ROBOT_FORWARD_MOVING,ImageOffset);	// Backward
-		usleep(3000000);	// 3sec
+		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Forward
 		break;
 
 	case ROBOT_MOVING_DIRECTION_BACK:
-		robot_mode_setting(ROBOT_BACKWARD_MOVING,ImageOffset);	// Backward
-		usleep(3000000);	// 3sec
+		robot_operation_auto(ROBOT_OPERATION_DIRECTION_BACKWARD);	// Backward
 		break;
 
 	case ROBOT_MOVING_DIRECTION_LEFT:
-		robot_mode_setting(ROBOT_LEFT_ROTATING,ImageOffset);	// Left
-		usleep(3000000);	// 3sec
-		robot_mode_setting(ROBOT_FORWARD_MOVING,ImageOffset);	// Backward
-		usleep(3000000);	// 3sec
+		robot_operation_auto(ROBOT_OPERATION_DIRECTION_LEFT);	// Left
 		break;
 
 	case ROBOT_MOVING_DIRECTION_RIGHT:
-		robot_mode_setting(ROBOT_RIGHT_ROTATING,ImageOffset);	// Right
-		usleep(3000000);	// 3sec
-		robot_mode_setting(ROBOT_FORWARD_MOVING,ImageOffset);	// Backward
-		usleep(3000000);	// 3sec
+		robot_operation_auto(ROBOT_OPERATION_DIRECTION_RIGHT);	// Right
 		break;
 
 	case ROBOT_MOVING_DIRECTION_STOP:
-		robot_mode_setting(ROBOT_STOP,ImageOffset);	// Right
+		robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);	// Stop
 		break;
 
 	default:
@@ -375,19 +368,19 @@ static void HandleInputChar(void)
 
   switch (ch) {
   case 'w':
-	  robot_mode_setting(ROBOT_FORWARD_MOVING,ImageOffset);
+	  robot_operation_manual(ROBOT_OPERATION_DIRECTION_FORWARD);
 	  break;
   case 'x':
-	  robot_mode_setting(ROBOT_BACKWARD_MOVING,ImageOffset);
+	  robot_operation_manual(ROBOT_OPERATION_DIRECTION_BACKWARD);
 	  break;
   case 'd':
-	  robot_mode_setting(ROBOT_RIGHT_ROTATING,ImageOffset);
+	  robot_operation_manual(ROBOT_OPERATION_DIRECTION_RIGHT);
 	  break;
   case 'a':
-	  robot_mode_setting(ROBOT_LEFT_ROTATING,ImageOffset);
+	  robot_operation_manual(ROBOT_OPERATION_DIRECTION_LEFT);
 	  break;
   case 's':
-	  robot_mode_setting(ROBOT_STOP,ImageOffset);
+	  robot_operation_manual(ROBOT_OPERATION_DIRECTION_STOP);
 	  CurrentStatus = ROBOT_STATUS_MANUAL;
 	  break;
   case 'r':
@@ -405,7 +398,13 @@ static void stopRobot(T_sensor_type sensorType)
 	switch (sensorType) {
 	case SENSOR_TYPE_SONAR:
 		HitTheFrontWall = true;
-		robot_mode_setting(ROBOT_STOP,ImageOffset);	// Stop
+
+		if (CurrentStatus == ROBOT_STATUS_AUTO) {
+			robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
+		} else {
+			robot_operation_manual(ROBOT_OPERATION_DIRECTION_STOP);
+		}
+
 		HitTheFrontWall = false;
 		break;
 	case SENSOR_TYPE_LASER_LEFT:
@@ -430,24 +429,18 @@ static void avoidLeftWall() {
 
 	switch (CurrentMovingDirection) {
 	case ROBOT_MOVING_DIRECTION_FORWARD:
-		robot_mode_setting(ROBOT_STOP,ImageOffset);	// Stop
-		robot_mode_setting(ROBOT_RIGHT_ROTATING,ImageOffset);	// Right
+		robot_operation_manual(ROBOT_OPERATION_DIRECTION_RIGHT);	// Right
 		usleep(500000);	// sleep 500 milliseconds
-		robot_mode_setting(ROBOT_STOP,ImageOffset);	// Stop
 		break;
 
 	case ROBOT_MOVING_DIRECTION_BACK:
-		robot_mode_setting(ROBOT_STOP,ImageOffset);	// Stop
-		robot_mode_setting(ROBOT_LEFT_ROTATING,ImageOffset);	// Left
+		robot_operation_manual(ROBOT_OPERATION_DIRECTION_LEFT);	// Left
 		usleep(500000);	// sleep 500 milliseconds
-		robot_mode_setting(ROBOT_STOP,ImageOffset);	// Stop
 		break;
 
 	case ROBOT_MOVING_DIRECTION_LEFT:
-		robot_mode_setting(ROBOT_STOP,ImageOffset);	// Stop
-		robot_mode_setting(ROBOT_RIGHT_ROTATING,ImageOffset);	// Right
+		robot_operation_manual(ROBOT_OPERATION_DIRECTION_RIGHT);	// Right
 		usleep(500000);	// sleep 500 milliseconds
-		robot_mode_setting(ROBOT_STOP,ImageOffset);	// Stop
 		break;
 
 	default:
@@ -461,21 +454,18 @@ static void avoidRightWall() {
 
 	switch (CurrentMovingDirection) {
 	case ROBOT_MOVING_DIRECTION_FORWARD:
-		robot_mode_setting(ROBOT_LEFT_ROTATING,ImageOffset);	// Left
+		robot_operation_manual(ROBOT_OPERATION_DIRECTION_LEFT);	// Left
 		usleep(500000);	// sleep 500 milliseconds
-		robot_mode_setting(ROBOT_STOP,ImageOffset);	// Right
 		break;
 
 	case ROBOT_MOVING_DIRECTION_BACK:
-		robot_mode_setting(ROBOT_RIGHT_ROTATING,ImageOffset);	// Right
+		robot_operation_manual(ROBOT_OPERATION_DIRECTION_RIGHT);	// Right
 		usleep(500000);	// sleep 500 milliseconds
-		robot_mode_setting(ROBOT_STOP,ImageOffset);	// Left
 		break;
 
 	case ROBOT_MOVING_DIRECTION_RIGHT:
-		robot_mode_setting(ROBOT_LEFT_ROTATING,ImageOffset);	// Left
+		robot_operation_manual(ROBOT_OPERATION_DIRECTION_LEFT);	// Left
 		usleep(500000);	// sleep 500 milliseconds
-		robot_mode_setting(ROBOT_STOP,ImageOffset);	// Left
 		break;
 
 	default:
@@ -488,7 +478,7 @@ static void avoidRightWall() {
 // Image capture Thread
 //----------------------
 void *image_capture_thread(void *value) {
-	Mat        image;          // camera image in Mat format
+	cv::Mat        image;          // camera image in Mat format
 	RobotVisionManager rvm;
 
 //	rvm.SetDebug(true);	// For debugging
@@ -498,7 +488,7 @@ void *image_capture_thread(void *value) {
 
 		flip(image, image,-1);       // if running on PI3 flip(-1)=180 degrees
 
-		ImageOffset=rvm.FindLineInImageAndComputeOffset(image);
+		ImageOffset=rvm.FindLineInImageAndComputeOffsetAndWidth(image, linewidth);
 
 		VideoSender.SetImage(&image);
 		usleep(1000);			  // sleep 1 milliseconds

@@ -19,7 +19,9 @@ using namespace std;
 #define KP        1.0               // defaut 1.0
 #define KI        0.1               // defaut 0.1
 #define KD        0.0               // defaut 0.0
-#define BASESPEED 6.0               // Range 0-50
+#define BASESPEED 10.0               // Range 0-50
+#define M_BASESPEED 6.0               // Range 0-50
+
 #define BASESPEEDFUDGEFACTOR 0.80   // default 1.25
 
 #define MIN_WHEEL_SPEED -50
@@ -76,19 +78,19 @@ void robot_mode_setting(T_robot_moving_mode robot_moving_mode, float offset)
 		break;
 
 		case ROBOT_FORWARD_MOVING:
-			SetWheelSpeed(BASESPEED, BASESPEED);
+			SetWheelSpeed(M_BASESPEED, M_BASESPEED);
 		break;
 
 		case ROBOT_BACKWARD_MOVING:
-			SetWheelSpeed(-BASESPEED, -BASESPEED);
+			SetWheelSpeed(-M_BASESPEED, -M_BASESPEED);
 		break;
 
 		case ROBOT_LEFT_ROTATING:
-			SetWheelSpeed(-BASESPEED, BASESPEED);
+			SetWheelSpeed(-M_BASESPEED, M_BASESPEED);
 		break;
 
 		case ROBOT_RIGHT_ROTATING:
-			SetWheelSpeed(BASESPEED, -BASESPEED);
+			SetWheelSpeed(M_BASESPEED, -M_BASESPEED);
 		break;
 
 		default:
