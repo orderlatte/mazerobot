@@ -13,6 +13,9 @@
 //#include <opencv2/legacy/legacy.hpp>
 #include "opencv2/video/tracking.hpp"
 
+using namespace std;
+using namespace cv;
+
 //class Symbol {
 //
 //public:
@@ -21,12 +24,29 @@
 //
 //};
 
+#define NumOfSigns 4
+
+class Symbol {
+
+public:
+	Mat img;
+	string name;
+};
+
 class Recognizer
 {
 public:
 	Recognizer();
 	~Recognizer();
 
+	virtual int Recognize(Mat& img)=0;
+	void SetDebug(bool bDebug);
+
+protected:
+	Symbol symbols[NumOfSigns];
+	virtual int readRefImages(Symbol *symbols);
+
+	bool m_bDebug;
 	
 };
 
