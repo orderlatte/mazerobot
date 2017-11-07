@@ -5,7 +5,6 @@
 #include <signal.h>
 #include <iostream>
 
-#include "ImageProcessing.h"
 #include "PI3OpencvCompat.h"
 #include "PID.h"
 #include "Servos.h"
