@@ -9,6 +9,8 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 
 	private Set<Node> unvisitedNodes = new HashSet<>();
 	private Set<Node> visitedNodes = new HashSet<>();
+	private byte[] oldDirectionTogo = null;
+	private Position oldPositionTogo = null;
 
 	// <<트래버설 알고리즘>>
 	// 1.동서남북 순서로 안간곳이면 거기로 간다
@@ -21,13 +23,17 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 	@Override
 	public byte[] getNext() {
 		Position p = new Position(maze.getRobotPosition());
+		if(oldPositionTogo !=null &&  !oldPositionTogo.equals(p)) return ERROR;
+		
 		Node curNode = getNodeFromSet(p, unvisitedNodes);
-		if(curNode==null) curNode = getNodeFromSet(p, visitedNodes);
-		if(curNode==null) curNode = new Node(p);
+		if (curNode == null)
+			curNode = getNodeFromSet(p, visitedNodes);
+		if (curNode == null)
+			curNode = new Node(p);
 
 		System.out.println("==================================");
-		System.out.println("Current Node : "+curNode);
-		
+		System.out.println("Current Node : " + curNode);
+
 		curNode.visited = true;
 		this.unvisitedNodes.remove(curNode);
 		this.visitedNodes.add(curNode);
@@ -36,14 +42,14 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 		byte[] togoValue = null;
 		DirectionWallSet ds = maze.getRobotCell().getWall();
 
-		
-		
 		if (!ds.east) {
 			Node east = new Node(p.getEast());
 			if (!visitedNodes.contains(east)) {
 				this.unvisitedNodes.add(east);
-				togo = east;
-				togoValue = EAST;
+				if (togo == null) {
+					togo = east;
+					togoValue = EAST;
+				}
 			}
 		}
 		if (!ds.south) {
@@ -77,25 +83,30 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 			}
 		}
 
-		System.out.println("Unvisited : "+this.unvisitedNodes);
-		System.out.println("Visited : "+this.visitedNodes);
-		
+		System.out.println("Unvisited : " + this.unvisitedNodes);
+		System.out.println("Visited : " + this.visitedNodes);
+
 		if (togo == null) {
 			if (this.unvisitedNodes.size() == 0) {// fully mapping 완료
 				return FULLYMAPPED;
 			} else {// 부모노드로 back 이동
-				return curNode.getParentDirectionAsByte();
+				oldDirectionTogo = curNode.getParentDirectionAsByte();
+				oldPositionTogo = curNode.parent.position;
+				return oldDirectionTogo;
 			}
-		} else {//새로운 노드로 이동
+		} else {// 새로운 노드로 이동
 			curNode.chilren.add(togo);
 			togo.parent = curNode;
+			oldDirectionTogo = togoValue;
+			oldPositionTogo = togo.position;
 			return togoValue;
 		}
 	}
-	
-	private Node getNodeFromSet(Position p, Set<Node> set){
-		for(Node n : set)
-			if(n.position.equals(p)) return n;
+
+	private Node getNodeFromSet(Position p, Set<Node> set) {
+		for (Node n : set)
+			if (n.position.equals(p))
+				return n;
 		return null;
 	}
 }
@@ -136,7 +147,7 @@ class Node {
 
 	@Override
 	public boolean equals(Object obj) {
-		Position p = ((Node)obj).position;
+		Position p = ((Node) obj).position;
 		return this.position.equals(p);
 	}
 
@@ -144,7 +155,5 @@ class Node {
 	public String toString() {
 		return "Node[" + position;
 	}
-	
-	
 
 }
