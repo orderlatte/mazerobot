@@ -85,9 +85,9 @@ double RunPID(TPID &PIDi)
 {
   long iterationTime = (long) (PIDi.ErrorTime - PIDi.LastErrorTime);
 
-  PIDi.Integral = (PIDi.Error / iterationTime) + PIDi.Integral;
+  PIDi.Integral = (PIDi.Error * iterationTime/1000) + PIDi.Integral;
 
-  PIDi.Derivative = (PIDi.Error - PIDi.LastError) / iterationTime;
+  PIDi.Derivative = (PIDi.Error - PIDi.LastError) / iterationTime*1000;
 
   double correction = PIDi.Kp * PIDi.Error + PIDi.Ki * PIDi.Integral + PIDi.Kd * PIDi.Derivative;
 

@@ -1,4 +1,5 @@
 #include "Detector.h"
+#include "PI3OpencvCompat.h"
 
 static const cv::Scalar ROI_COLOR(0.0, 255.0, 0.0);
 static const cv::Scalar ROI_COLOR2(255.0, 0.0, 255.0); // for find reddot
@@ -52,8 +53,8 @@ bool Detector::findRedDot(cv::Mat& CameraImage,bool bDebug)
 	if (bDebug)
 	{
 		rectangle(CameraImage, RoiRec, ROI_COLOR2, 3); // draw region of interest on camera image
-		imshow("threshold_redDot", threshold);
-		imshow("result_redDot", result);
+		if (!IsPi3) imshow("threshold_redDot", threshold);
+		if (!IsPi3) imshow("result_redDot", result);
 
 		for (size_t current_circle = 0; current_circle < circles.size(); ++current_circle)
 		{
@@ -61,7 +62,7 @@ bool Detector::findRedDot(cv::Mat& CameraImage,bool bDebug)
 			int radius = round(circles[current_circle][2]);
 			cv::circle(CameraImage, cvPoint(center.x + RoiRec.x, center.y + RoiRec.y), radius, cv::Scalar(0, 255, 0), 5);
 		}
-		imshow("camera_reddot", CameraImage);
+		if (!IsPi3) imshow("camera_reddot", CameraImage);
 	}
 
 	return ret;
@@ -92,11 +93,11 @@ bool Detector::findGoalArea(cv::Mat& CameraImage, const float thresBlueAreaOfROI
 	if (bDebug)
 	{
 		rectangle(CameraImage, RoiRec, ROI_COLOR3, 3); // draw region of interest on camera image
-		imshow("threshold_goalArea", threshold);
-		imshow("result_goalArea", result);
+		if (!IsPi3) imshow("threshold_goalArea", threshold);
+		if (!IsPi3) imshow("result_goalArea", result);
 
 		cout << "area" << RoiRec.area() << " bluepoint:" << cnt << endl;
-		imshow("camera_goal", CameraImage);
+		if (!IsPi3) imshow("camera_goal", CameraImage);
 	}
 
 	if (cnt > (RoiRec.area()*thresBlueAreaOfROI))
@@ -186,7 +187,7 @@ bool Detector::findCrossArea(cv::Mat& CameraImage, const float thresCrossAreaOfR
 	if (bDebug)
 	{
 		rectangle(CameraImage, RoiRec, ROI_COLOR, 3); // draw region of interest on camera image
-		imshow("camera_cross", CameraImage);
+		if (!IsPi3) imshow("camera_cross", CameraImage);
 		cout << "ROI_area" << RoiRec.area() << " cross_area:" << minMaxCx << " width: " << width <<  endl;
 		//cout << cnt << endl;
 	}
@@ -267,7 +268,7 @@ float Detector::FindLineInImageAndComputeOffset(cv::Mat& CameraImage, bool bDebu
 		sprintf(text, "Nav Value %f", offsetfromcenter);
 		cv::putText(CameraImage, text, cv::Point(10, 50), CV_FONT_HERSHEY_PLAIN, 2, CV_RGB(0, 0, 0), 3);
 
-		imshow("FindLine", CameraImage);
+		if (!IsPi3) imshow("FindLine", CameraImage);
 	}
 
 	return offsetfromcenter + FUDGE_BIAS;
@@ -282,7 +283,7 @@ float Detector::FindLineInImageAndComputeOffsetAndWidth(cv::Mat& CameraImage, in
 	vector<Vec4i> hierarchy;
 	Mat mono, blur, thresh, erodeImg, dilateImg;
 
-	selectedWidth = 0; 
+	//selectedWidth = 0; 
 
 	Rect RoiRec(10, 2 * CameraImage.rows / 3, CameraImage.cols - 20, CameraImage.rows / 12); //Define region of interest rectangle
 
@@ -349,7 +350,7 @@ float Detector::FindLineInImageAndComputeOffsetAndWidth(cv::Mat& CameraImage, in
 		sprintf(text, "Nav Value %f", offsetfromcenter);
 		cv::putText(CameraImage, text, cv::Point(10, 50), CV_FONT_HERSHEY_PLAIN, 2, CV_RGB(0, 0, 0), 3);
 
-		imshow("FindLine", CameraImage);
+		if (!IsPi3) imshow("FindLine", CameraImage);
 	}
 
 	return offsetfromcenter + FUDGE_BIAS;

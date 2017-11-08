@@ -3,11 +3,12 @@ package robot_algorithm;
 import java.util.HashSet;
 import java.util.Set;
 
-import robot_algorithm.Cell.DirectionSet;
+import robot_algorithm.Cell.DirectionWallSet;
 
 public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 
 	private Set<Node> unvisitedNodes = new HashSet<>();
+	private Set<Node> visitedNodes = new HashSet<>();
 
 	// <<트래버설 알고리즘>>
 	// 1.동서남북 순서로 안간곳이면 거기로 간다
@@ -19,27 +20,35 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 	// 갈곳이없어서부모로돌아갈때위큐가비어있다면 풀리매핑!
 	@Override
 	public byte[] getNext() {
+		Position p = new Position(maze.getRobotPosition());
+		Node curNode = getNodeFromSet(p, unvisitedNodes);
+		if(curNode==null) curNode = getNodeFromSet(p, visitedNodes);
+		if(curNode==null) curNode = new Node(p);
 
-		Position p = maze.getRobotPosition();
-		Node curNode = new Node(p);
+		System.out.println("==================================");
+		System.out.println("Current Node : "+curNode);
+		
 		curNode.visited = true;
 		this.unvisitedNodes.remove(curNode);
+		this.visitedNodes.add(curNode);
 
 		Node togo = null;
 		byte[] togoValue = null;
-		DirectionSet ds = maze.getRobotCell().getWall();
+		DirectionWallSet ds = maze.getRobotCell().getWall();
 
-		if (ds.east) {
+		
+		
+		if (!ds.east) {
 			Node east = new Node(p.getEast());
-			if (!curNode.chilren.contains(east) && !curNode.parent.equals(east)) {
+			if (!visitedNodes.contains(east)) {
 				this.unvisitedNodes.add(east);
 				togo = east;
 				togoValue = EAST;
 			}
 		}
-		if (ds.south) {
+		if (!ds.south) {
 			Node south = new Node(p.getSouth());
-			if (!curNode.chilren.contains(south) && !curNode.parent.equals(south)) {
+			if (!visitedNodes.contains(south)) {
 				this.unvisitedNodes.add(south);
 				if (togo == null) {
 					togo = south;
@@ -47,9 +56,9 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 				}
 			}
 		}
-		if (ds.west) {
+		if (!ds.west) {
 			Node west = new Node(p.getWest());
-			if (!curNode.chilren.contains(west) && !curNode.parent.equals(west)) {
+			if (!visitedNodes.contains(west)) {
 				this.unvisitedNodes.add(west);
 				if (togo == null) {
 					togo = west;
@@ -57,9 +66,9 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 				}
 			}
 		}
-		if (ds.north) {
+		if (!ds.north) {
 			Node north = new Node(p.getNorth());
-			if (!curNode.chilren.contains(north) && !curNode.parent.equals(north)) {
+			if (!visitedNodes.contains(north)) {
 				this.unvisitedNodes.add(north);
 				if (togo == null) {
 					togo = north;
@@ -68,11 +77,14 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 			}
 		}
 
+		System.out.println("Unvisited : "+this.unvisitedNodes);
+		System.out.println("Visited : "+this.visitedNodes);
+		
 		if (togo == null) {
 			if (this.unvisitedNodes.size() == 0) {// fully mapping 완료
 				return FULLYMAPPED;
 			} else {// 부모노드로 back 이동
-				return curNode.getParentDirection();
+				return curNode.getParentDirectionAsByte();
 			}
 		} else {//새로운 노드로 이동
 			curNode.chilren.add(togo);
@@ -80,11 +92,16 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 			return togoValue;
 		}
 	}
-
+	
+	private Node getNodeFromSet(Position p, Set<Node> set){
+		for(Node n : set)
+			if(n.position.equals(p)) return n;
+		return null;
+	}
 }
 
 class Node {
-	Position cur;
+	Position position;
 	boolean visited = false;
 	Node parent;
 	Set<Node> chilren = new HashSet<>();
@@ -93,19 +110,19 @@ class Node {
 	}
 
 	public Node(Position p) {
-		cur = p;
+		position = p;
 	}
 
-	public byte[] getParentDirection() {
-		int px = parent.cur.x;
-		int py = parent.cur.y;
-		if (px - cur.x == 0) {
-			if (py > cur.y)
+	public byte[] getParentDirectionAsByte() {
+		int px = parent.position.x;
+		int py = parent.position.y;
+		if (px - position.x == 0) {
+			if (py > position.y)
 				return MazeSolverAlgorithm.NORTH;
 			else
 				return MazeSolverAlgorithm.SOUTH;
 		} else {
-			if (px > cur.x)
+			if (px > position.x)
 				return MazeSolverAlgorithm.EAST;
 			else
 				return MazeSolverAlgorithm.WEST;
@@ -114,12 +131,20 @@ class Node {
 
 	@Override
 	public int hashCode() {
-		return cur.hashCode();
+		return position.hashCode();
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		return this.cur.equals(((Node) obj).cur);
+		Position p = ((Node)obj).position;
+		return this.position.equals(p);
 	}
+
+	@Override
+	public String toString() {
+		return "Node[" + position;
+	}
+	
+	
 
 }

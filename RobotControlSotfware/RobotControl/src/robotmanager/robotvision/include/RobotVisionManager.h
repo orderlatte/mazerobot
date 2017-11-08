@@ -13,9 +13,11 @@
 //#include <opencv2/legacy/legacy.hpp>
 #include "opencv2/video/tracking.hpp"
 //#include "ImageProcessing.h"
+#include "PI3OpencvCompat.h"
 
 #include "Recognizer.h"
 #include "Detector.h"
+#include "TemplateMatch.h"
 
 using namespace cv;
 using namespace std;
@@ -29,10 +31,10 @@ typedef struct visionParameter
 class RobotVisionManager
 {
 public:
+
 	RobotVisionManager();
 	~RobotVisionManager();
 
-	bool Initialize();
 	void Initialize(VisionParameter param);
 	bool FindRedDot();
 	bool FindGoalArea();
@@ -50,7 +52,13 @@ public:
 
 	void SetDebug(bool bDebug);
 
+	int RecognizeImage(cv::Mat& cameraimg);
+
 private:
+
+
+	bool Initialize();
+
 	VisionParameter m_sParameter;
 	Recognizer* m_recognizer;
 	Detector* m_detector;

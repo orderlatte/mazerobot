@@ -24,8 +24,8 @@ public class Cell {
 		return false;
 	}
 
-	public DirectionSet getWall() {
-		DirectionSet ds = new DirectionSet();
+	public DirectionWallSet getWall() {
+		DirectionWallSet ds = new DirectionWallSet();
 
 		if ((this.data[6] & MASK_EAST) == MASK_EAST)
 			ds.east = true;
@@ -39,7 +39,7 @@ public class Cell {
 		return ds;
 	}
 	
-	class DirectionSet {
+	class DirectionWallSet {
 		boolean east = false;
 		boolean west = false;
 		boolean south = false;
