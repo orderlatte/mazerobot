@@ -10,6 +10,8 @@ static const cv::Scalar NAV_COLOR(0.0, 255.0, 255.0);
 
 Detector::Detector()
 {
+	m_thresBlueAreaOfROI = 0.2;
+	m_thresCrossAreaOfROI = 0.7;
 }
 
 
@@ -68,7 +70,7 @@ bool Detector::findRedDot(cv::Mat& CameraImage,bool bDebug)
 	return ret;
 }
 
-bool Detector::findGoalArea(cv::Mat& CameraImage, const float thresBlueAreaOfROI, bool bDebug)
+bool Detector::findGoalArea(cv::Mat& CameraImage, bool bDebug)
 {
 	bool ret = false;
 
@@ -100,7 +102,7 @@ bool Detector::findGoalArea(cv::Mat& CameraImage, const float thresBlueAreaOfROI
 		if (!IsPi3) imshow("camera_goal", CameraImage);
 	}
 
-	if (cnt > (RoiRec.area()*thresBlueAreaOfROI))
+	if (cnt > (RoiRec.area()*m_thresBlueAreaOfROI))
 	{
 		ret = true;
 	}
@@ -108,7 +110,7 @@ bool Detector::findGoalArea(cv::Mat& CameraImage, const float thresBlueAreaOfROI
 	return ret;
 }
 
-bool Detector::findCrossArea(cv::Mat& CameraImage, const float thresCrossAreaOfROI, bool bDebug)
+bool Detector::findCrossArea(cv::Mat& CameraImage, bool bDebug)
 {
 	//const float thresCrossAreaOfROI = 0.5; // ROI���� �����ϴ� Cross Area�� ����
 	bool ret = false;
@@ -177,7 +179,7 @@ bool Detector::findCrossArea(cv::Mat& CameraImage, const float thresCrossAreaOfR
 		}
 
 		//if (mu.m00 > (RoiRec.area()*thresCrossAreaOfROI))
-		if (area > (RoiRec.area()*thresCrossAreaOfROI))
+		if (area > (RoiRec.area()*m_thresCrossAreaOfROI))
 		//if(area > (RoiRec.area()*thresCrossAreaOfROI) && cnt >= 2)   // corner+
 		{
 			ret = true;
@@ -283,7 +285,7 @@ float Detector::FindLineInImageAndComputeOffsetAndWidth(cv::Mat& CameraImage, in
 	vector<Vec4i> hierarchy;
 	Mat mono, blur, thresh, erodeImg, dilateImg;
 
-	selectedWidth = 0; 
+	//selectedWidth = 0; 
 
 	Rect RoiRec(10, 2 * CameraImage.rows / 3, CameraImage.cols - 20, CameraImage.rows / 12); //Define region of interest rectangle
 
@@ -354,4 +356,16 @@ float Detector::FindLineInImageAndComputeOffsetAndWidth(cv::Mat& CameraImage, in
 	}
 
 	return offsetfromcenter + FUDGE_BIAS;
+}
+
+void Detector::SetParameter(map<string, float> mParam)
+{
+	map<string, float>::iterator itr;
+
+	itr = mParam.find("thresBlueAreaOfROI");
+	if (mParam.end() != itr) m_thresBlueAreaOfROI = itr->second;
+
+	itr = mParam.find("thresCrossAreaOfROI");
+	if (mParam.end() != itr) m_thresCrossAreaOfROI = itr->second;
+
 }
