@@ -39,7 +39,9 @@ public class Server {
 			break;
 		case 0x4:// 다음 방향 요청
 			maze.setMaze(Arrays.copyOfRange(bytes, 1, 13));
-			out.write(solver.getNext());
+			byte[] rv =solver.getNext();
+			System.out.println("다음방향: "+Client.byteArrayToHex(rv));
+			out.write(rv);
 			out.flush();
 			break;
 		}
