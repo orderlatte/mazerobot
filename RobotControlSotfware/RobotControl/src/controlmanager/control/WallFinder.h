@@ -17,22 +17,26 @@ private:
 	bool CheckedLeftWall;
 	bool CheckedRightWall;
 	bool CheckedBackWall;
-	bool ConfirmedFrontWall;
-	bool ConfirmedLeftWall;
-	bool ConfirmedRightWall;
-	bool ConfirmedBackWall;
+	bool BlockedFrontWall;
+	bool BlockedLeftWall;
+	bool BlockedRightWall;
+	bool BlockedBackWall;
 
 public:
 	WallFinder();
+	void Init();
 	void recognizeWall(T_SensorData* sensorData);
 	bool getCheckedFrontWall();
 	bool getCheckedLeftWall();
 	bool getCheckedRightWall();
 	bool getCheckedBackWall();
-	bool getConfirmedFrontWall();
-	bool getConfirmedLeftWall();
-	bool getConfirmedRightWall();
-	bool getConfirmedBackWall();
+	bool getBlockedFrontWall();
+	bool getBlockedLeftWall();
+	bool getBlockedRightWall();
+	bool getBlockedBackWall();
+
+private:
+	void printDebug();
 };
 
 

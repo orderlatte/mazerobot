@@ -22,7 +22,7 @@ RobotPosition::RobotPosition() {
 }
 
 T_robot_moving_direction RobotPosition::SetEWSNDirectionToMove(int nextDirection) {
-	printf("NextEWSNDirection is %d\n", nextDirection);
+	printf("SetEWSNDirectionToMove() - NextEWSNDirection is %d\n", nextDirection);
 
 	NextDirection = nextDirection;
 
@@ -36,7 +36,7 @@ T_robot_moving_direction RobotPosition::SetEWSNDirectionToMove(int nextDirection
 	case NORTH:
 		return GetNorthDirectionToMove(nextDirection);
 	default:
-		printf("Fault - Unknown next direction: %d\n", nextDirection);
+		printf("SetEWSNDirectionToMove() - Fault - Unknown next direction: %d\n", nextDirection);
 		return ROBOT_MOVING_DIRECTION_ERROR;
 	}
 }
@@ -56,7 +56,7 @@ void RobotPosition::SuccessToMove() {
 		CurrentY -= 1;
 		break;
 	default:
-		printf("Next direction is invalid! (%d)", NextDirection);
+		printf("SuccessToMove() - Next direction is invalid! (%d)", NextDirection);
 		break;
 	}
 
@@ -66,6 +66,7 @@ void RobotPosition::SuccessToMove() {
 }
 
 int RobotPosition::getCurrentEWSNDirection() {
+	printf("getCurrentEWSNDirection() - CurrentDirection: %d\n", CurrentDirection);
 	return CurrentDirection;
 }
 
@@ -89,7 +90,7 @@ T_robot_moving_direction RobotPosition::GetEastDirectionToMove(int direction) {
 	case NORTH:
 		return ROBOT_MOVING_DIRECTION_LEFT_FORWARD;
 	default:
-		printf("Fault - Unknown direction: %d\n", direction);
+		printf("GetEastDirectionToMove() - Fault - Unknown direction: %d\n", direction);
 		return ROBOT_MOVING_DIRECTION_ERROR;
 	}
 }
@@ -105,7 +106,7 @@ T_robot_moving_direction RobotPosition::GetWestDirectionToMove(int direction) {
 	case NORTH:
 		return ROBOT_MOVING_DIRECTION_RIGHT_FORWARD;
 	default:
-		printf("Fault - Unknown direction: %d\n", direction);
+		printf("GetWestDirectionToMove() - Fault - Unknown direction: %d\n", direction);
 		return ROBOT_MOVING_DIRECTION_ERROR;
 	}
 }
@@ -121,7 +122,7 @@ T_robot_moving_direction RobotPosition::GetSouthDirectionToMove(int direction) {
 	case NORTH:
 		return ROBOT_MOVING_DIRECTION_BACK;
 	default:
-		printf("Fault - Unknown direction: %d\n", direction);
+		printf("GetSouthDirectionToMove() - Fault - Unknown direction: %d\n", direction);
 		return ROBOT_MOVING_DIRECTION_ERROR;
 	}
 }
@@ -137,14 +138,14 @@ T_robot_moving_direction RobotPosition::GetNorthDirectionToMove(int direction) {
 	case NORTH:
 		return ROBOT_MOVING_DIRECTION_FORWARD;
 	default:
-		printf("Fault - Unknown direction: %d\n", direction);
+		printf("GetNorthDirectionToMove() - Fault - Unknown direction: %d\n", direction);
 		return ROBOT_MOVING_DIRECTION_ERROR;
 	}
 }
 
 
 void RobotPosition::SetDirectionToMove(T_robot_moving_direction nextDirection) {
-	printf("Next direction is %d\n", nextDirection);
+	printf("SetDirectionToMove() - Next direction is %d\n", nextDirection);
 
 	switch (CurrentDirection) {
 	case EAST:
@@ -160,7 +161,7 @@ void RobotPosition::SetDirectionToMove(T_robot_moving_direction nextDirection) {
 		SetNorthDirectionToMove(nextDirection);
 		break;
 	default:
-		printf("It's not supported EWSN direction.(%d)\n", CurrentDirection);
+		printf("SetDirectionToMove() - It's not supported EWSN direction.(%d)\n", CurrentDirection);
 		break;
 	}
 }
@@ -180,7 +181,7 @@ void RobotPosition::SetEastDirectionToMove(T_robot_moving_direction nextDirectio
 		NextDirection = SOUTH;
 		break;
 	default:
-		printf("It's not supported direction(%d)\n", nextDirection);
+		printf("SetEastDirectionToMove() - It's not supported direction(%d)\n", nextDirection);
 		break;
 	}
 }
@@ -200,7 +201,7 @@ void RobotPosition::SetWestDirectionToMove(T_robot_moving_direction nextDirectio
 		NextDirection = NORTH;
 		break;
 	default:
-		printf("It's not supported direction(%d)\n", nextDirection);
+		printf("SetWestDirectionToMove() - It's not supported direction(%d)\n", nextDirection);
 		break;
 	}
 }
@@ -220,7 +221,7 @@ void RobotPosition::SetSouthDirectionToMove(T_robot_moving_direction nextDirecti
 		NextDirection = WEST;
 		break;
 	default:
-		printf("It's not supported direction(%d)\n", nextDirection);
+		printf("SetSouthDirectionToMove() - It's not supported direction(%d)\n", nextDirection);
 		break;
 	}
 }
@@ -240,7 +241,7 @@ void RobotPosition::SetNorthDirectionToMove(T_robot_moving_direction nextDirecti
 		NextDirection = EAST;
 		break;
 	default:
-		printf("It's not supported direction(%d)\n", nextDirection);
+		printf("SetNorthDirectionToMove() - It's not supported direction(%d)\n", nextDirection);
 		break;
 	}
 }

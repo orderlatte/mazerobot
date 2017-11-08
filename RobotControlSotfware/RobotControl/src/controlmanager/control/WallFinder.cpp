@@ -15,14 +15,18 @@ using namespace std;
 
 
 WallFinder::WallFinder() {
+	Init();
+}
+
+void WallFinder::Init() {
 	CheckedFrontWall = true;
 	CheckedLeftWall = true;
 	CheckedRightWall = true;
 	CheckedBackWall = true;
-	ConfirmedFrontWall = false;
-	ConfirmedLeftWall = false;
-	ConfirmedRightWall = false;
-	ConfirmedBackWall = true;
+	BlockedFrontWall = false;
+	BlockedLeftWall = false;
+	BlockedRightWall = false;
+	BlockedBackWall = false;
 }
 
 //
@@ -38,16 +42,33 @@ WallFinder::WallFinder() {
 
 void WallFinder::recognizeWall(T_SensorData* sensorData) {
 	if (sensorData->sonar_distance < 10) { // Less than 10cm
-		ConfirmedFrontWall = true;
+		printf("recognizeWall() Front wall is existed\n");
+		BlockedFrontWall = true;
 	}
 
-	if (sensorData->laser_left_distance < 10) {  // Less than
-		ConfirmedLeftWall = true;
+	if (sensorData->laser_left_distance < 100) {  // Less than
+		printf("recognizeWall() Left wall is existed\n");
+		BlockedLeftWall = true;
 	}
 
-	if (sensorData->laser_right_distance < 10) {  // Less than
-		ConfirmedRightWall = true;
+	if (sensorData->laser_right_distance < 100) {  // Less than
+		printf("recognizeWall() Right wall is existed\n");
+		BlockedRightWall = true;
 	}
+
+	printDebug();
+
+}
+
+void WallFinder::printDebug() {
+	printf("CheckedFrontWall: %d\n", CheckedFrontWall);
+	printf("CheckedLeftWall: %d\n", CheckedLeftWall);
+	printf("CheckedRightWall: %d\n", CheckedRightWall);
+	printf("CheckedBackWall: %d\n", CheckedBackWall);
+	printf("BlockedFrontWall: %d\n", BlockedFrontWall);
+	printf("BlockedLeftWall: %d\n", BlockedLeftWall);
+	printf("BlockedRightWall: %d\n", BlockedRightWall);
+	printf("BlockedBackWall: %d\n", BlockedBackWall);
 }
 
 bool WallFinder::getCheckedFrontWall() {
@@ -66,20 +87,24 @@ bool WallFinder::getCheckedBackWall() {
 	return CheckedBackWall;
 }
 
-bool WallFinder::getConfirmedFrontWall() {
-	return ConfirmedFrontWall;
+bool WallFinder::getBlockedFrontWall() {
+	printf("getBlockedFontWall() is called.(%d)\n", BlockedFrontWall);
+	return BlockedFrontWall;
 }
 
-bool WallFinder::getConfirmedLeftWall() {
-	return ConfirmedLeftWall;
+bool WallFinder::getBlockedLeftWall() {
+	printf("getBlockedLeftWall() is called.(%d)\n", BlockedLeftWall);
+	return BlockedLeftWall;
 }
 
-bool WallFinder::getConfirmedRightWall() {
-	return ConfirmedRightWall;
+bool WallFinder::getBlockedRightWall() {
+	printf("getBlockedRightWall() is called.(%d)\n", BlockedRightWall);
+	return BlockedRightWall;
 }
 
-bool WallFinder::getConfirmedBackWall() {
-	return ConfirmedBackWall;
+bool WallFinder::getBlockedBackWall() {
+	printf("getBlockedBackWall() is called.(%d)\n", BlockedBackWall);
+	return BlockedBackWall;
 }
 
 

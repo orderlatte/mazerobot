@@ -37,6 +37,9 @@ public:
 	void doOperation();
 	fp_robot_turned getRobotTurnedFP();
 	fp_robot_moved getRobotMovedFP();
+	void stopRobot();
+	void avoidLeftWall();
+	void avoidRightWall();
 
 private:
 	void doReady();

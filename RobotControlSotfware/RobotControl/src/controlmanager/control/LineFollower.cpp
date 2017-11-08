@@ -54,7 +54,6 @@ typedef enum
 static UdpSendJpeg    VideoSender;
 static UdpSendMap	  MapSender;
 static T_robot_status CurrentStatus;
-static T_robot_moving_direction CurrentMovingDirection;
 static int            EWSNDirection = NORTH;
 static bool           HitTheFrontWall;
 static bool			  HitTheLeftWall;
@@ -116,7 +115,6 @@ int main(int argc, const char** argv)
 
 
   CurrentStatus = ROBOT_STATUS_MANUAL;
-  CurrentMovingDirection = ROBOT_MOVING_DIRECTION_STOP;
   HitTheFrontWall = false;
   HitTheLeftWall = false;
   HitTheRightWall = false;
@@ -128,12 +126,11 @@ int main(int argc, const char** argv)
 	  if (CurrentStatus == ROBOT_STATUS_AUTO) {
 		  AutomodeRobot->doOperation();
 	  } else if (CurrentStatus == ROBOT_STATUS_MANUAL) {
-		  CurrentPosition.SetDirectionToMove(CurrentMovingDirection);
+//		  CurrentPosition.SetDirectionToMove(CurrentMovingDirection);
 		  // TODO: Next Cell recognition should be implemented.
-		  CurrentPosition.SuccessToMove();
+//		  CurrentPosition.SuccessToMove();
 	  } else {
 		  printf("Robot is suspend mode.\n");
-		  CurrentMovingDirection = ROBOT_MOVING_DIRECTION_STOP;
 	  }
 
 	  usleep(2000);			  // sleep 2 milliseconds
@@ -175,8 +172,7 @@ static void Setup_Control_C_Signal_Handler_And_Keyboard_No_Enter(void)
 static void CleanUp(void)
 {
  RestoreKeyboard();                // restore Keyboard
-
-
+ free(AutomodeRobot);
  VideoSender.CloseUdp();
  MapSender.CloseUdp();
  ResetServos();                    // Reset servos to center or stopped
@@ -213,19 +209,19 @@ static void HandleInputChar(void)
 
   switch (ch) {
   case 'w':
-	  robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);
+	  robot_operation_manual(ROBOT_OPERATION_DIRECTION_FORWARD);
 	  break;
   case 'x':
-	  robot_operation_auto(ROBOT_OPERATION_DIRECTION_BACKWARD);
+	  robot_operation_manual(ROBOT_OPERATION_DIRECTION_BACKWARD);
 	  break;
   case 'd':
-	  robot_operation_auto(ROBOT_OPERATION_DIRECTION_RIGHT);
+	  robot_operation_manual(ROBOT_OPERATION_DIRECTION_RIGHT);
 	  break;
   case 'a':
-	  robot_operation_auto(ROBOT_OPERATION_DIRECTION_LEFT);
+	  robot_operation_manual(ROBOT_OPERATION_DIRECTION_LEFT);
 	  break;
   case 's':
-	  robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
+	  robot_operation_manual(ROBOT_OPERATION_DIRECTION_STOP);
 	  CurrentStatus = ROBOT_STATUS_MANUAL;
 	  break;
   case 'r':
@@ -246,7 +242,7 @@ static void stopRobot(T_sensor_type sensorType)
 		HitTheFrontWall = true;
 
 		if (CurrentStatus == ROBOT_STATUS_AUTO) {
-			robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
+			AutomodeRobot->stopRobot();
 		} else {
 			robot_operation_manual(ROBOT_OPERATION_DIRECTION_STOP);
 		}
@@ -273,50 +269,20 @@ static void stopRobot(T_sensor_type sensorType)
 static void avoidLeftWall() {
 	printf("avoidLeftWall() is called!\n");
 
-	switch (CurrentMovingDirection) {
-	case ROBOT_MOVING_DIRECTION_FORWARD:
-		robot_operation_manual(ROBOT_OPERATION_DIRECTION_RIGHT);	// Right
-		usleep(500000);	// sleep 500 milliseconds
-		break;
-
-	case ROBOT_MOVING_DIRECTION_BACK:
-		robot_operation_manual(ROBOT_OPERATION_DIRECTION_LEFT);	// Left
-		usleep(500000);	// sleep 500 milliseconds
-		break;
-
-	case ROBOT_MOVING_DIRECTION_LEFT_FORWARD:
-		robot_operation_manual(ROBOT_OPERATION_DIRECTION_RIGHT);	// Right
-		usleep(500000);	// sleep 500 milliseconds
-		break;
-
-	default:
-		printf("Robot could not handle in this case!\n");
-		break;
+	if (CurrentStatus == ROBOT_STATUS_AUTO) {
+		AutomodeRobot->avoidLeftWall();
+	} else if (CurrentStatus == ROBOT_STATUS_MANUAL) {
+		// TODO: something...
 	}
 }
 
 static void avoidRightWall() {
 	printf("avoidRightWall() is called!\n");
 
-	switch (CurrentMovingDirection) {
-	case ROBOT_MOVING_DIRECTION_FORWARD:
-		robot_operation_manual(ROBOT_OPERATION_DIRECTION_LEFT);	// Left
-		usleep(500000);	// sleep 500 milliseconds
-		break;
-
-	case ROBOT_MOVING_DIRECTION_BACK:
-		robot_operation_manual(ROBOT_OPERATION_DIRECTION_RIGHT);	// Right
-		usleep(500000);	// sleep 500 milliseconds
-		break;
-
-	case ROBOT_MOVING_DIRECTION_RIGHT_FORWARD:
-		robot_operation_manual(ROBOT_OPERATION_DIRECTION_LEFT);	// Left
-		usleep(500000);	// sleep 500 milliseconds
-		break;
-
-	default:
-		printf("Robot could not handle in this case!\n");
-		break;
+	if (CurrentStatus == ROBOT_STATUS_AUTO) {
+		AutomodeRobot->avoidRightWall();
+	} else if (CurrentStatus == ROBOT_STATUS_MANUAL) {
+		// TODO: something...
 	}
 }
 
@@ -327,7 +293,7 @@ void *image_capture_thread(void *value) {
 	cv::Mat        image;          // camera image in Mat format
 	RobotVisionManager rvm;
 
-//	rvm.SetDebug(true);	// For debugging
+	rvm.SetDebug(true);	// For debugging
 
 	while (1) {
 		rvm.GetCamImage(image);  // Get Camera image
