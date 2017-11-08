@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------------------------
-// File: RobotStatus.cpp
+// File: RobotPosition.cpp
 // Project: LG Exec Ed Program
 // Versions:
 // 1.0 April 2017 - initial version
@@ -85,9 +85,9 @@ T_robot_moving_direction RobotPosition::GetEastDirectionToMove(int direction) {
 	case WEST:
 		return ROBOT_MOVING_DIRECTION_BACK;
 	case SOUTH:
-		return ROBOT_MOVING_DIRECTION_RIGHT;
+		return ROBOT_MOVING_DIRECTION_RIGHT_FORWARD;
 	case NORTH:
-		return ROBOT_MOVING_DIRECTION_LEFT;
+		return ROBOT_MOVING_DIRECTION_LEFT_FORWARD;
 	default:
 		printf("Fault - Unknown direction: %d\n", direction);
 		return ROBOT_MOVING_DIRECTION_ERROR;
@@ -101,9 +101,9 @@ T_robot_moving_direction RobotPosition::GetWestDirectionToMove(int direction) {
 	case WEST:
 		return ROBOT_MOVING_DIRECTION_FORWARD;
 	case SOUTH:
-		return ROBOT_MOVING_DIRECTION_LEFT;
+		return ROBOT_MOVING_DIRECTION_LEFT_FORWARD;
 	case NORTH:
-		return ROBOT_MOVING_DIRECTION_RIGHT;
+		return ROBOT_MOVING_DIRECTION_RIGHT_FORWARD;
 	default:
 		printf("Fault - Unknown direction: %d\n", direction);
 		return ROBOT_MOVING_DIRECTION_ERROR;
@@ -113,9 +113,9 @@ T_robot_moving_direction RobotPosition::GetWestDirectionToMove(int direction) {
 T_robot_moving_direction RobotPosition::GetSouthDirectionToMove(int direction) {
 	switch (direction) {
 	case EAST:
-		return ROBOT_MOVING_DIRECTION_LEFT;
+		return ROBOT_MOVING_DIRECTION_LEFT_FORWARD;
 	case WEST:
-		return ROBOT_MOVING_DIRECTION_RIGHT;
+		return ROBOT_MOVING_DIRECTION_RIGHT_FORWARD;
 	case SOUTH:
 		return ROBOT_MOVING_DIRECTION_FORWARD;
 	case NORTH:
@@ -129,9 +129,9 @@ T_robot_moving_direction RobotPosition::GetSouthDirectionToMove(int direction) {
 T_robot_moving_direction RobotPosition::GetNorthDirectionToMove(int direction) {
 	switch (direction) {
 	case EAST:
-		return ROBOT_MOVING_DIRECTION_RIGHT;
+		return ROBOT_MOVING_DIRECTION_RIGHT_FORWARD;
 	case WEST:
-		return ROBOT_MOVING_DIRECTION_LEFT;
+		return ROBOT_MOVING_DIRECTION_LEFT_FORWARD;
 	case SOUTH:
 		return ROBOT_MOVING_DIRECTION_BACK;
 	case NORTH:
@@ -173,10 +173,10 @@ void RobotPosition::SetEastDirectionToMove(T_robot_moving_direction nextDirectio
 	case ROBOT_MOVING_DIRECTION_BACK:
 		NextDirection = WEST;
 		break;
-	case ROBOT_MOVING_DIRECTION_LEFT:
+	case ROBOT_MOVING_DIRECTION_LEFT_FORWARD:
 		NextDirection = NORTH;
 		break;
-	case ROBOT_MOVING_DIRECTION_RIGHT:
+	case ROBOT_MOVING_DIRECTION_RIGHT_FORWARD:
 		NextDirection = SOUTH;
 		break;
 	default:
@@ -193,10 +193,10 @@ void RobotPosition::SetWestDirectionToMove(T_robot_moving_direction nextDirectio
 	case ROBOT_MOVING_DIRECTION_BACK:
 		NextDirection = EAST;
 		break;
-	case ROBOT_MOVING_DIRECTION_LEFT:
+	case ROBOT_MOVING_DIRECTION_LEFT_FORWARD:
 		NextDirection = SOUTH;
 		break;
-	case ROBOT_MOVING_DIRECTION_RIGHT:
+	case ROBOT_MOVING_DIRECTION_RIGHT_FORWARD:
 		NextDirection = NORTH;
 		break;
 	default:
@@ -213,10 +213,10 @@ void RobotPosition::SetSouthDirectionToMove(T_robot_moving_direction nextDirecti
 	case ROBOT_MOVING_DIRECTION_BACK:
 		NextDirection = NORTH;
 		break;
-	case ROBOT_MOVING_DIRECTION_LEFT:
+	case ROBOT_MOVING_DIRECTION_LEFT_FORWARD:
 		NextDirection = EAST;
 		break;
-	case ROBOT_MOVING_DIRECTION_RIGHT:
+	case ROBOT_MOVING_DIRECTION_RIGHT_FORWARD:
 		NextDirection = WEST;
 		break;
 	default:
@@ -233,10 +233,10 @@ void RobotPosition::SetNorthDirectionToMove(T_robot_moving_direction nextDirecti
 	case ROBOT_MOVING_DIRECTION_BACK:
 		NextDirection = SOUTH;
 		break;
-	case ROBOT_MOVING_DIRECTION_LEFT:
+	case ROBOT_MOVING_DIRECTION_LEFT_FORWARD:
 		NextDirection = WEST;
 		break;
-	case ROBOT_MOVING_DIRECTION_RIGHT:
+	case ROBOT_MOVING_DIRECTION_RIGHT_FORWARD:
 		NextDirection = EAST;
 		break;
 	default:
@@ -246,7 +246,7 @@ void RobotPosition::SetNorthDirectionToMove(T_robot_moving_direction nextDirecti
 }
 
 //-----------------------------------------------------------------
-// END RobotStatus
+// END RobotPosition
 //-----------------------------------------------------------------
 
 //-----------------------------------------------------------------

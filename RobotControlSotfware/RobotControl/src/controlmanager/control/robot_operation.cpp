@@ -29,6 +29,10 @@ extern int linewidth;
 extern float ImageOffset;		   // computed robot deviation from the line
 T_robot_operation_info robot_operation_info;
 
+static fp_get_image_offset fpGetImageOffset;
+static fp_robot_turned fpRobotTurned;
+static fp_robot_moved fpRobotMoved;
+
 long micros_wrapper();
 
 
@@ -201,7 +205,7 @@ void *robot_operation_main(void *value)
 	}
 }
 
-void robot_operation_init(void)
+void robot_operation_init(fp_get_image_offset getImageOffset, fp_robot_turned robotTurned, fp_robot_moved robotMoved)
 {
 	pthread_t thread1;
 	int x = 0;
