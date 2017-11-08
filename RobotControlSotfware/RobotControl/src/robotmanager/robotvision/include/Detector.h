@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <stdio.h>
+#include <map>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -26,9 +27,15 @@ public:
 	~Detector();
 
 	bool findRedDot(cv::Mat& CameraImage,bool bDebug=false);
-	bool findGoalArea(cv::Mat& CameraImage, const float thresBlueAreaOfROI, bool  bDebug=false);
-	bool findCrossArea(cv::Mat& CameraImage, const float thresCrossAreaOfROI, bool bDebug=false);
+	bool findGoalArea(cv::Mat& CameraImage, bool  bDebug=false);
+	bool findCrossArea(cv::Mat& CameraImage,bool bDebug=false);
 	float FindLineInImageAndComputeOffset(cv::Mat& CameraImage, bool bDebug = false);
 	float FindLineInImageAndComputeOffsetAndWidth(cv::Mat& CameraImage, int& selectedWidth, bool bDebug = false);
+
+	void SetParameter(map<string, float> mParam); 
+private:
+
+	float m_thresBlueAreaOfROI;
+	float m_thresCrossAreaOfROI;
 };
 

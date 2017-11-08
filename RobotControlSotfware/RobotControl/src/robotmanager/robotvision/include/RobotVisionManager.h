@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <stdio.h>
+#include <map>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -31,11 +32,11 @@ typedef struct visionParameter
 class RobotVisionManager
 {
 public:
-
 	RobotVisionManager();
 	~RobotVisionManager();
 
-	void Initialize(VisionParameter param);
+	bool Initialize();
+	//void Initialize(VisionParameter param);
 	bool FindRedDot();
 	bool FindGoalArea();
 	bool FindCrossArea();
@@ -55,13 +56,13 @@ public:
 	int RecognizeImage(cv::Mat& cameraimg);
 
 private:
+	int readParameter();
 
-
-	bool Initialize();
-
-	VisionParameter m_sParameter;
+	//VisionParameter m_sParameter;
 	Recognizer* m_recognizer;
 	Detector* m_detector;
+
+	map<string, float> m_mParam;
 
 	bool m_bDebug;
 
