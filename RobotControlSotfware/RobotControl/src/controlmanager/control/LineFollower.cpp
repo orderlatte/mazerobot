@@ -71,8 +71,11 @@ static void  HandleInputChar(void);
 static void  stopRobot(T_sensor_type sensorType);
 static void  avoidLeftWall();
 static void  avoidRightWall();
-static float getImageOffset();
+static T_robot_image_info getImageOffset();
 void creat_image_capture_thread(void);
+
+//extern static void CallBackRobotTurned();
+//extern static void CallBackRobotMoved();
 
 //----------------------------------------------------------------
 // main - This is the main program for the line follower and 
@@ -107,7 +110,7 @@ int main(int argc, const char** argv)
   AutomodeRobot = new Automode(&CurrentPosition);
 
   sensor_manager_main(&stopRobot);
-  robot_operation_init();
+  robot_operation_init(getImageOffset, AutomodeRobot->getRobotTurnedFP(), AutomodeRobot->getRobotMovedFP());
 
   creat_image_capture_thread();
 
@@ -227,6 +230,7 @@ static void HandleInputChar(void)
 	  break;
   case 'r':
 	  CurrentStatus = ROBOT_STATUS_AUTO;
+	  break;
   default:
 	  printf("Invalid key input: %c", ch);
 	  break;
@@ -347,7 +351,10 @@ void creat_image_capture_thread(void)
 
 static T_robot_image_info getImageOffset()
 {
-	return ImageOffset;
+	T_robot_image_info imageInfo;
+	imageInfo.offset = ImageOffset;
+	imageInfo.linewidth = linewidth;
+	return imageInfo;
 }
 
 //-----------------------------------------------------------------

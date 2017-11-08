@@ -302,6 +302,56 @@ void Automode::doRecognizingSign() {
 	// TODO: something..
 }
 
+fp_robot_turned Automode::getRobotTurnedFP() {
+	return CallBackRobotTurned;
+}
+
+fp_robot_moved Automode::getRobotMovedFP() {
+	return CallBackRobotMoved;
+}
+
+void Automode::setStatus(T_automode_status status) {
+//	switch (status) {
+//
+//	case AUTOMODE_STATUS_READY:
+//		Status = AUTOMODE_STATUS_READY;
+//		break;
+//
+//	case AUTOMODE_STATUS_WAITING_FOR_DIRECTION:
+//		if (Status == AUTOMODE_STATUS_READY) {
+//			Status = AUTOMODE_STATUS_WAITING_FOR_DIRECTION;
+//		} else {
+//			printf("setStatus() - Previous status is not ready.\n");
+//			Status = AUTOMODE_STATUS_READY;
+//		}
+//		break;
+//
+//	case AUTOMODE_STATUS_RECEIVED_MOVING_DIRECTION:
+//		if (Status == AUTOMODE_STATUS_WAITING_FOR_DIRECTION) {
+//			Status = AUTOMODE_STATUS_RECEIVED_MOVING_DIRECTION;
+//		} else {
+//			printf("setStatus() - Previous status is not waiting for moving direction.\n");
+//			Status = AUTOMODE_STATUS_READY;
+//		}
+//		break;
+//
+//	case AUTOMODE_STATUS_TURNING:
+//
+//		break;
+//	case AUTOMODE_STATUS_TURNED:
+//		break;
+//	case AUTOMODE_STATUS_MOVING:
+//		break;
+//	case AUTOMODE_STATUS_MOVED:
+//		break;
+//	case AUTOMODE_STATUS_RECOGNIZING_SIGN:
+//		break;
+//	default:
+//		printf("setStatus() - Error! (%d)\n", status);
+//		break;
+//	}
+}
+
 
 //-----------------------------------------------------------------
 // END Automode

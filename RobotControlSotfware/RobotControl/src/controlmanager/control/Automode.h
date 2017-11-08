@@ -11,6 +11,7 @@
 #include <thread>		// For testing
 #include "RobotPosition.h"
 #include "WallFinder.h"
+#include "robot_operation.h"
 
 typedef enum
 {
@@ -29,12 +30,13 @@ typedef enum
 // TODO: It should be moved to network manager
 typedef void (*fp_robot_ewsn_direction)(int);  // 1: EAST, 2: WEST, 4: SOUTH, 8: NORTH
 
-
 class Automode {
 
 public:
 	Automode(RobotPosition *position);
 	void doOperation();
+	fp_robot_turned getRobotTurnedFP();
+	fp_robot_moved getRobotMovedFP();
 
 private:
 	void doReady();
@@ -51,6 +53,7 @@ private:
 //	void CallBackRobotTurned();
 //	void CallBackRobotMoved();
 	void moveNextCell();
+	void setStatus(T_automode_status status);
 };
 
 
