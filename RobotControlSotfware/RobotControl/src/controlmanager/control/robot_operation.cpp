@@ -65,7 +65,7 @@ void robot_move_one_cell_foward(void)
 	}
 	else if(robot_move_one_cell_foward_state == 3)
 	{
-		if(micros_wrapper()-timeoutstart < (800*1000))
+		if(micros_wrapper()-timeoutstart < (900*1000))
 		{
 			robot_mode_setting(ROBOT_LINE_TRACKING, ImageOffset);
 		}
@@ -187,7 +187,7 @@ void *robot_operation_main(void *value)
 {
 	while(1)
 	{
-		usleep(30*1000);
+		usleep(5*1000);
 		switch(robot_operation_info.mode)
 		{
 			case ROBOT_OPERATION_MANUAL:

@@ -369,19 +369,19 @@ static void HandleInputChar(void)
 
   switch (ch) {
   case 'w':
-	  robot_operation_manual(ROBOT_OPERATION_DIRECTION_FORWARD);
+	  robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);
 	  break;
   case 'x':
-	  robot_operation_manual(ROBOT_OPERATION_DIRECTION_BACKWARD);
+	  robot_operation_auto(ROBOT_OPERATION_DIRECTION_BACKWARD);
 	  break;
   case 'd':
-	  robot_operation_manual(ROBOT_OPERATION_DIRECTION_RIGHT);
+	  robot_operation_auto(ROBOT_OPERATION_DIRECTION_RIGHT);
 	  break;
   case 'a':
-	  robot_operation_manual(ROBOT_OPERATION_DIRECTION_LEFT);
+	  robot_operation_auto(ROBOT_OPERATION_DIRECTION_LEFT);
 	  break;
   case 's':
-	  robot_operation_manual(ROBOT_OPERATION_DIRECTION_STOP);
+	  robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
 	  CurrentStatus = ROBOT_STATUS_MANUAL;
 	  break;
   case 'r':

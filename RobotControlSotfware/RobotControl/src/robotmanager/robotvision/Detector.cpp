@@ -283,7 +283,7 @@ float Detector::FindLineInImageAndComputeOffsetAndWidth(cv::Mat& CameraImage, in
 	vector<Vec4i> hierarchy;
 	Mat mono, blur, thresh, erodeImg, dilateImg;
 
-	selectedWidth = 0; 
+	//selectedWidth = 0; 
 
 	Rect RoiRec(10, 2 * CameraImage.rows / 3, CameraImage.cols - 20, CameraImage.rows / 12); //Define region of interest rectangle
 
