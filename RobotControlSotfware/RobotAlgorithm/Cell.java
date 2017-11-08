@@ -23,6 +23,10 @@ public class Cell {
 			return true;
 		return false;
 	}
+	
+	public void clearRobotInfo(){
+		data[0] = 0x0;
+	}
 
 	public DirectionWallSet getWall() {
 		DirectionWallSet ds = new DirectionWallSet();
