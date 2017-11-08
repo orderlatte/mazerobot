@@ -1,12 +1,12 @@
 /*
- * RobotStatus.h
+ * RobotPosition.h
  *
  *  Created on: November 6, 2017
  *      Author: lg
  */
 
-#ifndef RobotStatusH
-#define RobotStatusH
+#ifndef RobotPositionH
+#define RobotPositionH
 
 #include "Direction.h"
 
@@ -41,4 +41,4 @@ private:
 };
 
 
-#endif /* RobotStatusH */
+#endif /* RobotPositionH */

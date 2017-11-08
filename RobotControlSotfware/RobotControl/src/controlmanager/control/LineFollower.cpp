@@ -32,6 +32,7 @@
 #include "RobotPosition.h"
 #include "sensor_manager.h"
 #include "Servos.h"
+#include "Automode.h"
 
 #define INIT 0
 #define STOP 1
@@ -50,19 +51,6 @@ typedef enum
 	ROBOT_STATUS_MAX
 } T_robot_status;
 
-typedef struct
-{
-	bool CheckedFrontWall = true;
-	bool CheckedLeftWall = true;
-	bool CheckedRightWall = true;
-	bool CheckedBackWall = true;
-	bool ConfirmedFrontWall = false;
-	bool ConfirmedLeftWall = false;
-	bool ConfirmedRightWall = false;
-	bool ConfirmedBackWall = true;
-}T_WallData;
-
-
 static UdpSendJpeg    VideoSender;
 static UdpSendMap	  MapSender;
 static T_robot_status CurrentStatus;
@@ -72,21 +60,22 @@ static bool           HitTheFrontWall;
 static bool			  HitTheLeftWall;
 static bool 		  HitTheRightWall;
 static RobotPosition  CurrentPosition;
-float	      ImageOffset;		   // computed robot deviation from the line
-int 			  linewidth;
+static Automode       *AutomodeRobot;
+float	      		  ImageOffset;		   // computed robot deviation from the line
+int 			      linewidth;
 
 static void  Setup_Control_C_Signal_Handler_And_Keyboard_No_Enter(void);
 static void  CleanUp(void);
 static void  Control_C_Handler(int s);
 static void  HandleInputChar(void);
-static bool  handleWhenFrontWallIsExisted();
-static void  moveNextCellAuto();
 static void  stopRobot(T_sensor_type sensorType);
 static void  avoidLeftWall();
 static void  avoidRightWall();
-static float getImageOffset();
-static int getNextEWSNDirection(bool initialStarted);
+static T_robot_image_info getImageOffset();
 void creat_image_capture_thread(void);
+
+//extern static void CallBackRobotTurned();
+//extern static void CallBackRobotMoved();
 
 //----------------------------------------------------------------
 // main - This is the main program for the line follower and 
@@ -118,10 +107,13 @@ int main(int argc, const char** argv)
 	  return(-1);
   }
 
+  AutomodeRobot = new Automode(&CurrentPosition);
+
   sensor_manager_main(&stopRobot);
-  robot_operation_init();
+  robot_operation_init(getImageOffset, AutomodeRobot->getRobotTurnedFP(), AutomodeRobot->getRobotMovedFP());
 
   creat_image_capture_thread();
+
 
   CurrentStatus = ROBOT_STATUS_MANUAL;
   CurrentMovingDirection = ROBOT_MOVING_DIRECTION_STOP;
@@ -134,11 +126,7 @@ int main(int argc, const char** argv)
 	  HandleInputChar();          // Handle Keyboard Input
 
 	  if (CurrentStatus == ROBOT_STATUS_AUTO) {
-		  // TODO: It should be call back function.
-		  EWSNDirection = getNextEWSNDirection(false);
-		  CurrentMovingDirection = CurrentPosition.SetEWSNDirectionToMove(EWSNDirection);
-		  moveNextCellAuto();	// For testing..
-		  CurrentPosition.SuccessToMove();
+		  AutomodeRobot->doOperation();
 	  } else if (CurrentStatus == ROBOT_STATUS_MANUAL) {
 		  CurrentPosition.SetDirectionToMove(CurrentMovingDirection);
 		  // TODO: Next Cell recognition should be implemented.
@@ -146,7 +134,6 @@ int main(int argc, const char** argv)
 	  } else {
 		  printf("Robot is suspend mode.\n");
 		  CurrentMovingDirection = ROBOT_MOVING_DIRECTION_STOP;
-		  moveNextCellAuto();
 	  }
 
 	  usleep(2000);			  // sleep 2 milliseconds
@@ -156,150 +143,7 @@ int main(int argc, const char** argv)
   return 0;
 }
 
-static void sendCurrentRobotStatus(T_SensorData* sensorData, T_WallData *wallData, bool initialStarted) {
 
-	int EWSN = NORTH;
-
-	if (sensorData->sonar_distance < 10) { // Less than 10cm
-		wallData->ConfirmedFrontWall = true;
-	}
-
-	if (sensorData->laser_left_distance < 10) {  // Less than
-		wallData->ConfirmedLeftWall = true;
-	}
-
-	if (sensorData->laser_right_distance < 10) {  // Less than
-		wallData->ConfirmedRightWall = true;
-	}
-
-	if (initialStarted == true) {
-		wallData->CheckedBackWall = false;
-		wallData->ConfirmedBackWall = false;
-	}
-
-	EWSN = CurrentPosition.getCurrentEWSNDirection();
-
-	// TODO: Get sign position
-	// TODO: Get sign type
-	// TODO: Get red dot
-
-	// TODO: Send to Maze Algorithm component
-}
-
-// It's for testing..
-static int getTestNextDirection(T_WallData *wallData) {
-	int EWSN = CurrentPosition.getCurrentEWSNDirection();
-
-	switch (EWSN) {
-	case EAST:
-		if (wallData->CheckedFrontWall == false) {
-			return EAST;
-		}
-
-		if (wallData->CheckedLeftWall == false) {
-			return NORTH;
-		}
-
-		if (wallData->CheckedRightWall == false) {
-			return SOUTH;
-		}
-
-		return WEST;
-
-	case WEST:
-		if (wallData->CheckedFrontWall == false) {
-			return WEST;
-		}
-
-		if (wallData->CheckedLeftWall == false) {
-			return SOUTH;
-		}
-
-		if (wallData->CheckedRightWall == false) {
-			return NORTH;
-		}
-
-		return EAST;
-
-	case SOUTH:
-		if (wallData->CheckedFrontWall == false) {
-			return SOUTH;
-		}
-
-		if (wallData->CheckedLeftWall == false) {
-			return EAST;
-		}
-
-		if (wallData->CheckedRightWall == false) {
-			return WEST;
-		}
-
-		return NORTH;
-
-	case NORTH:
-		if (wallData->CheckedFrontWall == false) {
-			return NORTH;
-		}
-
-		if (wallData->CheckedLeftWall == false) {
-			return WEST;
-		}
-
-		if (wallData->CheckedRightWall == false) {
-			return EAST;
-		}
-
-		return SOUTH;
-
-	default:
-		printf("It is not supported EWSN direction(%d)!", EWSN);
-		return NORTH;
-	}
-}
-
-static int getNextEWSNDirection(bool initialStarted) {
-	T_SensorData sensorData = get_sensor_data();
-	T_WallData wallData;
-
-	sendCurrentRobotStatus(&sensorData, &wallData, initialStarted);
-
-	// TODO: Below code will be replaced with Maze algorithm
-	return getTestNextDirection(&wallData);
-}
-
-
-
-
-
-static void moveNextCellAuto() {
-	printf("handleWhenFrontWallIsExisted() is called!\n");
-
-	switch (CurrentMovingDirection) {
-	case ROBOT_MOVING_DIRECTION_FORWARD:
-		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Forward
-		break;
-
-	case ROBOT_MOVING_DIRECTION_BACK:
-		robot_operation_auto(ROBOT_OPERATION_DIRECTION_BACKWARD);	// Backward
-		break;
-
-	case ROBOT_MOVING_DIRECTION_LEFT:
-		robot_operation_auto(ROBOT_OPERATION_DIRECTION_LEFT);	// Left
-		break;
-
-	case ROBOT_MOVING_DIRECTION_RIGHT:
-		robot_operation_auto(ROBOT_OPERATION_DIRECTION_RIGHT);	// Right
-		break;
-
-	case ROBOT_MOVING_DIRECTION_STOP:
-		robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);	// Stop
-		break;
-
-	default:
-		printf("Robot could not handle in this case!\n");
-		break;
-	}
-}
 
 //-----------------------------------------------------------------
 // END main
@@ -369,23 +213,24 @@ static void HandleInputChar(void)
 
   switch (ch) {
   case 'w':
-	  robot_operation_manual(ROBOT_OPERATION_DIRECTION_FORWARD);
+	  robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);
 	  break;
   case 'x':
-	  robot_operation_manual(ROBOT_OPERATION_DIRECTION_BACKWARD);
+	  robot_operation_auto(ROBOT_OPERATION_DIRECTION_BACKWARD);
 	  break;
   case 'd':
-	  robot_operation_manual(ROBOT_OPERATION_DIRECTION_RIGHT);
+	  robot_operation_auto(ROBOT_OPERATION_DIRECTION_RIGHT);
 	  break;
   case 'a':
-	  robot_operation_manual(ROBOT_OPERATION_DIRECTION_LEFT);
+	  robot_operation_auto(ROBOT_OPERATION_DIRECTION_LEFT);
 	  break;
   case 's':
-	  robot_operation_manual(ROBOT_OPERATION_DIRECTION_STOP);
+	  robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
 	  CurrentStatus = ROBOT_STATUS_MANUAL;
 	  break;
   case 'r':
 	  CurrentStatus = ROBOT_STATUS_AUTO;
+	  break;
   default:
 	  printf("Invalid key input: %c", ch);
 	  break;
@@ -439,7 +284,7 @@ static void avoidLeftWall() {
 		usleep(500000);	// sleep 500 milliseconds
 		break;
 
-	case ROBOT_MOVING_DIRECTION_LEFT:
+	case ROBOT_MOVING_DIRECTION_LEFT_FORWARD:
 		robot_operation_manual(ROBOT_OPERATION_DIRECTION_RIGHT);	// Right
 		usleep(500000);	// sleep 500 milliseconds
 		break;
@@ -464,7 +309,7 @@ static void avoidRightWall() {
 		usleep(500000);	// sleep 500 milliseconds
 		break;
 
-	case ROBOT_MOVING_DIRECTION_RIGHT:
+	case ROBOT_MOVING_DIRECTION_RIGHT_FORWARD:
 		robot_operation_manual(ROBOT_OPERATION_DIRECTION_LEFT);	// Left
 		usleep(500000);	// sleep 500 milliseconds
 		break;
@@ -504,9 +349,12 @@ void creat_image_capture_thread(void)
 	pthread_create(&thread, NULL, &image_capture_thread, &x);
 }
 
-static float getImageOffset()
+static T_robot_image_info getImageOffset()
 {
-	return ImageOffset;
+	T_robot_image_info imageInfo;
+	imageInfo.offset = ImageOffset;
+	imageInfo.linewidth = linewidth;
+	return imageInfo;
 }
 
 //-----------------------------------------------------------------

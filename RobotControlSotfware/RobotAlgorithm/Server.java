@@ -20,7 +20,7 @@ public class Server {
 		OutputStream out = sock.getOutputStream();
 		byte[] bytes = new byte[13];
 		Maze maze = new Maze();
-		MazeSolverAlgorithm solver = new MazeSolver_Test();
+		MazeSolverAlgorithm solver = new MazeSolver_DepthFirst();
 		solver.init(maze);
 
 		while (true) {
@@ -39,7 +39,9 @@ public class Server {
 			break;
 		case 0x4:// 다음 방향 요청
 			maze.setMaze(Arrays.copyOfRange(bytes, 1, 13));
-			out.write(solver.getNext());
+			byte[] rv =solver.getNext();
+			System.out.println("다음방향: "+Client.byteArrayToHex(rv));
+			out.write(rv);
 			out.flush();
 			break;
 		}

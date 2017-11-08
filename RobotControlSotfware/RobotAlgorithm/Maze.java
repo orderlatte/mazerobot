@@ -6,10 +6,10 @@ import java.util.Arrays;
 public class Maze {
 
 	Cell[][] maze;
-	Position robot = new Position(this, 0, 0);
-	
-	public static final int mx = 20;
-	public static final int my = 20;
+	Position robot = new Position(0, 0);
+
+	public static final int mx = 11;
+	public static final int my = 11;
 
 	public Maze() {
 		maze = new Cell[my][mx];
@@ -45,25 +45,17 @@ public class Maze {
 
 	public void setMaze(byte[] val) {
 		Cell c = new Cell(Arrays.copyOfRange(val, 0, 8));
-		
+
 		char x = ByteBuffer.wrap(Arrays.copyOfRange(val, 8, 10)).getChar();
 		char y = ByteBuffer.wrap(Arrays.copyOfRange(val, 10, 12)).getChar();
 		this.setMaze(x, y, c);
 	}
 
-	public boolean hasSolved() {
-		return false;
-	}
-
-	public boolean hasFullyMapped() {
-		return false;
-	}
-
 	public Cell getRobotCell() {
 		return maze[this.robot.y][this.robot.x];
 	}
-	
-	public Position getRobotPosition(){
+
+	public Position getRobotPosition() {
 		return this.robot;
 	}
 }

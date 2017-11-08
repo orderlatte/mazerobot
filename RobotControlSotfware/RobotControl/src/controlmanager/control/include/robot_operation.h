@@ -31,9 +31,22 @@ typedef struct
 	T_robot_operation_direction direction;
 }T_robot_operation_info;
 
-void robot_operation_init(void);
+typedef struct
+{
+	int linewidth;
+	float offset;
+}T_robot_image_info;
+
+typedef T_robot_image_info (*fp_get_image_offset)();
+typedef void (*fp_robot_turned)();
+typedef void (*fp_robot_moved)();
+
+
+void robot_operation_init(fp_get_image_offset getImageOffset, fp_robot_turned robotTurned, fp_robot_moved robotMoved);
 void robot_operation_manual(T_robot_operation_direction direction);
 void robot_operation_auto(T_robot_operation_direction direction);
+
+
 
 
 
