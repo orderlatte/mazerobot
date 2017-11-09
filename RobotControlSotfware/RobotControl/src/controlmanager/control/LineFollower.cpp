@@ -29,10 +29,11 @@
 #include "robot_operation.h"
 #include "UdpSendJpeg.h"
 #include "Direction.h"
-#include "RobotPosition.h"
 #include "sensor_manager.h"
 #include "Servos.h"
 #include "Automode.h"
+#include "AlgorithmController.h"
+#include "RobotPosition.h"
 
 #define INIT 0
 #define STOP 1
@@ -52,14 +53,15 @@ typedef enum
 } T_robot_status;
 
 static UdpSendJpeg    VideoSender;
-static UdpSendMap	  MapSender;
+static UdpSendMap	  *MapSender;
 static T_robot_status CurrentStatus;
-static int            EWSNDirection = NORTH;
+//static int            EWSNDirection = NORTH;
 static bool           HitTheFrontWall;
 static bool			  HitTheLeftWall;
 static bool 		  HitTheRightWall;
 static RobotPosition  CurrentPosition;
 static Automode       *AutomodeRobot;
+static AlgorithmController *AlgorithmCtrl;
 float	      		  ImageOffset;		   // computed robot deviation from the line
 int 			      linewidth;
 
@@ -82,8 +84,6 @@ void creat_image_capture_thread(void);
 //-----------------------------------------------------------------
 int main(int argc, const char** argv)
 {
-
-
   if (argc !=4)
   {
       fprintf(stderr,"usage %s hostname video_port map_port\n", argv[0]);
@@ -99,20 +99,26 @@ int main(int argc, const char** argv)
 	  return(-1);
   }
 
-  if (MapSender.OpenUdp(argv[1], argv[3]) == 0) // Setup remote network destination to send images
+  AutomodeRobot = new Automode(&CurrentPosition);
+
+  AlgorithmCtrl = new AlgorithmController(AutomodeRobot->getEWSNDirectionFP());
+  AlgorithmCtrl->Open();
+
+  AutomodeRobot->setAlgorithmCtrl(AlgorithmCtrl);
+
+  MapSender = new UdpSendMap(AlgorithmCtrl->GetMapFP());
+
+  if (MapSender->OpenUdp(argv[1], argv[3]) == 0) // Setup remote network destination to send images
   {
 	  printf("MapSender.OpenUdp Failed\n");
 	  CleanUp();
 	  return(-1);
   }
 
-  AutomodeRobot = new Automode(&CurrentPosition);
-
   sensor_manager_main(&stopRobot);
   robot_operation_init(getImageOffset, AutomodeRobot->getRobotTurnedFP(), AutomodeRobot->getRobotMovedFP());
 
   creat_image_capture_thread();
-
 
   CurrentStatus = ROBOT_STATUS_MANUAL;
   HitTheFrontWall = false;
@@ -172,9 +178,16 @@ static void Setup_Control_C_Signal_Handler_And_Keyboard_No_Enter(void)
 static void CleanUp(void)
 {
  RestoreKeyboard();                // restore Keyboard
+
+ MapSender->CloseUdp();
+ free(MapSender);
+
+ AlgorithmCtrl->Open();
+ free(AlgorithmCtrl);
+
  free(AutomodeRobot);
+
  VideoSender.CloseUdp();
- MapSender.CloseUdp();
  ResetServos();                    // Reset servos to center or stopped
  CloseServos();                    // Close servo device driver
  printf("restored\n");

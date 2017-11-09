@@ -38,9 +38,16 @@ public class Maze {
 	}
 
 	public void setMaze(int x, int y, Cell val) {
+		this.clearRobotInfoOfMaze(this.maze);
 		this.maze[y][x] = val;
 		this.robot.x = x;
 		this.robot.y = y;
+	}
+	
+	private void clearRobotInfoOfMaze(Cell[][] maze){
+		for (int i = 0; i < my; i++)
+			for (int j = 0; j < mx; j++)
+					maze[i][j].clearRobotInfo();
 	}
 
 	public void setMaze(byte[] val) {
