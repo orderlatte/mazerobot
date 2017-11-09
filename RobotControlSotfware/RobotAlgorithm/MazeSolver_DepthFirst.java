@@ -20,18 +20,16 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 	// 각셀에서안간방향이남아있으면해당셀을큐에넣어둔다.
 	// 노드방문시큐에있는셀이면해당셀삭제한다
 	// 갈곳이없어서부모로돌아갈때위큐가비어있다면 풀리매핑!
+
 	@Override
 	public byte[] getNext() {
 		Position p = new Position(maze.getRobotPosition());
-		if(oldPositionTogo !=null &&  !oldPositionTogo.equals(p)) return ERROR;
-		
-		Node curNode = getNodeFromSet(p, unvisitedNodes);
-		if (curNode == null)
-			curNode = getNodeFromSet(p, visitedNodes);
-		if (curNode == null)
-			curNode = new Node(p);
+		System.out.println("Current Position :" + p);
+		if (oldPositionTogo != null && !oldPositionTogo.equals(p))
+			return ERROR;
 
-		System.out.println("==================================");
+		Node curNode = getExistNode(p);
+
 		System.out.println("Current Node : " + curNode);
 
 		curNode.visited = true;
@@ -43,7 +41,7 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 		DirectionWallSet ds = maze.getRobotCell().getWall();
 
 		if (!ds.east) {
-			Node east = new Node(p.getEast());
+			Node east = getExistNode(p.getEast());
 			if (!visitedNodes.contains(east)) {
 				this.unvisitedNodes.add(east);
 				if (togo == null) {
@@ -53,7 +51,7 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 			}
 		}
 		if (!ds.south) {
-			Node south = new Node(p.getSouth());
+			Node south = getExistNode(p.getSouth());
 			if (!visitedNodes.contains(south)) {
 				this.unvisitedNodes.add(south);
 				if (togo == null) {
@@ -63,7 +61,7 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 			}
 		}
 		if (!ds.west) {
-			Node west = new Node(p.getWest());
+			Node west = getExistNode(p.getWest());
 			if (!visitedNodes.contains(west)) {
 				this.unvisitedNodes.add(west);
 				if (togo == null) {
@@ -73,7 +71,7 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 			}
 		}
 		if (!ds.north) {
-			Node north = new Node(p.getNorth());
+			Node north = getExistNode(p.getNorth());
 			if (!visitedNodes.contains(north)) {
 				this.unvisitedNodes.add(north);
 				if (togo == null) {
@@ -103,6 +101,15 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 		}
 	}
 
+	public Node getExistNode(Position p) {
+		Node node = getNodeFromSet(p, unvisitedNodes);
+		if (node == null)
+			node = getNodeFromSet(p, visitedNodes);
+		if (node == null)
+			node = new Node(p);
+		return node;
+	}
+
 	private Node getNodeFromSet(Position p, Set<Node> set) {
 		for (Node n : set)
 			if (n.position.equals(p))
@@ -127,11 +134,11 @@ class Node {
 	public byte[] getParentDirectionAsByte() {
 		int px = parent.position.x;
 		int py = parent.position.y;
-		if (px - position.x == 0) {
+		if (px == position.x) {
 			if (py > position.y)
-				return MazeSolverAlgorithm.NORTH;
-			else
 				return MazeSolverAlgorithm.SOUTH;
+			else
+				return MazeSolverAlgorithm.NORTH;
 		} else {
 			if (px > position.x)
 				return MazeSolverAlgorithm.EAST;
