@@ -6,6 +6,7 @@
 // Send and receives OpenCV Mat Images in a UDP message commpressed as Jpeg images 
 //------------------------------------------------------------------------------------------------
 #include "RobotPosition.h"
+#include "Direction.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,8 +16,8 @@ using namespace std;
 
 
 RobotPosition::RobotPosition() {
-	CurrentX = 10;
-	CurrentY = 10;
+	CurrentX = 5;
+	CurrentY = 5;
 	CurrentDirection = NORTH;
 	NextDirection = NORTH;
 }
@@ -244,6 +245,14 @@ void RobotPosition::SetNorthDirectionToMove(T_robot_moving_direction nextDirecti
 		printf("SetNorthDirectionToMove() - It's not supported direction(%d)\n", nextDirection);
 		break;
 	}
+}
+
+int RobotPosition::getX() {
+	return CurrentX;
+}
+
+int RobotPosition::getY() {
+	return CurrentY;
 }
 
 //-----------------------------------------------------------------

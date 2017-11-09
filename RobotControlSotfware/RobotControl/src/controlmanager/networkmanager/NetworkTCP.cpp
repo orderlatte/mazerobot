@@ -11,6 +11,7 @@
 #include <new>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 //-----------------------------------------------------------------
 // OpenTCPListenPort - Creates a Listen TCP port to accept
 // connection requests

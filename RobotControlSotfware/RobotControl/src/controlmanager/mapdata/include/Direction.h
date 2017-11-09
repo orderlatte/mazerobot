@@ -8,10 +8,10 @@
 #ifndef DirectionH
 #define DirectionH
 
-#define EAST 1
-#define WEST 2
-#define SOUTH 4
-#define NORTH 8
+#define EAST 0x1
+#define WEST 0x2
+#define SOUTH 0x4
+#define NORTH 0x8
 
 typedef enum
 {
