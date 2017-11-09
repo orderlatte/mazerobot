@@ -2,16 +2,16 @@
 // File: Automode.cpp
 // Project: LG Exec Ed Program
 //------------------------------------------------------------------------------------------------
-#include "Automode.h"
-#include "sensor_manager.h"
-#include "WallFinder.h"
-#include "robot_operation.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
 #include <cstring>
 #include <unistd.h>
+#include "Automode.h"
+#include "sensor_manager.h"
+#include "robot_operation.h"
+#include "WallFinder.h"
+#include "Direction.h"
 
 using namespace std;
 
@@ -19,20 +19,30 @@ using namespace std;
 static T_automode_status Status;
 static RobotPosition *Position;
 static T_robot_moving_direction MovingDirection;
+static WallFinder wallData;
+static AlgorithmController *AlgorithmCtrl;
+static bool FullyMappingCompleted;
 
-static std::thread	  *TestingThread=NULL;		// For testing
-static fp_robot_ewsn_direction fpEWSNDirectionCallBack;
+//static std::thread	  *TestingThread=NULL;		// For testing
 
-static void CallBabckToGetEWSNDirection(int ewsnDirection);
+static void CallBabckToGetEWSNDirection(int ewsnDirection, int result);
 static void CallBackRobotTurned();
 static void CallBackRobotMoved();
 
 
 Automode::Automode(RobotPosition *position) {
-	Status = AUTOMODE_STATUS_READY;
 	Position = position;
+	init();
+}
+
+void Automode::init() {
+	Status = AUTOMODE_STATUS_READY;
 	MovingDirection = ROBOT_MOVING_DIRECTION_STOP;
-	fpEWSNDirectionCallBack = &CallBabckToGetEWSNDirection;
+	FullyMappingCompleted = false;
+}
+
+void Automode::setAlgorithmCtrl(AlgorithmController *algCtrl) {
+	AlgorithmCtrl = algCtrl;
 }
 
 void Automode::doOperation() {
@@ -50,7 +60,7 @@ void Automode::doOperation() {
 		doTurning();
 		break;
 	case AUTOMODE_STATUS_TURNED:
-		doTurning();
+		doTurned();
 		break;
 	case AUTOMODE_STATUS_MOVING:
 		doMoving();
@@ -68,6 +78,11 @@ void Automode::doOperation() {
 }
 
 void Automode::doReady() {
+	if (FullyMappingCompleted == true) {
+		printf("doReady() - fully mapping is completed.\n");
+		return;
+	}
+
 	sendRobotStatusToAlgorithm();
 	Status = AUTOMODE_STATUS_WAITING_FOR_DIRECTION;
 }
@@ -141,7 +156,7 @@ void Automode::doTurned() {
 }
 
 void Automode::moveNextCell() {
-	printf("handleWhenFrontWallIsExisted() is called!\n");
+	printf("moveNextCell() is called!\n");
 
 	switch (MovingDirection) {
 	case ROBOT_MOVING_DIRECTION_FORWARD:
@@ -172,121 +187,149 @@ void Automode::moveNextCell() {
 
 void Automode::sendRobotStatusToAlgorithm() {
 	T_SensorData sensorData = get_sensor_data();
-	WallFinder wallData;
 
+	wallData.Init();
 	wallData.recognizeWall(&sensorData);
 
-    // TODO: Send algorithm module
-//	sendCurrentRobotStatus(&sensorData, &wallData, initialStarted);
+    // TODO: Ad sign information
+	AlgorithmCtrl->SendRobotCell(Position, 0, 0, 0, &wallData);
 
-	// TODO: Below code will be replaced with Maze algorithm
-	TestingThread = new std::thread(&Automode::getTestNextDirectionForTesting, this, &wallData, fpEWSNDirectionCallBack);
+//	TestingThread = new std::thread(&Automode::getTestNextDirectionForTesting, this, &wallData, fpEWSNDirectionCallBack);
 }
 
 
 // It's for testing..
-void Automode::getTestNextDirectionForTesting(WallFinder *wallData, fp_robot_ewsn_direction callback) {
-	int EWSN = Position->getCurrentEWSNDirection();
+//void Automode::getTestNextDirectionForTesting(WallFinder *wallData, fp_ewsn_direction_result callback) {
+//	int EWSN = Position->getCurrentEWSNDirection();
+//
+//	printf("getTestNextDirectionForTesting() is called.\n");
+//	printf("getTestNextDirectionForTesting() - EWSN: %d\n", EWSN);
+//
+//	usleep(20000);	// 20 milisecond
+//
+//	switch (EWSN) {
+//	case EAST:
+//		if (wallData->getBlockedFrontWall() == false) {
+//			callback(EAST);
+//			return;
+//		}
+//
+//		if (wallData->getBlockedLeftWall() == false) {
+//			callback(NORTH);
+//			return;
+//		}
+//
+//		if (wallData->getBlockedRightWall() == false) {
+//			callback(SOUTH);
+//			return;
+//		}
+//
+//		callback(WEST);
+//		return;
+//
+//	case WEST:
+//		if (wallData->getBlockedFrontWall() == false) {
+//			callback(WEST);
+//			return;
+//		}
+//
+//		if (wallData->getBlockedLeftWall() == false) {
+//			callback(SOUTH);
+//			return;
+//		}
+//
+//		if (wallData->getBlockedRightWall() == false) {
+//			callback(NORTH);
+//			return;
+//		}
+//
+//		callback(EAST);
+//		return;
+//
+//	case SOUTH:
+//		if (wallData->getBlockedFrontWall() == false) {
+//			callback(SOUTH);
+//			return;
+//		}
+//
+//		if (wallData->getBlockedLeftWall() == false) {
+//			callback(EAST);
+//			return;
+//		}
+//
+//		if (wallData->getBlockedRightWall() == false) {
+//			callback(WEST);
+//			return;
+//		}
+//
+//		callback(NORTH);
+//		return;
+//
+//	case NORTH:
+//		if (wallData->getBlockedFrontWall() == false) {
+//			printf("getTestNextDirectionForTesting() - call north\n");
+//			callback(NORTH);
+//			return;
+//		}
+//
+//		if (wallData->getBlockedLeftWall() == false) {
+//			printf("getTestNextDirectionForTesting() - call west\n");
+//			callback(WEST);
+//			return;
+//		}
+//
+//		if (wallData->getBlockedRightWall() == false) {
+//			printf("getTestNextDirectionForTesting() - call east\n");
+//			callback(EAST);
+//			return;
+//		}
+//
+//		printf("getTestNextDirectionForTesting() - call south\n");
+//		callback(SOUTH);
+//		return;
+//
+//	default:
+//		printf("It is not supported EWSN direction(%d)!", EWSN);
+//		callback(NORTH);
+//		return;
+//	}
+//}
 
-	usleep(20000);	// 20 milisecond
 
-	switch (EWSN) {
-	case EAST:
-		if (wallData->getCheckedFrontWall() == false) {
-			callback(EAST);
-			return;
-		}
-
-		if (wallData->getCheckedLeftWall() == false) {
-			callback(NORTH);
-			return;
-		}
-
-		if (wallData->getCheckedRightWall() == false) {
-			callback(SOUTH);
-			return;
-		}
-
-		callback(WEST);
-		return;
-
-	case WEST:
-		if (wallData->getCheckedFrontWall() == false) {
-			callback(WEST);
-			return;
-		}
-
-		if (wallData->getCheckedLeftWall() == false) {
-			callback(SOUTH);
-			return;
-		}
-
-		if (wallData->getCheckedRightWall() == false) {
-			callback(NORTH);
-			return;
-		}
-
-		callback(EAST);
-		return;
-
-	case SOUTH:
-		if (wallData->getCheckedFrontWall() == false) {
-			callback(SOUTH);
-			return;
-		}
-
-		if (wallData->getCheckedLeftWall() == false) {
-			callback(EAST);
-			return;
-		}
-
-		if (wallData->getCheckedRightWall() == false) {
-			callback(WEST);
-			return;
-		}
-
-		callback(NORTH);
-		return;
-
-	case NORTH:
-		if (wallData->getCheckedFrontWall() == false) {
-			callback(NORTH);
-			return;
-		}
-
-		if (wallData->getCheckedLeftWall() == false) {
-			callback(WEST);
-			return;
-		}
-
-		if (wallData->getCheckedRightWall() == false) {
-			callback(EAST);
-			return;
-		}
-
-		callback(SOUTH);
-		return;
-
-	default:
-		printf("It is not supported EWSN direction(%d)!", EWSN);
-		callback(NORTH);
-		return;
-	}
+fp_ewsn_direction_result Automode::getEWSNDirectionFP() {
+	return CallBabckToGetEWSNDirection;
 }
 
-static void CallBabckToGetEWSNDirection(int ewsnDirection) {
+static void CallBabckToGetEWSNDirection(int ewsnDirection, int result) {
+	printf("CallBabckToGetEWSNDirection(%d) is called.\n", ewsnDirection);
 	MovingDirection = Position->SetEWSNDirectionToMove(ewsnDirection);
+
+	if (result == 2) {
+		printf("CallBabckToGetEWSNDirection() - Error! Algorithm is not operated properly. Robot will be stopped.\n");
+		// TODO: Robot should transit to manual mode.
+		Status = AUTOMODE_STATUS_READY;
+		return;
+	}
+
+	if (result == 1) {
+		printf("Fully mapping is completed.\n");
+		FullyMappingCompleted = true;
+		Status = AUTOMODE_STATUS_READY;
+		return;
+	}
+
 	Status = AUTOMODE_STATUS_RECEIVED_MOVING_DIRECTION;
 }
 
 static void CallBackRobotTurned() {
-	robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
+//	robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
 	Status = AUTOMODE_STATUS_TURNED;
 }
 
 static void CallBackRobotMoved() {
-	robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
+//	robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
 	Status = AUTOMODE_STATUS_MOVED;
+	Position->SuccessToMove();
 }
 
 void Automode::doMoving() {
@@ -350,6 +393,71 @@ void Automode::setStatus(T_automode_status status) {
 //		printf("setStatus() - Error! (%d)\n", status);
 //		break;
 //	}
+}
+
+void Automode::stopRobot() {
+	printf("stopRobot() in Automode is called.(%d)\n", Status);
+
+	if (Status == AUTOMODE_STATUS_MOVING) {
+		robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
+		Status = AUTOMODE_STATUS_READY;
+	}
+}
+
+void Automode::avoidLeftWall() {
+	printf("avoidLeftWall() is called!\n");
+
+	switch (MovingDirection) {
+	case ROBOT_MOVING_DIRECTION_FORWARD:
+		robot_operation_manual(ROBOT_OPERATION_DIRECTION_RIGHT);	// Right
+		usleep(100000);	// sleep 100 milliseconds
+		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Left
+		break;
+
+//	case ROBOT_MOVING_DIRECTION_BACK:
+//		robot_operation_manual(ROBOT_OPERATION_DIRECTION_LEFT);	// Left
+//		usleep(500000);	// sleep 500 milliseconds
+//		robot_operation_auto(ROBOT_MOVING_DIRECTION_BACK);	// Left
+//		break;
+
+	case ROBOT_MOVING_DIRECTION_LEFT_FORWARD:
+		robot_operation_manual(ROBOT_OPERATION_DIRECTION_RIGHT);	// Right
+		usleep(100000);	// sleep 100 milliseconds
+		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Left
+		break;
+
+	default:
+		printf("Robot could not handle in this case!\n");
+		break;
+	}
+}
+
+void Automode::avoidRightWall() {
+	printf("avoidRightWall() is called!\n");
+
+	switch (MovingDirection) {
+	case ROBOT_MOVING_DIRECTION_FORWARD:
+		robot_operation_manual(ROBOT_OPERATION_DIRECTION_LEFT);	// Left
+		usleep(100000);	// sleep 100 milliseconds
+		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Left
+		break;
+
+//	case ROBOT_MOVING_DIRECTION_BACK:
+//		robot_operation_manual(ROBOT_OPERATION_DIRECTION_RIGHT);	// Right
+//		usleep(100000);	// sleep 100 milliseconds
+//		robot_operation_auto(ROBOT_MOVING_DIRECTION_BACK);	// Left
+//		break;
+
+	case ROBOT_MOVING_DIRECTION_RIGHT_FORWARD:
+		robot_operation_manual(ROBOT_OPERATION_DIRECTION_LEFT);	// Left
+		usleep(100000);	// sleep 100 milliseconds
+		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Left
+		break;
+
+	default:
+		printf("Robot could not handle in this case!\n");
+		break;
+	}
 }
 
 

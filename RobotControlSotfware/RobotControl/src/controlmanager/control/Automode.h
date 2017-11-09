@@ -9,9 +9,10 @@
 #define AutomodeH
 
 #include <thread>		// For testing
+#include "robot_operation.h"
+#include "AlgorithmController.h"
 #include "RobotPosition.h"
 #include "WallFinder.h"
-#include "robot_operation.h"
 
 typedef enum
 {
@@ -27,16 +28,19 @@ typedef enum
 } T_automode_status;
 
 
-// TODO: It should be moved to network manager
-typedef void (*fp_robot_ewsn_direction)(int);  // 1: EAST, 2: WEST, 4: SOUTH, 8: NORTH
-
 class Automode {
 
 public:
 	Automode(RobotPosition *position);
+	void init();
+	void setAlgorithmCtrl(AlgorithmController *algCtrl);
 	void doOperation();
 	fp_robot_turned getRobotTurnedFP();
 	fp_robot_moved getRobotMovedFP();
+	void stopRobot();
+	void avoidLeftWall();
+	void avoidRightWall();
+	fp_ewsn_direction_result getEWSNDirectionFP();
 
 private:
 	void doReady();
@@ -48,7 +52,7 @@ private:
 	void doMoved();
 	void doRecognizingSign();
 	void sendRobotStatusToAlgorithm();
-	void getTestNextDirectionForTesting(WallFinder *wallData, fp_robot_ewsn_direction callback);
+//	void getTestNextDirectionForTesting(WallFinder *wallData, fp_ewsn_direction callback);
 //	void CallBabckToGetEWSNDirection(int ewsnDirection);
 //	void CallBackRobotTurned();
 //	void CallBackRobotMoved();

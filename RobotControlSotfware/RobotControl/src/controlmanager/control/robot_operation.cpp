@@ -76,7 +76,7 @@ void robot_move_one_cell_foward(void)
 		}
 		else
 		{
-			robot_mode_setting(ROBOT_STOP, robot_operation_image_info.offset);
+//			robot_mode_setting(ROBOT_STOP, robot_operation_image_info.offset);
 			robot_move_one_cell_foward_state = 0;
 			robot_operation_info.robot_run = 0;
 			fpRobotMoved();
@@ -110,7 +110,7 @@ void robot_trun_move_onecell(T_robot_operation_direction direction)
 		{
 			if((robot_operation_image_info.linewidth < 160 && robot_operation_image_info.linewidth > 140) || (micros_wrapper()-timeoutstart > (1200*1000)))
 			{
-				robot_mode_setting(ROBOT_STOP, robot_operation_image_info.offset);
+//				robot_mode_setting(ROBOT_STOP, robot_operation_image_info.offset);
 				robot_turn_to_cross_state = 0;
 				robot_operation_info.robot_run = 0;
 				fpRobotTurned();
@@ -138,7 +138,7 @@ void robot_back_move_one_cell(void)
 		{
 			if((robot_operation_image_info.linewidth < 160 && robot_operation_image_info.linewidth > 140) || (micros_wrapper()-timeoutstart > (1200*1000)))
 			{
-				robot_mode_setting(ROBOT_STOP, robot_operation_image_info.offset);
+//				robot_mode_setting(ROBOT_STOP, robot_operation_image_info.offset);
 				robot_operation_info.direction = ROBOT_OPERATION_DIRECTION_FORWARD;
 				robot_turn_to_cross_state = 0;
 			}
@@ -233,6 +233,10 @@ void robot_operation_init(fp_get_image_offset getImageOffset, fp_robot_turned ro
 	int x = 0;
 	servos_manager_main();
 	pthread_create(&thread1, NULL, &robot_operation_main, &x);
+
+	fpGetImageOffset = getImageOffset;
+	fpRobotTurned = robotTurned;
+	fpRobotMoved = robotMoved;
 }
 
 long micros_wrapper() {

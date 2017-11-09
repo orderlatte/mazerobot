@@ -12,6 +12,8 @@
 #include <mutex>
 #include "UdpSendJpeg.h"
 
+#define MAP_SIZE (11*11*sizeof(double))
+
 using namespace std;
 
 static int init_values[2] = { cv::IMWRITE_JPEG_QUALITY,80 }; //default(95) 0-100
@@ -65,7 +67,7 @@ void UdpSendJpeg::SendJpeg()
 
 	while (1)
 	{
-		usleep(50000);	// sleep 50 milliseconds
+		usleep(100000);	// sleep 100 milliseconds
 
 		if (isSetImage == false) {
 			continue;

@@ -24,10 +24,11 @@ public class Client {
 //		test(true, true, true, true, (byte) 0x5, (byte) 0x5);
 
 		 test(false, true, false, true, (byte) 5, (byte) 5);//1
+//		 test(false, true, false, true, (byte) 5, (byte) 5);//error
 		 test(false, false, false, true, (byte) 6, (byte) 5);//2
 		 test(true, false, false, true, (byte) 7, (byte) 5);//3
 		 test(true, true, true, false, (byte) 7, (byte) 4);//4
-		 
+//		 test(false, true, false, true, (byte) 5, (byte) 5);//error
 		 test(true, false, false, true, (byte) 7, (byte) 5);//3
 		 test(false, false, false, true, (byte) 6, (byte) 5);//2
 		 test(true, false, false, false, (byte) 6, (byte) 4);//5
@@ -64,7 +65,7 @@ public class Client {
 		if (north)
 			direction += 0x8;
 
-		return new byte[] { 0x4, 0x0, 0x0, 0x0, 0x0, 0x0, 0xf, direction, 0x1, 0x0, x, 0x0, y };
+		return new byte[] { 0x4, 0x1, 0x0, 0x0, 0x0, 0x0, 0xf, direction, 0x1, 0x0, x, 0x0, y };
 	}
 
 	public static String byteArrayToHex(byte[] a) {
@@ -76,7 +77,9 @@ public class Client {
 
 	public static void main(String[] args) {
 
+//		String ip = "172.20.10.14";
 		String ip = "127.0.0.1";
+		
 		int port = 31000;
 
 		try {
