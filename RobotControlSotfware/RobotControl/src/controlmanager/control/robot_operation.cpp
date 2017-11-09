@@ -50,7 +50,7 @@ void robot_move_one_cell_foward(void)
 	else if(robot_move_one_cell_foward_state == 1)
 	{
 		robot_mode_setting(ROBOT_LINE_TRACKING, robot_operation_image_info.offset);
-		if(micros_wrapper()-timeoutstart > (1000*1000))
+		if(micros_wrapper()-timeoutstart > (700*1000))
 		{
 			robot_move_one_cell_foward_state = 2;
 		}
@@ -70,7 +70,7 @@ void robot_move_one_cell_foward(void)
 	}
 	else if(robot_move_one_cell_foward_state == 3)
 	{
-		if(micros_wrapper()-timeoutstart < (900*1000))
+		if(micros_wrapper()-timeoutstart < (700*1000))
 		{
 			robot_mode_setting(ROBOT_LINE_TRACKING, robot_operation_image_info.offset);
 		}
@@ -106,9 +106,9 @@ void robot_trun_move_onecell(T_robot_operation_direction direction)
 			robot_mode_setting(ROBOT_RIGHT_ROTATING,robot_operation_image_info.offset);
 		}
 
-		if(micros_wrapper()-timeoutstart > (900*1000))
+		if(micros_wrapper()-timeoutstart > (500*1000))
 		{
-			if((robot_operation_image_info.linewidth < 160 && robot_operation_image_info.linewidth > 140) || (micros_wrapper()-timeoutstart > (1200*1000)))
+			if((robot_operation_image_info.linewidth < 190 && robot_operation_image_info.linewidth > 120)) //|| (micros_wrapper()-timeoutstart > (1200*1000)))
 			{
 //				robot_mode_setting(ROBOT_STOP, robot_operation_image_info.offset);
 				robot_turn_to_cross_state = 0;
@@ -133,17 +133,23 @@ void robot_back_move_one_cell(void)
 	else if(robot_turn_to_cross_state == 1)
 	{
 		//robot_mode_setting(ROBOT_LEFT_ROTATING,offset);
-		robot_mode_setting(ROBOT_RIGHT_ROTATING,robot_operation_image_info.offset);
-		if(micros_wrapper()-timeoutstart > (2200*1000))
+		robot_mode_setting(ROBOT_LEFT_ROTATING,robot_operation_image_info.offset);
+		if(micros_wrapper()-timeoutstart > (1800*1000))
 		{
-			if((robot_operation_image_info.linewidth < 160 && robot_operation_image_info.linewidth > 140) || (micros_wrapper()-timeoutstart > (1200*1000)))
-			{
-//				robot_mode_setting(ROBOT_STOP, robot_operation_image_info.offset);
-				robot_operation_info.direction = ROBOT_OPERATION_DIRECTION_FORWARD;
-				robot_turn_to_cross_state = 0;
-			}
+			robot_turn_to_cross_state = 2;
+			timeoutstart = micros_wrapper();
 		}
 	}
+	else if(robot_turn_to_cross_state == 2)
+	{
+		if((robot_operation_image_info.linewidth < 190 && robot_operation_image_info.linewidth > 120))// || (micros_wrapper()-timeoutstart > (200*1000)))
+		{
+//			robot_mode_setting(ROBOT_STOP, robot_operation_image_info.offset);
+			robot_operation_info.direction = ROBOT_OPERATION_DIRECTION_FORWARD;
+			robot_turn_to_cross_state = 0;
+		}
+	}
+	
 }
 
 void robot_operation_manual(T_robot_operation_direction direction)

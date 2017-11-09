@@ -18,7 +18,7 @@ using namespace std;
 // Parameters for PID
 #define KP        1.0               // defaut 1.0
 #define KI        0.01               // defaut 0.1
-#define KD        0.0               // defaut 0.0
+#define KD        0.01               // defaut 0.0
 #define BASESPEED 10.0               // Range 0-50
 #define M_BASESPEED 6.0               // Range 0-50
 
