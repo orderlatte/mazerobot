@@ -56,7 +56,7 @@ static UdpSendJpeg    VideoSender;
 static UdpSendMap	  *MapSender;
 static T_robot_status CurrentStatus;
 //static int            EWSNDirection = NORTH;
-static bool           HitTheFrontWall;
+static bool           HitTheFrontWall;	// TODO: Remove Hit variables..
 static bool			  HitTheLeftWall;
 static bool 		  HitTheRightWall;
 static RobotPosition  CurrentPosition;
@@ -262,21 +262,23 @@ static void stopRobot(T_sensor_type sensorType)
 
 		HitTheFrontWall = false;
 		break;
+
 	case SENSOR_TYPE_LASER_LEFT:
 		HitTheLeftWall = true;
 		avoidLeftWall();
 		HitTheLeftWall = false;
 		break;
+
 	case SENSOR_TYPE_LASER_RIGHT:
 		HitTheRightWall = true;
 		avoidRightWall();
 		HitTheRightWall = false;
 		break;
+
 	default:
 		printf("sensorType(%d) is invalid!", sensorType);
 		break;
 	}
-
 }
 
 static void avoidLeftWall() {

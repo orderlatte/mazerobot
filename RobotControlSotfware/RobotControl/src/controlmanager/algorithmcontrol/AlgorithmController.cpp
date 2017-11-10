@@ -46,7 +46,7 @@ AlgorithmController::AlgorithmController(fp_ewsn_direction_result fp) {
 
 void AlgorithmController::Open() {
 	if ((TcpConnectedPort=OpenTcpConnection((const char*)"127.0.0.1",(const char*)"31000")) == NULL) {
-		printf("OpenTcpConnection\n");
+		printf("Open() - OpenTcpConnection is failed!\n");
 		return;
 	}
 }
@@ -88,6 +88,12 @@ void AlgorithmController::SendRobotCellThread(RobotPosition *robotPosition, int 
 		printf("%1x", robotCellBuff[index]);
 	}
 	printf("\n");
+
+	if (TcpConnectedPort == NULL) {
+		printf("SendRobotCellThread() - TcpConnectedPort is NULL!\n");
+		// TODO: Go to manual mode
+		return;
+	}
 
 	// To prevent race condition
 	algorithmmutex.lock();
@@ -165,6 +171,12 @@ static void RequestMap(unsigned char* map) {
 	unsigned char request = 0x1;
 	int index = 0;
 	int printSize = 0;
+
+	if (TcpConnectedPort == NULL) {
+		printf("SendRobotCellThread() - TcpConnectedPort is NULL!\n");
+		// TODO: Go to manual mode
+		return;
+	}
 
 	// To prevent race condition
 	algorithmmutex.lock();
