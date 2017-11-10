@@ -411,7 +411,7 @@ void Automode::setStatus(T_automode_status status) {
 void Automode::stopRobot() {
 	printf("stopRobot() in Automode is called.(%d)\n", Status);
 
-	// TODO: Remove ...!!
+	// TODO: Stop and go to manual mode
 //	if (Status == AUTOMODE_STATUS_MOVING) {
 //		robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
 //		Status = AUTOMODE_STATUS_READY;
@@ -423,9 +423,10 @@ void Automode::avoidLeftWall() {
 
 	switch (MovingDirection) {
 	case ROBOT_MOVING_DIRECTION_FORWARD:
+		// TODO: replace new API of robot_operation
 		robot_operation_manual(ROBOT_OPERATION_DIRECTION_RIGHT);	// Right
 //		usleep(100000);	// sleep 100 milliseconds
-		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Left
+//		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Left
 		break;
 
 //	case ROBOT_MOVING_DIRECTION_BACK:
@@ -435,9 +436,10 @@ void Automode::avoidLeftWall() {
 //		break;
 
 	case ROBOT_MOVING_DIRECTION_LEFT_FORWARD:
+		// TODO: replace new API of robot_operation
 		robot_operation_manual(ROBOT_OPERATION_DIRECTION_RIGHT);	// Right
 //		usleep(100000);	// sleep 100 milliseconds
-		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Left
+//		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Left
 		break;
 
 	default:
@@ -451,9 +453,10 @@ void Automode::avoidRightWall() {
 
 	switch (MovingDirection) {
 	case ROBOT_MOVING_DIRECTION_FORWARD:
+		// TODO: replace new API of robot_operation
 		robot_operation_manual(ROBOT_OPERATION_DIRECTION_LEFT);	// Left
 //		usleep(100000);	// sleep 100 milliseconds
-		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Left
+//		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Left
 		break;
 
 //	case ROBOT_MOVING_DIRECTION_BACK:
@@ -463,9 +466,10 @@ void Automode::avoidRightWall() {
 //		break;
 
 	case ROBOT_MOVING_DIRECTION_RIGHT_FORWARD:
+		// TODO: replace new API of robot_operation
 		robot_operation_manual(ROBOT_OPERATION_DIRECTION_LEFT);	// Left
 //		usleep(100000);	// sleep 100 milliseconds
-		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Left
+//		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Left
 		break;
 
 	default:
