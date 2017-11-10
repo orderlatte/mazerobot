@@ -12,6 +12,7 @@ Detector::Detector()
 {
 	m_thresBlueAreaOfROI = 0.2;
 	m_thresCrossAreaOfROI = 0.7;
+	m_thresBinary = 50;
 }
 
 
@@ -77,6 +78,7 @@ bool Detector::findGoalArea(cv::Mat& CameraImage, bool bDebug)
 	//const float thresBlueAreaOfROI = 0.2;  // blue point ���� ���� // need tuning
 
 	Rect RoiRec(10, 3 * CameraImage.rows / 4, CameraImage.cols - 20, CameraImage.rows / 12); //Define region of interest rectangle
+	//Rect RoiRec(10, 10, CameraImage.cols - 20, CameraImage.rows / 12); //Define region of interest rectangle
 
 	Mat roi(CameraImage, RoiRec); // clip image to region of interest 
 	Mat HSV;
@@ -206,15 +208,17 @@ float Detector::FindLineInImageAndComputeOffset(cv::Mat& CameraImage, bool bDebu
 	vector<vector<Point> > contours;
 	vector<Vec4i> hierarchy;
 	Mat mono, blur, thresh, erodeImg, dilateImg;
-	Rect RoiRec(10, 2 * CameraImage.rows / 3, CameraImage.cols - 20, CameraImage.rows / 12); //Define region of interest rectangle
-
+	Rect RoiRec(10, 2*CameraImage.rows / 3, CameraImage.cols - 20, CameraImage.rows / 12); //Define region of interest rectangle
+	
 	Mat roi(CameraImage, RoiRec); // clip image to region of interest 
 	cvtColor(roi, mono, COLOR_BGR2GRAY);  // coovert image to grayscale 
 	meanStdDev(mono, mean, stddev);         // Comppute image mean and stddev -- be to used later if needed
 
 											//std::cout<<"Variance: "<<stddev.val[0]<<std::endl;
 	GaussianBlur(mono, blur, Size(9, 9), 2, 2); // blur image to remove small irregularities
+	
 	threshold(blur, thresh, 0, 255, THRESH_BINARY_INV | THRESH_OTSU); //Color thresholding makes image more blacka nd white
+	
 	Mat erodeElmt = getStructuringElement(MORPH_RECT, Size(3, 3));
 	Mat dilateElmt = getStructuringElement(MORPH_RECT, Size(5, 5));
 	erode(thresh, erodeImg, erodeElmt);       // reduces noise Extract edges 
@@ -291,11 +295,13 @@ float Detector::FindLineInImageAndComputeOffsetAndWidth(cv::Mat& CameraImage, in
 
 	Mat roi(CameraImage, RoiRec); // clip image to region of interest 
 	cvtColor(roi, mono, COLOR_BGR2GRAY);  // coovert image to grayscale 
-	meanStdDev(mono, mean, stddev);         // Comppute image mean and stddev -- be to used later if needed
+	//meanStdDev(mono, mean, stddev);         // Comppute image mean and stddev -- be to used later if needed
 
 											//std::cout<<"Variance: "<<stddev.val[0]<<std::endl;
 	GaussianBlur(mono, blur, Size(9, 9), 2, 2); // blur image to remove small irregularities
-	threshold(blur, thresh, 50, 255, THRESH_BINARY_INV | THRESH_BINARY); //Color thresholding makes image more blacka nd white
+	//threshold(blur, thresh, 0, 255, THRESH_BINARY_INV | THRESH_OTSU); //Color thresholding makes image more blacka nd white
+    threshold(blur, thresh, m_thresBinary, 255, THRESH_BINARY_INV | THRESH_BINARY); //Color thresholding makes image more blacka nd white
+
 	Mat erodeElmt = getStructuringElement(MORPH_RECT, Size(3, 3));
 	Mat dilateElmt = getStructuringElement(MORPH_RECT, Size(5, 5));
 	erode(thresh, erodeImg, erodeElmt);       // reduces noise Extract edges 
@@ -368,4 +374,8 @@ void Detector::SetParameter(map<string, float> mParam)
 	itr = mParam.find("thresCrossAreaOfROI");
 	if (mParam.end() != itr) m_thresCrossAreaOfROI = itr->second;
 
+	itr = mParam.find("thresBinary");
+	if (mParam.end() != itr) m_thresBinary = itr->second;
+
 }
+
