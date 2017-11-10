@@ -96,21 +96,25 @@ void Automode::doReceivedMovingDirection() {
 
 	case ROBOT_MOVING_DIRECTION_FORWARD:
 		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);
+		printf("doReceivedMovingDirection() - Robot is moving forward.\n");
 		Status = AUTOMODE_STATUS_MOVING;
 		break;
 
 	case ROBOT_MOVING_DIRECTION_LEFT_FORWARD:
 		robot_operation_auto(ROBOT_OPERATION_DIRECTION_LEFT);	// Left
+		printf("doReceivedMovingDirection() - Robot is turning left.\n");
 		Status = AUTOMODE_STATUS_TURNING;
 		break;
 
 	case ROBOT_MOVING_DIRECTION_RIGHT_FORWARD:
 		robot_operation_auto(ROBOT_OPERATION_DIRECTION_RIGHT);	// Right
+		printf("doReceivedMovingDirection() - Robot is turning right.\n");
 		Status = AUTOMODE_STATUS_TURNING;
 		break;
 
 	case ROBOT_MOVING_DIRECTION_BACK:
 		robot_operation_auto(ROBOT_OPERATION_DIRECTION_BACKWARD);
+		printf("doReceivedMovingDirection() - Robot is moving backward.\n");
 		Status = AUTOMODE_STATUS_MOVING;
 		break;
 
@@ -136,11 +140,13 @@ void Automode::doTurned() {
 
 	case ROBOT_MOVING_DIRECTION_LEFT_FORWARD:
 		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Left
+		printf("doTurned() - Robot is turned left and is moving forward.\n");
 		Status = AUTOMODE_STATUS_MOVING;
 		break;
 
 	case ROBOT_MOVING_DIRECTION_RIGHT_FORWARD:
 		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Right
+		printf("doTurned() - Robot is turned right and is moving forward.\n");
 		Status = AUTOMODE_STATUS_MOVING;
 		break;
 
@@ -324,12 +330,18 @@ static void CallBabckToGetEWSNDirection(int ewsnDirection, int result) {
 static void CallBackRobotTurned() {
 //	robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
 	Status = AUTOMODE_STATUS_TURNED;
+
+	printf("CallBackRobotTurned() is called!\n");
 }
 
 static void CallBackRobotMoved() {
-//	robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
 	Status = AUTOMODE_STATUS_MOVED;
 	Position->SuccessToMove();
+
+	// For testing...
+	robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
+	printf("CallBackRobotMoved() is called!\n");
+//	sleep(2);		// 2sec
 }
 
 void Automode::doMoving() {
@@ -338,6 +350,7 @@ void Automode::doMoving() {
 
 void Automode::doMoved() {
 	// TODO: If there is red dot, move to recognize sign status.
+//	sleep(2);		// For testing..
 	Status = AUTOMODE_STATUS_READY;
 }
 
@@ -398,10 +411,11 @@ void Automode::setStatus(T_automode_status status) {
 void Automode::stopRobot() {
 	printf("stopRobot() in Automode is called.(%d)\n", Status);
 
-	if (Status == AUTOMODE_STATUS_MOVING) {
-		robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
-		Status = AUTOMODE_STATUS_READY;
-	}
+	// TODO: Remove ...!!
+//	if (Status == AUTOMODE_STATUS_MOVING) {
+//		robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
+//		Status = AUTOMODE_STATUS_READY;
+//	}
 }
 
 void Automode::avoidLeftWall() {
@@ -410,7 +424,7 @@ void Automode::avoidLeftWall() {
 	switch (MovingDirection) {
 	case ROBOT_MOVING_DIRECTION_FORWARD:
 		robot_operation_manual(ROBOT_OPERATION_DIRECTION_RIGHT);	// Right
-		usleep(100000);	// sleep 100 milliseconds
+//		usleep(100000);	// sleep 100 milliseconds
 		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Left
 		break;
 
@@ -422,7 +436,7 @@ void Automode::avoidLeftWall() {
 
 	case ROBOT_MOVING_DIRECTION_LEFT_FORWARD:
 		robot_operation_manual(ROBOT_OPERATION_DIRECTION_RIGHT);	// Right
-		usleep(100000);	// sleep 100 milliseconds
+//		usleep(100000);	// sleep 100 milliseconds
 		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Left
 		break;
 
@@ -438,7 +452,7 @@ void Automode::avoidRightWall() {
 	switch (MovingDirection) {
 	case ROBOT_MOVING_DIRECTION_FORWARD:
 		robot_operation_manual(ROBOT_OPERATION_DIRECTION_LEFT);	// Left
-		usleep(100000);	// sleep 100 milliseconds
+//		usleep(100000);	// sleep 100 milliseconds
 		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Left
 		break;
 
@@ -450,7 +464,7 @@ void Automode::avoidRightWall() {
 
 	case ROBOT_MOVING_DIRECTION_RIGHT_FORWARD:
 		robot_operation_manual(ROBOT_OPERATION_DIRECTION_LEFT);	// Left
-		usleep(100000);	// sleep 100 milliseconds
+//		usleep(100000);	// sleep 100 milliseconds
 		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Left
 		break;
 

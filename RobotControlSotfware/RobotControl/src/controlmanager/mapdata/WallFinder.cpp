@@ -44,23 +44,22 @@ void WallFinder::Init() {
 //}
 
 void WallFinder::recognizeWall(T_SensorData* sensorData) {
-	if (sensorData->sonar_distance < 10) { // Less than 10cm
+	if (sensorData->sonar_distance < 15 && sensorData->sonar_distance > 0) { // Less than 10cm
 		printf("recognizeWall() Front wall is existed\n");
 		BlockedFrontWall = true;
 	}
 
-	if (sensorData->laser_left_distance < 100) {  // Less than
+	if (sensorData->laser_left_distance < 150 && sensorData->laser_left_distance > 0) {  // Less than
 		printf("recognizeWall() Left wall is existed\n");
 		BlockedLeftWall = true;
 	}
 
-	if (sensorData->laser_right_distance < 100) {  // Less than
+	if (sensorData->laser_right_distance < 150 && sensorData->laser_right_distance > 0) {  // Less than
 		printf("recognizeWall() Right wall is existed\n");
 		BlockedRightWall = true;
 	}
 
 	printDebug();
-
 }
 
 void WallFinder::printDebug() {
@@ -233,7 +232,7 @@ unsigned char WallFinder::getBlockedWalls(int EWSNDirection) {
 			return getBlockedSouthWalls();
 
 		case NORTH:
-			return getBlockedWestWalls();
+			return getBlockedNorthWalls();
 
 		default:
 			printf("getBlockedWalls() - Error! Current EWNS is not supported direction.(%d)\n", EWSNDirection);

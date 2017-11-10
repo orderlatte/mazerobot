@@ -208,7 +208,7 @@ float Detector::FindLineInImageAndComputeOffset(cv::Mat& CameraImage, bool bDebu
 	vector<vector<Point> > contours;
 	vector<Vec4i> hierarchy;
 	Mat mono, blur, thresh, erodeImg, dilateImg;
-	Rect RoiRec(10, 2*CameraImage.rows / 3, CameraImage.cols - 20, CameraImage.rows / 12); //Define region of interest rectangle
+	//Rect RoiRec(10, 2*CameraImage.rows / 3, CameraImage.cols - 20, CameraImage.rows / 12); //Define region of interest rectangle
 	
 	Mat roi(CameraImage, RoiRec); // clip image to region of interest 
 	cvtColor(roi, mono, COLOR_BGR2GRAY);  // coovert image to grayscale 
@@ -295,14 +295,16 @@ float Detector::FindLineInImageAndComputeOffsetAndWidth(cv::Mat& CameraImage, in
 
 	Mat roi(CameraImage, RoiRec); // clip image to region of interest 
 	cvtColor(roi, mono, COLOR_BGR2GRAY);  // coovert image to grayscale 
+	//meanStdDev(mono, mean, sdev);         // Comppute image mean and stddev -- be to used later if needed
 	//meanStdDev(mono, mean, stddev);         // Comppute image mean and stddev -- be to used later if needed
 
 											//std::cout<<"Variance: "<<stddev.val[0]<<std::endl;
 	GaussianBlur(mono, blur, Size(9, 9), 2, 2); // blur image to remove small irregularities
 	//threshold(blur, thresh, 0, 255, THRESH_BINARY_INV | THRESH_OTSU); //Color thresholding makes image more blacka nd white
+	//threshold(blur, thresh, 0, 255, THRESH_BINARY_INV | THRESH_OTSU); //Color thresholding makes image more blacka nd white
 	threshold(blur, thresh, m_thresBinary, 255, THRESH_BINARY_INV | THRESH_BINARY); //Color thresholding makes image more blacka nd white
 	
-	imshow("a", thresh);
+	//imshow("a", thresh);
 
 	Mat erodeElmt = getStructuringElement(MORPH_RECT, Size(3, 3));
 	Mat dilateElmt = getStructuringElement(MORPH_RECT, Size(5, 5));
