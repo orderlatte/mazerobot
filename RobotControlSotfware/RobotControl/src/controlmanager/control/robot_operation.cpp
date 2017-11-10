@@ -58,7 +58,7 @@ void robot_move_one_cell_foward(void)
 	else if(robot_move_one_cell_foward_state == 2)
 	{
 		robot_mode_setting(ROBOT_LINE_TRACKING, robot_operation_image_info.offset);
-		if(robot_operation_image_info.linewidth < 190 && robot_operation_image_info.linewidth > 130)
+		if(robot_operation_image_info.linewidth < 190 && robot_operation_image_info.linewidth > 100)
 		{
 			;
 		}
@@ -108,7 +108,7 @@ void robot_trun_move_onecell(T_robot_operation_direction direction)
 
 		if(micros_wrapper()-timeoutstart > (500*1000))
 		{
-			if((robot_operation_image_info.linewidth < 190 && robot_operation_image_info.linewidth > 120)) //|| (micros_wrapper()-timeoutstart > (1200*1000)))
+			if((robot_operation_image_info.linewidth < 190 && robot_operation_image_info.linewidth > 100)) //|| (micros_wrapper()-timeoutstart > (1200*1000)))
 			{
 //				robot_mode_setting(ROBOT_STOP, robot_operation_image_info.offset);
 				robot_turn_to_cross_state = 0;
@@ -142,7 +142,7 @@ void robot_back_move_one_cell(void)
 	}
 	else if(robot_turn_to_cross_state == 2)
 	{
-		if((robot_operation_image_info.linewidth < 190 && robot_operation_image_info.linewidth > 120))// || (micros_wrapper()-timeoutstart > (200*1000)))
+		if((robot_operation_image_info.linewidth < 190 && robot_operation_image_info.linewidth > 100))// || (micros_wrapper()-timeoutstart > (200*1000)))
 		{
 //			robot_mode_setting(ROBOT_STOP, robot_operation_image_info.offset);
 			robot_operation_info.direction = ROBOT_OPERATION_DIRECTION_FORWARD;
