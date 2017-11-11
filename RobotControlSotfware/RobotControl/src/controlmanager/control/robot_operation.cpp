@@ -37,6 +37,8 @@ static int            Tilt;
 
 T_robot_operation_direction forward_moving_avoid_wall;
 
+static unsigned char auto_init_flag;
+
 
 
 long micros_wrapper();
@@ -47,6 +49,12 @@ void robot_move_one_cell_foward(void)
 	static unsigned char robot_move_one_cell_foward_state = 0;
 	static unsigned long timeoutstart = 0;
 	static unsigned long time_backup;
+
+	if(auto_init_flag ==  1)
+	{
+		auto_init_flag = 0;
+		robot_move_one_cell_foward_state = 0;
+	}
 
 	
 	if(forward_moving_avoid_wall == ROBOT_OPERATION_DIRECTION_LEFT)
@@ -185,6 +193,7 @@ void robot_operation_manual(T_robot_operation_direction direction)
 	robot_operation_info.direction = direction;
 	robot_operation_info.robot_run = 0;
 	robot_operation_info.mode = ROBOT_OPERATION_MANUAL;
+	auto_init_flag = 1;
 }
 
 void robot_operation_auto(T_robot_operation_direction direction)

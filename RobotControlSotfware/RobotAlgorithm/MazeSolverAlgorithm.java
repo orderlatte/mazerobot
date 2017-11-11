@@ -10,8 +10,10 @@ public interface MazeSolverAlgorithm {
 	static final byte[] ERROR = { 0x8, 0x0, 0x2 };
 	static final byte[] INIT_OK = { 0x8, 0x0, 0x0 };
 
-	void init(Maze maze);
+	void init();
 
 	byte[] getNext();
+	
+	Maze getMaze();
 
 }
