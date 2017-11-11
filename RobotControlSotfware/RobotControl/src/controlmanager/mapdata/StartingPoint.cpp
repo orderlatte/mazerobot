@@ -27,10 +27,10 @@ void StartingPoint::reset(int robotEWSNDirection, int robotPositionX, int robotP
 		resetPosition(robotPosionY, -robotPositonX);
 		break;
 	case WEST:
-		resetPosition(robotPositionX, -robotPositionY);
+		resetPosition(-robotPositionY, robotPositionX);
 		break;
 	case SOUTH:
-		resetPosition(-robotPositionY, robotPositionX);
+		resetPosition(-robotPositionX, -robotPositionY);
 		break;
 	case NORTH:
 		resetPosition(robotPositionX, robotPositionY);
@@ -43,8 +43,8 @@ void StartingPoint::reset(int robotEWSNDirection, int robotPositionX, int robotP
 
 void StartingPoint::resetPosition(int robotPositionX, int robotPositionY) {
 	// TODO: Caculate reset position...
-	PositionX = 5 + (5 - robotPositionX);
-	PositionY = 5 + (5 - robotPositionY);
+	PositionX = 5 + robotPositionX;
+	PositionY = 5 + robotPositionY;
 }
 
 bool StartingPoint::isStartingPoint(int robotPositionX, int robotPositionY) {
