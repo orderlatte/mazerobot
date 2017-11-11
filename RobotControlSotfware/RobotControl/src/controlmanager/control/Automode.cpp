@@ -86,7 +86,8 @@ void Automode::doOperation() {
 		doWaitingForSignResult();
 		break;
 	case AUTOMODE_STATUS_RESUME_TRAVLE:
-
+		doResumeTravel();
+		break;
 	default:
 		printf("doOperation() - Unresolved status(%d).\n", Status);
 		fpAutomodeFail();
@@ -368,6 +369,7 @@ void Automode::doMoving() {
 	// Do nothing.. Keep current robot operation...
 	if (FloorData->RedDot == true) {
 		robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);	// Stop
+		sleep(2);	// For testing...
 		Status = AUTOMODE_STATUS_RECOGNIZING_SIGN;
 	}
 }
@@ -390,7 +392,7 @@ void Automode::doWaitingForSignResult() {
 	Status = AUTOMODE_STATUS_RESUME_TRAVLE;
 }
 
-void Automode::resumeTravel() {
+void Automode::doResumeTravel() {
 	robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);
 	usleep(500000);	// For testing...
 	robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);

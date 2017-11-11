@@ -58,7 +58,7 @@ private:
 	void doMoved();
 	void doRecognizingSign();
 	void doWaitingForSignResult();
-	void resumeTravel();
+	void doResumeTravel();
 	void sendRobotStatusToAlgorithm();
 //	void getTestNextDirectionForTesting(WallFinder *wallData, fp_ewsn_direction callback);
 //	void CallBabckToGetEWSNDirection(int ewsnDirection);
