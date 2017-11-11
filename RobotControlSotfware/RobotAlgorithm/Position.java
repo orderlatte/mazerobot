@@ -15,19 +15,19 @@ class Position {
 		this.y = p.y;
 	}
 
-	public Position getEast() {
+	public Position ofEast() {
 		return new Position(x + 1, y);
 	}
 
-	public Position getSouth() {
+	public Position ofSouth() {
 		return new Position(x, y + 1);
 	}
 
-	public Position getWest() {
+	public Position ofWest() {
 		return new Position(x - 1, y);
 	}
 
-	public Position getNorth() {
+	public Position ofNorth() {
 		return new Position(x, y - 1);
 	}
 
