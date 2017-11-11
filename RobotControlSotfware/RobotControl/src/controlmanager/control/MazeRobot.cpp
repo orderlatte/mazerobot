@@ -32,8 +32,11 @@
 #include "sensor_manager.h"
 #include "Servos.h"
 #include "Automode.h"
+#include "Manualmode.h"
 #include "AlgorithmController.h"
 #include "RobotPosition.h"
+#include "FloorFinder.h"
+#include "StartingPoint.h"
 
 #define INIT 0
 #define STOP 1
@@ -53,27 +56,61 @@ typedef enum
 } T_robot_status;
 
 static UdpSendJpeg    VideoSender;
-static UdpSendMap	  *MapSender;
+static UdpSendMap	  *MapSender = NULL;
+static T_robot_status PreviousStatus;
 static T_robot_status CurrentStatus;
 //static int            EWSNDirection = NORTH;
 static bool           HitTheFrontWall;	// TODO: Remove Hit variables..
 static bool			  HitTheLeftWall;
 static bool 		  HitTheRightWall;
 static RobotPosition  CurrentPosition;
-static Automode       *AutomodeRobot;
-static AlgorithmController *AlgorithmCtrl;
+static Automode       *AutomodeRobot = NULL;
+static Manualmode     *ManualmodeRobot = NULL;
+static AlgorithmController *AlgorithmCtrl = NULL;
+static bool 		  toggle_mode_debug = false;
+static bool			  isResumeAutomode = false;
+static FloorFinder	  *FloorData = NULL;
+static StartingPoint  *StartingData = NULL;
 float	      		  ImageOffset;		   // computed robot deviation from the line
 int 			      linewidth;
+
+// TODO: Below codes should move to UI interaction code
+typedef enum
+{
+	UI_COMMAND_MODE_MANUAL = 0,
+	UI_COMMAND_MODE_AUTO,
+	UI_COMMAND_DIRECTION_FORWARD,
+	UI_COMMAND_DIRECTION_BACK,
+	UI_COMMAND_DIRECTION_TURN_LEFT,
+	UI_COMMAND_DIRECTION_TURN_RIGHT,
+	UI_COMMAND_DIRECTION_STOP,
+	UI_COMMAND_CELL_MOVED,
+	UI_COMMAND_CAMERA_LEFT,
+	UI_COMMAND_CAMERA_RIGHT,
+	UI_COMMAND_CAMERA_UPPER,
+	UI_COMMAND_CAMERA_LOWER,
+	UI_COMMAND_CAMERA_CENTER,
+	UI_COMMAND_CAMERA_LEFT_WALL,
+	UI_COMMAND_CAMERA_RIGHT_WALL,
+	UI_COMMAND_MAX
+} T_ui_command;
+typedef void (*fp_ui_command)(T_ui_command command);
+static fp_ui_command fpUiCommand;
+void ui_command_init(fp_ui_command fp);
+/////////////////
 
 static void  Setup_Control_C_Signal_Handler_And_Keyboard_No_Enter(void);
 static void  CleanUp(void);
 static void  Control_C_Handler(int s);
-static void  HandleInputChar(void);
+static void  HandleInputChar();
 static void  stopRobot(T_sensor_type sensorType);
 static void  avoidLeftWall();
 static void  avoidRightWall();
 static T_robot_image_info getImageOffset();
-void creat_image_capture_thread(void);
+void creat_image_capture_thread(FloorFinder *floorData);
+void CallBackHandleUiCommand (T_ui_command command);
+void CallBackAutomodeFail();
+void recognizeFloor(RobotVisionManager *rvm, FloorFinder *floorData) ;
 
 //extern static void CallBackRobotTurned();
 //extern static void CallBackRobotMoved();
@@ -99,12 +136,20 @@ int main(int argc, const char** argv)
 	  return(-1);
   }
 
-  AutomodeRobot = new Automode(&CurrentPosition);
+  FloorData = new FloorFinder();
+  StartingData = new StartingPoint(CurrentPosition.GetX(), CurrentPosition.GetY());
 
-  AlgorithmCtrl = new AlgorithmController(AutomodeRobot->getEWSNDirectionFP());
-  AlgorithmCtrl->Open();
+  AlgorithmCtrl = new AlgorithmController(StartingData);
+  if (AlgorithmCtrl->Open() == false) {
+	  printf("main() - Open() is failed!\n");
+  }
 
-  AutomodeRobot->setAlgorithmCtrl(AlgorithmCtrl);
+
+  AutomodeRobot = new Automode(&CurrentPosition, CallBackAutomodeFail, AlgorithmCtrl, FloorData);
+  ManualmodeRobot = new Manualmode(&CurrentPosition, AlgorithmCtrl);
+
+//  AutomodeRobot->setAlgorithmCtrl(AlgorithmCtrl);
+//  ManualmodeRobot->setAlgorithmCtrl(AlgorithmCtrl);
 
   MapSender = new UdpSendMap(AlgorithmCtrl->GetMapFP());
 
@@ -118,23 +163,42 @@ int main(int argc, const char** argv)
   sensor_manager_main(&stopRobot);
   robot_operation_init(getImageOffset, AutomodeRobot->getRobotTurnedFP(), AutomodeRobot->getRobotMovedFP());
 
-  creat_image_capture_thread();
+  creat_image_capture_thread(FloorData);
 
+  ui_command_init(CallBackHandleUiCommand);
+
+  PreviousStatus = ROBOT_STATUS_MANUAL;
   CurrentStatus = ROBOT_STATUS_MANUAL;
   HitTheFrontWall = false;
   HitTheLeftWall = false;
   HitTheRightWall = false;
 
+
+
+  // TODO: Reset..! Add feature!
+
   do
   {
-	  HandleInputChar();          // Handle Keyboard Input
-
 	  if (CurrentStatus == ROBOT_STATUS_AUTO) {
+		  // TODO: Restore status from manual mode
+		  if (PreviousStatus == ROBOT_STATUS_MANUAL) {
+			  if (isResumeAutomode == false) {
+				  AutomodeRobot->init();
+				  isResumeAutomode = true;
+			  } else {
+				  AutomodeRobot->resume();
+			  }
+			  PreviousStatus = CurrentStatus;
+		  }
+
 		  AutomodeRobot->doOperation();
 	  } else if (CurrentStatus == ROBOT_STATUS_MANUAL) {
-//		  CurrentPosition.SetDirectionToMove(CurrentMovingDirection);
-		  // TODO: Next Cell recognition should be implemented.
-//		  CurrentPosition.SuccessToMove();
+		  if (PreviousStatus == ROBOT_STATUS_AUTO) {
+			  ManualmodeRobot->init();
+			  PreviousStatus = CurrentStatus;
+		  }
+
+		  ManualmodeRobot->doOperation();
 	  } else {
 		  printf("Robot is suspend mode.\n");
 	  }
@@ -146,7 +210,148 @@ int main(int argc, const char** argv)
   return 0;
 }
 
+void CallBackAutomodeFail() {
+	CurrentStatus = ROBOT_STATUS_MANUAL;
+	toggle_mode_debug = false;
+}
 
+void CallBackHandleUiCommand (T_ui_command command) {
+
+	switch (command) {
+		case UI_COMMAND_MODE_MANUAL:
+			CurrentStatus = ROBOT_STATUS_MANUAL;
+			ManualmodeRobot->setCommand(MANUALMODE_CMD_READY);
+			break;
+
+		case UI_COMMAND_MODE_AUTO:
+			CurrentStatus = ROBOT_STATUS_AUTO;
+			break;
+
+		case UI_COMMAND_DIRECTION_FORWARD:
+			if (CurrentStatus == ROBOT_STATUS_AUTO) {
+				printf("CallBackHandleUiCommand() - Current mode is automode!\n");
+				return;
+			}
+			ManualmodeRobot->setCommand(MANUALMODE_CMD_FORWARD);
+			break;
+
+		case UI_COMMAND_DIRECTION_BACK:
+			if (CurrentStatus == ROBOT_STATUS_AUTO) {
+				printf("CallBackHandleUiCommand() - Current mode is automode!\n");
+				return;
+			}
+			ManualmodeRobot->setCommand(MANUALMODE_CMD_BACK);
+			break;
+
+		case UI_COMMAND_DIRECTION_TURN_LEFT:
+			if (CurrentStatus == ROBOT_STATUS_AUTO) {
+				printf("CallBackHandleUiCommand() - Current mode is automode!\n");
+				return;
+			}
+			ManualmodeRobot->setCommand(MANUALMODE_CMD_TURN_LEFT);
+			break;
+
+		case UI_COMMAND_DIRECTION_TURN_RIGHT:
+			if (CurrentStatus == ROBOT_STATUS_AUTO) {
+				printf("CallBackHandleUiCommand() - Current mode is automode!\n");
+				return;
+			}
+			ManualmodeRobot->setCommand(MANUALMODE_CMD_TURN_RIGHT);
+			break;
+
+		case UI_COMMAND_DIRECTION_STOP:
+			if (CurrentStatus == ROBOT_STATUS_AUTO) {
+				printf("CallBackHandleUiCommand() - Current mode is automode!\n");
+				return;
+			}
+			ManualmodeRobot->setCommand(MANUALMODE_CMD_STOP);
+			break;
+
+		case UI_COMMAND_CELL_MOVED:
+			if (CurrentStatus == ROBOT_STATUS_AUTO) {
+				printf("CallBackHandleUiCommand() - Current mode is automode!\n");
+				return;
+			}
+			ManualmodeRobot->setCommand(MANUALMODE_CMD_CELL_MOVED);
+			break;
+
+		case UI_COMMAND_CAMERA_LEFT:
+			if (CurrentStatus == ROBOT_STATUS_AUTO) {
+				printf("CallBackHandleUiCommand() - Current mode is automode!\n");
+				return;
+			}
+			ManualmodeRobot->setCommand(MANUALMODE_CMD_CAMERA_LEFT);
+			break;
+
+		case UI_COMMAND_CAMERA_RIGHT:
+			if (CurrentStatus == ROBOT_STATUS_AUTO) {
+				printf("CallBackHandleUiCommand() - Current mode is automode!\n");
+				return;
+			}
+			ManualmodeRobot->setCommand(MANUALMODE_CMD_CAMERA_RIGHT);
+			break;
+
+		case UI_COMMAND_CAMERA_UPPER:
+			if (CurrentStatus == ROBOT_STATUS_AUTO) {
+				printf("CallBackHandleUiCommand() - Current mode is automode!\n");
+				return;
+			}
+			ManualmodeRobot->setCommand(MANUALMODE_CMD_CAMERA_UPPER);
+			break;
+
+		case UI_COMMAND_CAMERA_LOWER:
+			if (CurrentStatus == ROBOT_STATUS_AUTO) {
+				printf("CallBackHandleUiCommand() - Current mode is automode!\n");
+				return;
+			}
+			ManualmodeRobot->setCommand(MANUALMODE_CMD_CAMERA_LOWER);
+			break;
+
+		case UI_COMMAND_CAMERA_CENTER:
+			if (CurrentStatus == ROBOT_STATUS_AUTO) {
+				printf("CallBackHandleUiCommand() - Current mode is automode!\n");
+				return;
+			}
+			ManualmodeRobot->setCommand(MANUALMODE_CMD_CAMERA_CENTER);
+			break;
+
+		case UI_COMMAND_CAMERA_LEFT_WALL:
+			if (CurrentStatus == ROBOT_STATUS_AUTO) {
+				printf("CallBackHandleUiCommand() - Current mode is automode!\n");
+				return;
+			}
+			ManualmodeRobot->setCommand(MANUALMODE_CMD_CAMERA_LEFT_WALL);
+			break;
+
+		case UI_COMMAND_CAMERA_RIGHT_WALL:
+			if (CurrentStatus == ROBOT_STATUS_AUTO) {
+				printf("CallBackHandleUiCommand() - Current mode is automode!\n");
+				return;
+			}
+			ManualmodeRobot->setCommand(MANUALMODE_CMD_CAMERA_RIGHT_WALL);
+			break;
+
+		default:
+			printf("handleUiCommand() - It's not supported command! (%d)\n", command);
+			break;
+	}
+}
+
+void *ui_command_thread(void *value) {
+	do {
+		HandleInputChar();          // Handle Keyboard Input
+		usleep(1000);			// sleep 1 milliseconds
+	} while(1);
+}
+
+// TODO: Test code. It should be move to UI network interface
+void ui_command_init(fp_ui_command fp)
+{
+	pthread_t thread1;
+	int x = 0;
+	fpUiCommand = fp;
+	pthread_create(&thread1, NULL, &ui_command_thread, &x);
+}
 
 //-----------------------------------------------------------------
 // END main
@@ -182,7 +387,7 @@ static void CleanUp(void)
  MapSender->CloseUdp();
  free(MapSender);
 
- AlgorithmCtrl->Open();
+ AlgorithmCtrl->Close();
  free(AlgorithmCtrl);
 
  free(AutomodeRobot);
@@ -208,11 +413,14 @@ static void Control_C_Handler(int s)
 //-----------------------------------------------------------------
 // END Control_C_Handler
 //-----------------------------------------------------------------
+
+
+
 //----------------------------------------------------------------
 // HandleInputChar - check if keys are press and proccess keys of
 // interest.
 //-----------------------------------------------------------------
-static void HandleInputChar(void)
+static void HandleInputChar()
 {
   int ch;
   if ((ch=getchar())==EOF)              // no key pressed return
@@ -222,26 +430,69 @@ static void HandleInputChar(void)
 
   switch (ch) {
   case 'w':
-	  robot_operation_manual(ROBOT_OPERATION_DIRECTION_FORWARD);
+	  CallBackHandleUiCommand(UI_COMMAND_DIRECTION_FORWARD);
 	  break;
+
   case 'x':
-	  robot_operation_manual(ROBOT_OPERATION_DIRECTION_BACKWARD);
+	  CallBackHandleUiCommand(UI_COMMAND_DIRECTION_BACK);
 	  break;
+
   case 'd':
-	  robot_operation_manual(ROBOT_OPERATION_DIRECTION_RIGHT);
+	  CallBackHandleUiCommand(UI_COMMAND_DIRECTION_TURN_RIGHT);
 	  break;
+
   case 'a':
-	  robot_operation_manual(ROBOT_OPERATION_DIRECTION_LEFT);
+	  CallBackHandleUiCommand(UI_COMMAND_DIRECTION_TURN_LEFT);
 	  break;
+
   case 's':
-	  robot_operation_manual(ROBOT_OPERATION_DIRECTION_STOP);
-	  CurrentStatus = ROBOT_STATUS_MANUAL;
+	  CallBackHandleUiCommand(UI_COMMAND_DIRECTION_STOP);
 	  break;
+
   case 'r':
-	  CurrentStatus = ROBOT_STATUS_AUTO;
+	  if (toggle_mode_debug == false) {
+		  CallBackHandleUiCommand(UI_COMMAND_MODE_AUTO);
+		  toggle_mode_debug = true;
+	  } else {
+		  CallBackHandleUiCommand(UI_COMMAND_MODE_MANUAL);
+		  toggle_mode_debug = false;
+	  }
 	  break;
+
+  case 'v':
+	  CallBackHandleUiCommand(UI_COMMAND_CELL_MOVED);
+	  break;
+
+  case 'i':
+	  CallBackHandleUiCommand(UI_COMMAND_CAMERA_UPPER);
+	  break;
+
+  case 'j':
+	  CallBackHandleUiCommand(UI_COMMAND_CAMERA_LEFT);
+	  break;
+
+  case 'l':
+	  CallBackHandleUiCommand(UI_COMMAND_CAMERA_RIGHT);
+	  break;
+
+  case 'm':
+	  CallBackHandleUiCommand(UI_COMMAND_CAMERA_LOWER);
+	  break;
+
+  case 'k':
+	  CallBackHandleUiCommand(UI_COMMAND_CAMERA_CENTER);
+	  break;
+
+  case 'u':
+	  CallBackHandleUiCommand(UI_COMMAND_CAMERA_LEFT_WALL);
+	  break;
+
+  case 'o':
+	  CallBackHandleUiCommand(UI_COMMAND_CAMERA_RIGHT_WALL);
+	  break;
+
   default:
-	  printf("Invalid key input: %c", ch);
+	  printf("Invalid key input: %c\n", ch);
 	  break;
   }
 }
@@ -305,29 +556,55 @@ static void avoidRightWall() {
 // Image capture Thread
 //----------------------
 void *image_capture_thread(void *value) {
-	cv::Mat        image;          // camera image in Mat format
+	cv::Mat image;          // camera image in Mat format
+	FloorFinder *floor = (FloorFinder *) value;
+
 	RobotVisionManager rvm;
 
 	rvm.SetDebug(true);	// For debugging
 
 	while (1) {
 		rvm.GetCamImage(image);  // Get Camera image
-
-		flip(image, image,-1);       // if running on PI3 flip(-1)=180 degrees
+		if (IsPi3 == true) flip(image, image,-1);       // if running on PI3 flip(-1)=180 degrees
 
 		ImageOffset=rvm.FindLineInImageAndComputeOffsetAndWidth(image, linewidth);
+
+		if (linewidth > 190) {
+			recognizeFloor(&rvm, floor);
+		}
 
 		VideoSender.SetImage(&image);
 		usleep(1000);			  // sleep 1 milliseconds
 	}
 }
 
-void creat_image_capture_thread(void)
+void recognizeFloor(RobotVisionManager *rvm, FloorFinder *floorData) {
+	cv::Mat redDotImage;
+	cv::Mat goalImage;
+
+	floorData->init();
+
+	// Get new floor image to find red dot
+	rvm->GetCamImage(redDotImage);
+	if (IsPi3 == true) flip(redDotImage, redDotImage,-1);       // if running on PI3 flip(-1)=180 degrees
+	if (rvm->FindRedDot(redDotImage) == true) {
+		floorData->RedDot = true;
+	}
+
+	// Get new floor image to find goal
+	rvm->GetCamImage(goalImage);
+	if (IsPi3 == true) flip(goalImage, goalImage,-1);       // if running on PI3 flip(-1)=180 degrees
+	if (rvm->FindGoalArea(goalImage) == true) {
+		floorData->Goal = true;
+	}
+}
+
+void creat_image_capture_thread(FloorFinder *floorData)
 {
 	pthread_t thread;
-	int x = 0;
+//	int x = 0;
 	// Image capture thread
-	pthread_create(&thread, NULL, &image_capture_thread, &x);
+	pthread_create(&thread, NULL, &image_capture_thread, floorData);
 }
 
 static T_robot_image_info getImageOffset()

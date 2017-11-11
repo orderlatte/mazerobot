@@ -8,6 +8,7 @@ public abstract class MazeSolverAlgorithm {
 	protected static final byte[] NORTH = { 0x8, 0x8, 0x0 };
 	protected static final byte[] FULLYMAPPED = { 0x8, 0x0, 0x1 };
 	protected static final byte[] ERROR = { 0x8, 0x0, 0x2 };
+	protected static final byte[] INIT_OK = { 0x8, 0x0, 0x0 };
 
 	protected Maze maze;
 

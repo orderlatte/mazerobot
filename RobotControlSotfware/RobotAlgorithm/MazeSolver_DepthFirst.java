@@ -7,11 +7,21 @@ import robot_algorithm.Cell.DirectionWallSet;
 
 public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 
-	private Set<Node> unvisitedNodes = new HashSet<>();
-	private Set<Node> visitedNodes = new HashSet<>();
-	private byte[] oldDirectionTogo = null;
-	private Position oldPositionTogo = null;
+	private Set<Node> unvisitedNodes;
+	private Set<Node> visitedNodes;
+	private byte[] oldDirectionTogo;
+	private Position oldPositionTogo;
 
+	
+	@Override
+	public void init(Maze maze) {
+		unvisitedNodes = new HashSet<>();
+		visitedNodes = new HashSet<>();
+		oldDirectionTogo = null;
+		oldPositionTogo = null;
+		super.init(maze);
+	}
+	
 	// <<트래버설 알고리즘>>
 	// 1.동서남북 순서로 안간곳이면 거기로 간다
 	// 1-1 이동할때 큐에 있는 곳으로 가면 해당 큐애 있느 노드를 가져와서 사용(큐에서는 삭제)
@@ -20,7 +30,6 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 	// 각셀에서안간방향이남아있으면해당셀을큐에넣어둔다.
 	// 노드방문시큐에있는셀이면해당셀삭제한다
 	// 갈곳이없어서부모로돌아갈때위큐가비어있다면 풀리매핑!
-
 	@Override
 	public byte[] getNext() {
 		Position p = new Position(maze.getRobotPosition());

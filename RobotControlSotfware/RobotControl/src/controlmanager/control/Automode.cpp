@@ -17,33 +17,44 @@ using namespace std;
 
 
 static T_automode_status Status;
-static RobotPosition *Position;
+static RobotPosition *Position = NULL;
 static T_robot_moving_direction MovingDirection;
 static WallFinder wallData;
-static AlgorithmController *AlgorithmCtrl;
+static AlgorithmController *AlgorithmCtrl = NULL;
 static bool FullyMappingCompleted;
+static fp_automode_fail fpAutomodeFail;
+static FloorFinder *FloorData;
 
 //static std::thread	  *TestingThread=NULL;		// For testing
 
-static void CallBabckToGetEWSNDirection(int ewsnDirection, int result);
+static void CallBabckToGetEWSNDirectionAutomode(int ewsnDirection, T_algorithm_result result);
 static void CallBackRobotTurned();
 static void CallBackRobotMoved();
 
 
-Automode::Automode(RobotPosition *position) {
+Automode::Automode(RobotPosition *position, fp_automode_fail fp, AlgorithmController *algCtrl, FloorFinder *floor) {
 	Position = position;
+	fpAutomodeFail = fp;
 	init();
+	AlgorithmCtrl = algCtrl;
+	FloorData = floor;
 }
 
 void Automode::init() {
 	Status = AUTOMODE_STATUS_READY;
 	MovingDirection = ROBOT_MOVING_DIRECTION_STOP;
 	FullyMappingCompleted = false;
+	robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
 }
 
-void Automode::setAlgorithmCtrl(AlgorithmController *algCtrl) {
-	AlgorithmCtrl = algCtrl;
+void Automode::resume() {
+	Position->SuccessToMove();
+	init();
 }
+
+//void Automode::setAlgorithmCtrl(AlgorithmController *algCtrl) {
+//	AlgorithmCtrl = algCtrl;
+//}
 
 void Automode::doOperation() {
 	switch (Status) {
@@ -71,8 +82,14 @@ void Automode::doOperation() {
 	case AUTOMODE_STATUS_RECOGNIZING_SIGN:
 		doRecognizingSign();
 		break;
+	case AUTOMODE_STATUS_WATING_FOR_SIGN_RESULT:
+		doWaitingForSignResult();
+		break;
+	case AUTOMODE_STATUS_RESUME_TRAVLE:
+
 	default:
-		printf("Unresolved status(%d).\n", Status);
+		printf("doOperation() - Unresolved status(%d).\n", Status);
+		fpAutomodeFail();
 		break;
 	}
 }
@@ -124,9 +141,10 @@ void Automode::doReceivedMovingDirection() {
 		break;
 
 	default:
-		printf("Error! This is not supported direction(%d).\n", MovingDirection);
+		printf("doReceivedMovingDirection() - Error! This is not supported direction(%d).\n", MovingDirection);
 		robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
 		Status = AUTOMODE_STATUS_READY;
+		fpAutomodeFail();
 		break;
 	}
 }
@@ -154,9 +172,10 @@ void Automode::doTurned() {
 	case ROBOT_MOVING_DIRECTION_BACK:
 	case ROBOT_MOVING_DIRECTION_STOP:
 	default:
-		printf("doTurned() Error! This is not supported direction(%d).\n", MovingDirection);
+		printf("doTurned() - Error! This is not supported direction(%d).\n", MovingDirection);
 		robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
 		Status = AUTOMODE_STATUS_READY;
+		fpAutomodeFail();
 		break;
 	}
 }
@@ -186,19 +205,18 @@ void Automode::moveNextCell() {
 		break;
 
 	default:
-		printf("Robot could not handle in this case!\n");
+		printf("moveNextCell() - Robot could not handle in this case!\n");
+		fpAutomodeFail();
 		break;
 	}
 }
 
 void Automode::sendRobotStatusToAlgorithm() {
-	T_SensorData sensorData = get_sensor_data();
-
-	wallData.Init();
-	wallData.recognizeWall(&sensorData);
+//	int point = 0x0; // Starting point, Goal
 
     // TODO: Ad sign information
-	AlgorithmCtrl->SendRobotCell(Position, 0, 0, 0, &wallData);
+
+	AlgorithmCtrl->SendRobotCell(Position, 0, 0, FloorData, &wallData, (fp_ewsn_direction_result)CallBabckToGetEWSNDirectionAutomode);
 
 //	TestingThread = new std::thread(&Automode::getTestNextDirectionForTesting, this, &wallData, fpEWSNDirectionCallBack);
 }
@@ -301,29 +319,26 @@ void Automode::sendRobotStatusToAlgorithm() {
 //	}
 //}
 
+static void CallBabckToGetEWSNDirectionAutomode(int ewsnDirection, T_algorithm_result result) {
+	printf("CallBabckToGetEWSNDirectionAutomode(%d) is called.\n", ewsnDirection);
 
-fp_ewsn_direction_result Automode::getEWSNDirectionFP() {
-	return CallBabckToGetEWSNDirection;
-}
-
-static void CallBabckToGetEWSNDirection(int ewsnDirection, int result) {
-	printf("CallBabckToGetEWSNDirection(%d) is called.\n", ewsnDirection);
-	MovingDirection = Position->SetEWSNDirectionToMove(ewsnDirection);
-
-	if (result == 2) {
-		printf("CallBabckToGetEWSNDirection() - Error! Algorithm is not operated properly. Robot will be stopped.\n");
-		// TODO: Robot should transit to manual mode.
+	if (result == ALGORITHM_RESULT_ERROR) {
+		printf("CallBabckToGetEWSNDirectionAutomode() - Error! Algorithm is not operated properly. Robot will be stopped.\n");
+		fpAutomodeFail();
 		Status = AUTOMODE_STATUS_READY;
 		return;
 	}
 
-	if (result == 1) {
+	if (result == ALGORITHM_RESULT_FULLY_MAPPED) {
 		printf("Fully mapping is completed.\n");
 		FullyMappingCompleted = true;
 		Status = AUTOMODE_STATUS_READY;
+		robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
+		// TODO: Robot should transit to manual mode and the map is fully mapped.
 		return;
 	}
 
+	MovingDirection = Position->SetEWSNDirectionToMove(ewsnDirection);
 	Status = AUTOMODE_STATUS_RECEIVED_MOVING_DIRECTION;
 }
 
@@ -336,26 +351,51 @@ static void CallBackRobotTurned() {
 
 static void CallBackRobotMoved() {
 	Status = AUTOMODE_STATUS_MOVED;
+	if (FloorData->RedDot == true) {
+		printf("CallBackRobotMoved() - Red dot is existed! Ignore callback robot moved.\n");
+		return;
+	}
+
 	Position->SuccessToMove();
 
-	// For testing...
-	robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
 	printf("CallBackRobotMoved() is called!\n");
+	// For testing...
+//	robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
 //	sleep(2);		// 2sec
 }
 
 void Automode::doMoving() {
 	// Do nothing.. Keep current robot operation...
+	if (FloorData->RedDot == true) {
+		robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);	// Stop
+		Status = AUTOMODE_STATUS_RECOGNIZING_SIGN;
+	}
 }
 
 void Automode::doMoved() {
-	// TODO: If there is red dot, move to recognize sign status.
 //	sleep(2);		// For testing..
 	Status = AUTOMODE_STATUS_READY;
 }
 
 void Automode::doRecognizingSign() {
-	// TODO: something..
+	// TODO: Thread start to recognize Sign.
+
+	Status = AUTOMODE_STATUS_WATING_FOR_SIGN_RESULT;
+}
+
+void Automode::doWaitingForSignResult() {
+	// Do nothing...
+
+	// TODO: Below code should be move to thread callback
+	Status = AUTOMODE_STATUS_RESUME_TRAVLE;
+}
+
+void Automode::resumeTravel() {
+	robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);
+	usleep(500000);	// For testing...
+	robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
+
+	Status = AUTOMODE_STATUS_READY;
 }
 
 fp_robot_turned Automode::getRobotTurnedFP() {

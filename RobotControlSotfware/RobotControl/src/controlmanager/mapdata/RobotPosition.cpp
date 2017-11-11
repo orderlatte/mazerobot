@@ -61,12 +61,36 @@ void RobotPosition::SuccessToMove() {
 		break;
 	}
 
-	CurrentDirection = NextDirection;
+	CurrentDirection = NextDirection;		// To handle to move next cell.
 
 	PrintDebugLog();
 }
 
-int RobotPosition::getCurrentEWSNDirection() {
+void RobotPosition::RecoverCoordinates() {
+	printf("RecoverCoordinates() is called.\n");
+
+	switch(CurrentDirection) {
+	case EAST:
+		CurrentX -= 1;
+		break;
+	case WEST:
+		CurrentX += 1;
+		break;
+	case SOUTH:
+		CurrentY -= 1;
+		break;
+	case NORTH:
+		CurrentY += 1;
+		break;
+	default:
+		printf("RecoverCoordinates() - Current direction is invalid! (%d)", CurrentDirection);
+		break;
+	}
+
+	PrintDebugLog();
+}
+
+int RobotPosition::GetCurrentEWSNDirection() {
 	printf("getCurrentEWSNDirection() - CurrentDirection: %d\n", CurrentDirection);
 	return CurrentDirection;
 }
@@ -145,27 +169,27 @@ T_robot_moving_direction RobotPosition::GetNorthDirectionToMove(int direction) {
 }
 
 
-void RobotPosition::SetDirectionToMove(T_robot_moving_direction nextDirection) {
-	printf("SetDirectionToMove() - Next direction is %d\n", nextDirection);
-
-	switch (CurrentDirection) {
-	case EAST:
-		SetEastDirectionToMove(nextDirection);
-		break;
-	case WEST:
-		SetWestDirectionToMove(nextDirection);
-		break;
-	case SOUTH:
-		SetSouthDirectionToMove(nextDirection);
-		break;
-	case NORTH:
-		SetNorthDirectionToMove(nextDirection);
-		break;
-	default:
-		printf("SetDirectionToMove() - It's not supported EWSN direction.(%d)\n", CurrentDirection);
-		break;
-	}
-}
+//void RobotPosition::SetDirectionToMove(T_robot_moving_direction nextDirection) {
+//	printf("SetDirectionToMove() - Next direction is %d\n", nextDirection);
+//
+//	switch (CurrentDirection) {
+//	case EAST:
+//		SetEastDirectionToMove(nextDirection);
+//		break;
+//	case WEST:
+//		SetWestDirectionToMove(nextDirection);
+//		break;
+//	case SOUTH:
+//		SetSouthDirectionToMove(nextDirection);
+//		break;
+//	case NORTH:
+//		SetNorthDirectionToMove(nextDirection);
+//		break;
+//	default:
+//		printf("SetDirectionToMove() - It's not supported EWSN direction.(%d)\n", CurrentDirection);
+//		break;
+//	}
+//}
 
 void RobotPosition::SetEastDirectionToMove(T_robot_moving_direction nextDirection) {
 	switch(nextDirection) {
@@ -247,11 +271,11 @@ void RobotPosition::SetNorthDirectionToMove(T_robot_moving_direction nextDirecti
 	}
 }
 
-int RobotPosition::getX() {
+int RobotPosition::GetX() {
 	return CurrentX;
 }
 
-int RobotPosition::getY() {
+int RobotPosition::GetY() {
 	return CurrentY;
 }
 

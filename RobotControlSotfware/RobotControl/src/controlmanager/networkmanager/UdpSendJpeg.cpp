@@ -63,11 +63,11 @@ void UdpSendJpeg::CloseUdp() {
 void UdpSendJpeg::SendJpeg()
 {
 	// For debugging
-	printf("Send map thread is running!!\n");
+	printf("Send jpeg thread is running!!\n");
 
 	while (1)
 	{
-		usleep(100000);	// sleep 100 milliseconds
+		usleep(200000);	// sleep 200 milliseconds
 
 		if (isSetImage == false) {
 			continue;
@@ -78,6 +78,7 @@ void UdpSendJpeg::SendJpeg()
 			printf("UdpSenderJpeg -> SendUdpMsg error!");
 			continue;
 		}
+//		printf("Send jpeg.\n");
 		jpegmutex.unlock();
 	}
 }
