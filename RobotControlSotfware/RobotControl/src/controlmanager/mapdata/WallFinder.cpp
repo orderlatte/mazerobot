@@ -32,17 +32,6 @@ void WallFinder::Init() {
 //	CurrentEWSNDirection = EWSNDirection;
 }
 
-//
-//int getNextEWSNDirection(bool initialStarted) {
-//	T_SensorData sensorData = get_sensor_data();
-//	T_WallData wallData;
-//
-//	sendCurrentRobotStatus(&sensorData, &wallData, initialStarted);
-//
-//	// TODO: Below code will be replaced with Maze algorithm
-//	return getTestNextDirection(&wallData);
-//}
-
 void WallFinder::recognizeWall(T_SensorData* sensorData) {
 	if (sensorData->sonar_distance < 15 && sensorData->sonar_distance > 0) { // Less than 10cm
 		printf("recognizeWall() Front wall is existed\n");

@@ -35,6 +35,8 @@
 #include "Manualmode.h"
 #include "AlgorithmController.h"
 #include "RobotPosition.h"
+#include "FloorFinder.h"
+#include "StartingPoint.h"
 
 #define INIT 0
 #define STOP 1
@@ -67,6 +69,8 @@ static Manualmode     *ManualmodeRobot = NULL;
 static AlgorithmController *AlgorithmCtrl = NULL;
 static bool 		  toggle_mode_debug = false;
 static bool			  isResumeAutomode = false;
+static FloorFinder	  *FloorData = NULL;
+static StartingPoint  *StartingData = NULL;
 float	      		  ImageOffset;		   // computed robot deviation from the line
 int 			      linewidth;
 
@@ -103,9 +107,10 @@ static void  stopRobot(T_sensor_type sensorType);
 static void  avoidLeftWall();
 static void  avoidRightWall();
 static T_robot_image_info getImageOffset();
-void creat_image_capture_thread(void);
+void creat_image_capture_thread(FloorFinder *floorData);
 void CallBackHandleUiCommand (T_ui_command command);
 void CallBackAutomodeFail();
+void recognizeFloor(RobotVisionManager *rvm, FloorFinder *floorData) ;
 
 //extern static void CallBackRobotTurned();
 //extern static void CallBackRobotMoved();
@@ -131,12 +136,16 @@ int main(int argc, const char** argv)
 	  return(-1);
   }
 
-  AlgorithmCtrl = new AlgorithmController();
+  FloorData = new FloorFinder();
+  StartingData = new StartingPoint(CurrentPosition.GetX(), CurrentPosition.GetY());
+
+  AlgorithmCtrl = new AlgorithmController(StartingData);
   if (AlgorithmCtrl->Open() == false) {
 	  printf("main() - Open() is failed!\n");
   }
 
-  AutomodeRobot = new Automode(&CurrentPosition, CallBackAutomodeFail, AlgorithmCtrl);
+
+  AutomodeRobot = new Automode(&CurrentPosition, CallBackAutomodeFail, AlgorithmCtrl, FloorData);
   ManualmodeRobot = new Manualmode(&CurrentPosition, AlgorithmCtrl);
 
 //  AutomodeRobot->setAlgorithmCtrl(AlgorithmCtrl);
@@ -152,10 +161,9 @@ int main(int argc, const char** argv)
   }
 
   sensor_manager_main(&stopRobot);
-  // TODO: Check when robot_operation mode call call back function pointer
   robot_operation_init(getImageOffset, AutomodeRobot->getRobotTurnedFP(), AutomodeRobot->getRobotMovedFP());
 
-  creat_image_capture_thread();
+  creat_image_capture_thread(FloorData);
 
   ui_command_init(CallBackHandleUiCommand);
 
@@ -164,6 +172,10 @@ int main(int argc, const char** argv)
   HitTheFrontWall = false;
   HitTheLeftWall = false;
   HitTheRightWall = false;
+
+
+
+  // TODO: Reset..! Add feature!
 
   do
   {
@@ -544,29 +556,55 @@ static void avoidRightWall() {
 // Image capture Thread
 //----------------------
 void *image_capture_thread(void *value) {
-	cv::Mat        image;          // camera image in Mat format
+	cv::Mat image;          // camera image in Mat format
+	FloorFinder *floor = (FloorFinder *) value;
+
 	RobotVisionManager rvm;
 
 	rvm.SetDebug(true);	// For debugging
 
 	while (1) {
 		rvm.GetCamImage(image);  // Get Camera image
-
 		if (IsPi3 == true) flip(image, image,-1);       // if running on PI3 flip(-1)=180 degrees
 
 		ImageOffset=rvm.FindLineInImageAndComputeOffsetAndWidth(image, linewidth);
+
+		if (linewidth > 190) {
+			recognizeFloor(&rvm, floor);
+		}
 
 		VideoSender.SetImage(&image);
 		usleep(1000);			  // sleep 1 milliseconds
 	}
 }
 
-void creat_image_capture_thread(void)
+void recognizeFloor(RobotVisionManager *rvm, FloorFinder *floorData) {
+	cv::Mat redDotImage;
+	cv::Mat goalImage;
+
+	floorData->init();
+
+	// Get new floor image to find red dot
+	rvm->GetCamImage(redDotImage);
+	if (IsPi3 == true) flip(redDotImage, redDotImage,-1);       // if running on PI3 flip(-1)=180 degrees
+	if (rvm->FindRedDot(redDotImage) == true) {
+		floorData->RedDot = true;
+	}
+
+	// Get new floor image to find goal
+	rvm->GetCamImage(goalImage);
+	if (IsPi3 == true) flip(goalImage, goalImage,-1);       // if running on PI3 flip(-1)=180 degrees
+	if (rvm->FindGoalArea(goalImage) == true) {
+		floorData->Goal = true;
+	}
+}
+
+void creat_image_capture_thread(FloorFinder *floorData)
 {
 	pthread_t thread;
-	int x = 0;
+//	int x = 0;
 	// Image capture thread
-	pthread_create(&thread, NULL, &image_capture_thread, &x);
+	pthread_create(&thread, NULL, &image_capture_thread, floorData);
 }
 
 static T_robot_image_info getImageOffset()

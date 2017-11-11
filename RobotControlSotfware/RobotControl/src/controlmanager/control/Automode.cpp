@@ -23,6 +23,7 @@ static WallFinder wallData;
 static AlgorithmController *AlgorithmCtrl = NULL;
 static bool FullyMappingCompleted;
 static fp_automode_fail fpAutomodeFail;
+static FloorFinder *FloorData;
 
 //static std::thread	  *TestingThread=NULL;		// For testing
 
@@ -31,11 +32,12 @@ static void CallBackRobotTurned();
 static void CallBackRobotMoved();
 
 
-Automode::Automode(RobotPosition *position, fp_automode_fail fp, AlgorithmController *algCtrl) {
+Automode::Automode(RobotPosition *position, fp_automode_fail fp, AlgorithmController *algCtrl, FloorFinder *floor) {
 	Position = position;
 	fpAutomodeFail = fp;
 	init();
 	AlgorithmCtrl = algCtrl;
+	FloorData = floor;
 }
 
 void Automode::init() {
@@ -80,6 +82,11 @@ void Automode::doOperation() {
 	case AUTOMODE_STATUS_RECOGNIZING_SIGN:
 		doRecognizingSign();
 		break;
+	case AUTOMODE_STATUS_WATING_FOR_SIGN_RESULT:
+		doWaitingForSignResult();
+		break;
+	case AUTOMODE_STATUS_RESUME_TRAVLE:
+
 	default:
 		printf("doOperation() - Unresolved status(%d).\n", Status);
 		fpAutomodeFail();
@@ -205,8 +212,11 @@ void Automode::moveNextCell() {
 }
 
 void Automode::sendRobotStatusToAlgorithm() {
+//	int point = 0x0; // Starting point, Goal
+
     // TODO: Ad sign information
-	AlgorithmCtrl->SendRobotCell(Position, 0, 0, 0, &wallData, (fp_ewsn_direction_result)CallBabckToGetEWSNDirectionAutomode);
+
+	AlgorithmCtrl->SendRobotCell(Position, 0, 0, FloorData, &wallData, (fp_ewsn_direction_result)CallBabckToGetEWSNDirectionAutomode);
 
 //	TestingThread = new std::thread(&Automode::getTestNextDirectionForTesting, this, &wallData, fpEWSNDirectionCallBack);
 }
@@ -341,6 +351,11 @@ static void CallBackRobotTurned() {
 
 static void CallBackRobotMoved() {
 	Status = AUTOMODE_STATUS_MOVED;
+	if (FloorData->RedDot == true) {
+		printf("CallBackRobotMoved() - Red dot is existed! Ignore callback robot moved.\n");
+		return;
+	}
+
 	Position->SuccessToMove();
 
 	printf("CallBackRobotMoved() is called!\n");
@@ -351,16 +366,36 @@ static void CallBackRobotMoved() {
 
 void Automode::doMoving() {
 	// Do nothing.. Keep current robot operation...
+	if (FloorData->RedDot == true) {
+		robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);	// Stop
+		Status = AUTOMODE_STATUS_RECOGNIZING_SIGN;
+	}
 }
 
 void Automode::doMoved() {
-	// TODO: If there is red dot, move to recognize sign status.
 //	sleep(2);		// For testing..
 	Status = AUTOMODE_STATUS_READY;
 }
 
 void Automode::doRecognizingSign() {
-	// TODO: something..
+	// TODO: Thread start to recognize Sign.
+
+	Status = AUTOMODE_STATUS_WATING_FOR_SIGN_RESULT;
+}
+
+void Automode::doWaitingForSignResult() {
+	// Do nothing...
+
+	// TODO: Below code should be move to thread callback
+	Status = AUTOMODE_STATUS_RESUME_TRAVLE;
+}
+
+void Automode::resumeTravel() {
+	robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);
+	usleep(500000);	// For testing...
+	robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
+
+	Status = AUTOMODE_STATUS_READY;
 }
 
 fp_robot_turned Automode::getRobotTurnedFP() {

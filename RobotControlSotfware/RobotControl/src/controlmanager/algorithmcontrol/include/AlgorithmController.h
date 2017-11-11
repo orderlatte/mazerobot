@@ -13,6 +13,8 @@
 #include "UdpSendMap.h"
 #include "RobotPosition.h"
 #include "WallFinder.h"
+#include "FloorFinder.h"
+#include "StartingPoint.h"
 
 typedef enum
 {
@@ -39,8 +41,8 @@ private:
 	std::thread	      *TcpThread = NULL;
 
 public:
-	AlgorithmController();
-	void SendRobotCell(RobotPosition *robotPosition, int signPosition, int signType, int redDot, WallFinder *wall, fp_ewsn_direction_result fp);
+	AlgorithmController(StartingPoint *starting);
+	void SendRobotCell(RobotPosition *robotPosition, int signPosition, int signType, FloorFinder *floor, WallFinder *wall, fp_ewsn_direction_result fp);
 	bool Open();
 	void Close();
 	fp_getMap GetMapFP();
@@ -48,7 +50,7 @@ public:
 private:
 	int GetNextDirection(unsigned char direction);
 	T_algorithm_result GetResultFromAlgorithm(unsigned char result);
-	void SendRobotCellThread(RobotPosition *robotPosition, int signPosition, int signType, int redDot, WallFinder *wall, fp_ewsn_direction_result fp);
+	void SendRobotCellThread(RobotPosition *robotPosition, int signPosition, int signType, FloorFinder *floor, WallFinder *wall, fp_ewsn_direction_result fp);
 };
 
 

@@ -13,6 +13,7 @@
 #include "AlgorithmController.h"
 #include "RobotPosition.h"
 #include "WallFinder.h"
+#include "FloorFinder.h"
 
 typedef enum
 {
@@ -24,6 +25,8 @@ typedef enum
 	AUTOMODE_STATUS_MOVING,
 	AUTOMODE_STATUS_MOVED,
 	AUTOMODE_STATUS_RECOGNIZING_SIGN,
+	AUTOMODE_STATUS_WATING_FOR_SIGN_RESULT,
+	AUTOMODE_STATUS_RESUME_TRAVLE,
 	AUTOMODE_STATUS_MAX
 } T_automode_status;
 
@@ -33,7 +36,7 @@ typedef void (*fp_automode_fail)(void);
 class Automode {
 
 public:
-	Automode(RobotPosition *position, fp_automode_fail fp, AlgorithmController *algCtrl);
+	Automode(RobotPosition *position, fp_automode_fail fp, AlgorithmController *algCtrl, FloorFinder *floor);
 	void init();
 	void resume();
 //	void setAlgorithmCtrl(AlgorithmController *algCtrl);
@@ -54,6 +57,8 @@ private:
 	void doMoving();
 	void doMoved();
 	void doRecognizingSign();
+	void doWaitingForSignResult();
+	void resumeTravel();
 	void sendRobotStatusToAlgorithm();
 //	void getTestNextDirectionForTesting(WallFinder *wallData, fp_ewsn_direction callback);
 //	void CallBabckToGetEWSNDirection(int ewsnDirection);

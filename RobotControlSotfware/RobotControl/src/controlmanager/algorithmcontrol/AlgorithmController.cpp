@@ -23,12 +23,13 @@ static int robotCellSize;
 static unsigned char *robotEWSNBuff = NULL;
 static int robotEWSNSize;
 static AlgorithmController *AlgCtrl = NULL;
+static StartingPoint *StartingData = NULL;
 
 static std::thread *TestingThread = NULL;		// For testing
 static std::mutex algorithmmutex;
 
 
-AlgorithmController::AlgorithmController() {
+AlgorithmController::AlgorithmController(StartingPoint *starting) {
 
 	mapBuffSize = sizeof(unsigned char) + MAP_SIZE;
 	mapBuff = (unsigned char *)malloc(mapBuffSize);
@@ -42,6 +43,8 @@ AlgorithmController::AlgorithmController() {
 	robotEWSNBuff = (unsigned char *) malloc(robotEWSNSize);
 	memset(robotEWSNBuff, 0x00, robotEWSNSize);
 
+	StartingData = starting;
+
 	AlgCtrl = this;
 }
 
@@ -54,11 +57,11 @@ bool AlgorithmController::Open() {
 	return true;
 }
 
-void AlgorithmController::SendRobotCell(RobotPosition *robotPosition, int signPosition, int signType, int redDot, WallFinder *wall, fp_ewsn_direction_result fp) {
-	TestingThread = new std::thread(&AlgorithmController::SendRobotCellThread, this, robotPosition, signPosition, signType, redDot, wall, fp);
+void AlgorithmController::SendRobotCell(RobotPosition *robotPosition, int signPosition, int signType, FloorFinder *floor, WallFinder *wall, fp_ewsn_direction_result fp) {
+	TestingThread = new std::thread(&AlgorithmController::SendRobotCellThread, this, robotPosition, 0, 0, floor, wall, fp);
 }
 
-void AlgorithmController::SendRobotCellThread(RobotPosition *robotPosition, int signPosition, int signType, int redDot, WallFinder *wall, fp_ewsn_direction_result fp) {
+void AlgorithmController::SendRobotCellThread(RobotPosition *robotPosition, int signPosition, int signType, FloorFinder *floor, WallFinder *wall, fp_ewsn_direction_result fp) {
 	int CurrentEWSNDirection = robotPosition->GetCurrentEWSNDirection();
 	short *tmpPosition = 0x00;
 	int NextEWSNDirection = NORTH;
@@ -83,9 +86,20 @@ void AlgorithmController::SendRobotCellThread(RobotPosition *robotPosition, int 
 	// Robot Cell
 	robotCellBuff[1] = (unsigned char) CurrentEWSNDirection;	// robot EWSN direction
 	robotCellBuff[2] = signPosition; // TODO: sign position
-	robotCellBuff[3] = 0;
+
+	// Goal position
+	if (floor->Goal == true) {
+		robotCellBuff[3] = 0x02;
+	}
+
+	// Starting position
+	if (StartingData->isStartingPoint(robotPosition->GetX(), robotPosition->GetY()) == true) {
+		robotCellBuff[3] = 0x01;
+	}
+
 	robotCellBuff[4] = signType; // TODO: sign type
-	robotCellBuff[5] = redDot;
+
+	robotCellBuff[5] = (unsigned char) floor->RedDot;
 
 	robotCellBuff[6] = wall->getCheckedWalls(CurrentEWSNDirection);
 	robotCellBuff[7] = wall->getBlockedWalls(CurrentEWSNDirection);
@@ -145,6 +159,9 @@ cleanup:
 	algorithmmutex.unlock();
 }
 
+//T_SensorData AlgorithmController::GetSensorData() {
+//
+//}
 
 int AlgorithmController::GetNextDirection(unsigned char direction) {
 	switch (direction) {
