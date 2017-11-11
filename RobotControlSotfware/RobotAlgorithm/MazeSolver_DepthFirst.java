@@ -14,8 +14,8 @@ public class MazeSolver_DepthFirst implements MazeSolverAlgorithm {
 	private Position oldPositionTogo;
 
 	@Override
-	public void init(Maze maze) {
-		this.maze = maze;
+	public void init() {
+		this.maze = new Maze();
 		unvisitedNodes = new HashSet<>();
 		visitedNodes = new HashSet<>();
 		oldDirectionTogo = null;
@@ -124,6 +124,11 @@ public class MazeSolver_DepthFirst implements MazeSolverAlgorithm {
 			if (n.position.equals(p))
 				return n;
 		return null;
+	}
+
+	@Override
+	public Maze getMaze() {
+		return this.maze;
 	}
 }
 
