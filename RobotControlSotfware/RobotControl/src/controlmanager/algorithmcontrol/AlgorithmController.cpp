@@ -90,6 +90,7 @@ void AlgorithmController::SendRobotCellThread(RobotPosition *robotPosition, int 
 	// Goal position
 	if (floor->Goal == true) {
 		robotCellBuff[3] = 0x02;
+		floor->Goal = false;
 	}
 
 	// Starting position
@@ -100,6 +101,7 @@ void AlgorithmController::SendRobotCellThread(RobotPosition *robotPosition, int 
 	robotCellBuff[4] = signType; // TODO: sign type
 
 	robotCellBuff[5] = (unsigned char) floor->RedDot;
+	floor->RedDot = false;
 
 	robotCellBuff[6] = wall->getCheckedWalls(CurrentEWSNDirection);
 	robotCellBuff[7] = wall->getBlockedWalls(CurrentEWSNDirection);

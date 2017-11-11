@@ -74,6 +74,7 @@ void robot_mode_setting(T_robot_moving_mode robot_moving_mode, float offset)
 	static unsigned long execute_time;
 	static unsigned char pid_flag;
 
+#ifndef UBUNTU		// For building in ubuntu. Below code sould be built in raspberry pi.
 	if(pid_flag == 0)
 	{
 		start_time = micros();
@@ -91,6 +92,7 @@ void robot_mode_setting(T_robot_moving_mode robot_moving_mode, float offset)
 	{
 		pid_flag = 0;
 	}
+#endif
 
 	
 	switch(robot_moving_mode)

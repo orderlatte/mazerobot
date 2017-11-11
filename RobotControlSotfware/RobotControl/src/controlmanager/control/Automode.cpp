@@ -61,33 +61,43 @@ void Automode::doOperation() {
 	case AUTOMODE_STATUS_READY:
 		doReady();
 		break;
+
 	case AUTOMODE_STATUS_WAITING_FOR_DIRECTION:
 		doWaitingForDirection();
 		break;
+
 	case AUTOMODE_STATUS_RECEIVED_MOVING_DIRECTION:
 		doReceivedMovingDirection();
 		break;
+
 	case AUTOMODE_STATUS_TURNING:
 		doTurning();
 		break;
+
 	case AUTOMODE_STATUS_TURNED:
 		doTurned();
 		break;
+
 	case AUTOMODE_STATUS_MOVING:
 		doMoving();
 		break;
+
 	case AUTOMODE_STATUS_MOVED:
 		doMoved();
 		break;
+
 	case AUTOMODE_STATUS_RECOGNIZING_SIGN:
 		doRecognizingSign();
 		break;
+
 	case AUTOMODE_STATUS_WATING_FOR_SIGN_RESULT:
 		doWaitingForSignResult();
 		break;
+
 	case AUTOMODE_STATUS_RESUME_TRAVLE:
 		doResumeTravel();
 		break;
+
 	default:
 		printf("doOperation() - Unresolved status(%d).\n", Status);
 		fpAutomodeFail();
@@ -96,6 +106,8 @@ void Automode::doOperation() {
 }
 
 void Automode::doReady() {
+	printf("doReady() is called!\n");
+
 	if (FullyMappingCompleted == true) {
 		printf("doReady() - fully mapping is completed.\n");
 		return;
@@ -345,12 +357,23 @@ static void CallBabckToGetEWSNDirectionAutomode(int ewsnDirection, T_algorithm_r
 
 static void CallBackRobotTurned() {
 //	robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
+
+	if (Status != AUTOMODE_STATUS_TURNING) {
+		printf("CallBackRobotTurned() - Current status is not turning.\n");
+		return;
+	}
+
 	Status = AUTOMODE_STATUS_TURNED;
 
 	printf("CallBackRobotTurned() is called!\n");
 }
 
 static void CallBackRobotMoved() {
+	if (Status != AUTOMODE_STATUS_MOVING) {
+		printf("CallBackRobotMoved() - Current status is not moving.\n");
+		return;
+	}
+
 	Status = AUTOMODE_STATUS_MOVED;
 	if (FloorData->RedDot == true) {
 		printf("CallBackRobotMoved() - Red dot is existed! Ignore callback robot moved.\n");
@@ -368,13 +391,15 @@ static void CallBackRobotMoved() {
 void Automode::doMoving() {
 	// Do nothing.. Keep current robot operation...
 	if (FloorData->RedDot == true) {
-		robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);	// Stop
-		sleep(2);	// For testing...
+		printf("doMoving() - RedDot is found.\n");
+
 		Status = AUTOMODE_STATUS_RECOGNIZING_SIGN;
 	}
 }
 
 void Automode::doMoved() {
+	printf("doMoved() is called.\n");
+
 //	sleep(2);		// For testing..
 	Status = AUTOMODE_STATUS_READY;
 }
@@ -382,20 +407,32 @@ void Automode::doMoved() {
 void Automode::doRecognizingSign() {
 	// TODO: Thread start to recognize Sign.
 
+	printf("doRecognizingSign() is called.\n");
+	robot_operation_manual(ROBOT_OPERATION_DIRECTION_BACKWARD);
+	usleep(200000);
+	robot_operation_manual(ROBOT_OPERATION_DIRECTION_STOP);
+	sleep(2);		// For testing...
+
 	Status = AUTOMODE_STATUS_WATING_FOR_SIGN_RESULT;
 }
 
 void Automode::doWaitingForSignResult() {
 	// Do nothing...
 
+	printf("doWaitingForSignResult() is called.\n");
+
 	// TODO: Below code should be move to thread callback
 	Status = AUTOMODE_STATUS_RESUME_TRAVLE;
 }
 
 void Automode::doResumeTravel() {
-	robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);
-	usleep(500000);	// For testing...
-	robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
+	printf("doResumeTravel() is called.\n");
+
+	robot_operation_manual(ROBOT_OPERATION_DIRECTION_FORWARD);
+	usleep(900000);	// For testing...
+	robot_operation_manual(ROBOT_OPERATION_DIRECTION_STOP);
+
+	Position->SuccessToMove();
 
 	Status = AUTOMODE_STATUS_READY;
 }
