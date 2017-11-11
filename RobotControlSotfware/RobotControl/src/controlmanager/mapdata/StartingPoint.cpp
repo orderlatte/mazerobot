@@ -24,16 +24,16 @@ void StartingPoint::reset(int robotEWSNDirection, int robotPositionX, int robotP
 
 	switch (robotEWSNDirection) {
 	case EAST:
-		resetEast(robotPositionX, robotPositionY);
+		resetPosition(robotPosionY, -robotPositonX);
 		break;
 	case WEST:
-		resetWest(robotPositionX, robotPositionY);
+		resetPosition(-robotPositionY, robotPositionX);
 		break;
 	case SOUTH:
-		resetSouth(robotPositionX, robotPositionY);
+		resetPosition(-robotPositionX, -robotPositionY);
 		break;
 	case NORTH:
-		resetNorth(robotPositionX, robotPositionY);
+		resetPosition(robotPositionX, robotPositionY);
 		break;
 	default:
 		printf("reset() - This is not supported direction. (%d)\n", robotEWSNDirection);
@@ -41,20 +41,10 @@ void StartingPoint::reset(int robotEWSNDirection, int robotPositionX, int robotP
 	}
 }
 
-void StartingPoint::resetEast(int robotPositionX, int robotPositionY) {
+void StartingPoint::resetPosition(int robotPositionX, int robotPositionY) {
 	// TODO: Caculate reset position...
-}
-
-void StartingPoint::resetWest(int robotPositionX, int robotPositionY) {
-	// TODO: Caculate reset position...
-}
-
-void StartingPoint::resetSouth(int robotPositionX, int robotPositionY) {
-	// TODO: Caculate reset position...
-}
-
-void StartingPoint::resetNorth(int robotPositionX, int robotPositionY) {
-	// TODO: Caculate reset position...
+	PositionX = 5 + robotPositionX;
+	PositionY = 5 + robotPositionY;
 }
 
 bool StartingPoint::isStartingPoint(int robotPositionX, int robotPositionY) {

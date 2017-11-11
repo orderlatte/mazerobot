@@ -5,23 +5,23 @@ import java.util.Set;
 
 import robot_algorithm.Cell.DirectionWallSet;
 
-public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
+public class MazeSolver_DepthFirst implements MazeSolverAlgorithm {
 
+	private Maze maze;
 	private Set<Node> unvisitedNodes;
 	private Set<Node> visitedNodes;
 	private byte[] oldDirectionTogo;
 	private Position oldPositionTogo;
 
-	
 	@Override
-	public void init(Maze maze) {
+	public void init() {
+		this.maze = new Maze();
 		unvisitedNodes = new HashSet<>();
 		visitedNodes = new HashSet<>();
 		oldDirectionTogo = null;
 		oldPositionTogo = null;
-		super.init(maze);
 	}
-	
+
 	// <<트래버설 알고리즘>>
 	// 1.동서남북 순서로 안간곳이면 거기로 간다
 	// 1-1 이동할때 큐에 있는 곳으로 가면 해당 큐애 있느 노드를 가져와서 사용(큐에서는 삭제)
@@ -32,7 +32,7 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 	// 갈곳이없어서부모로돌아갈때위큐가비어있다면 풀리매핑!
 	@Override
 	public byte[] getNext() {
-		Position p = new Position(maze.getRobotPosition());
+		Position p = new Position(maze.getPositionOfRobot());
 		System.out.println("Current Position :" + p);
 		if (oldPositionTogo != null && !oldPositionTogo.equals(p))
 			return ERROR;
@@ -47,10 +47,10 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 
 		Node togo = null;
 		byte[] togoValue = null;
-		DirectionWallSet ds = maze.getRobotCell().getWall();
+		DirectionWallSet ds = maze.getCellOfRobot().getWall();
 
 		if (!ds.east) {
-			Node east = getExistNode(p.getEast());
+			Node east = getExistNode(p.ofEast());
 			if (!visitedNodes.contains(east)) {
 				this.unvisitedNodes.add(east);
 				if (togo == null) {
@@ -60,7 +60,7 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 			}
 		}
 		if (!ds.south) {
-			Node south = getExistNode(p.getSouth());
+			Node south = getExistNode(p.ofSouth());
 			if (!visitedNodes.contains(south)) {
 				this.unvisitedNodes.add(south);
 				if (togo == null) {
@@ -70,7 +70,7 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 			}
 		}
 		if (!ds.west) {
-			Node west = getExistNode(p.getWest());
+			Node west = getExistNode(p.ofWest());
 			if (!visitedNodes.contains(west)) {
 				this.unvisitedNodes.add(west);
 				if (togo == null) {
@@ -80,7 +80,7 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 			}
 		}
 		if (!ds.north) {
-			Node north = getExistNode(p.getNorth());
+			Node north = getExistNode(p.ofNorth());
 			if (!visitedNodes.contains(north)) {
 				this.unvisitedNodes.add(north);
 				if (togo == null) {
@@ -124,6 +124,11 @@ public class MazeSolver_DepthFirst extends MazeSolverAlgorithm {
 			if (n.position.equals(p))
 				return n;
 		return null;
+	}
+
+	@Override
+	public Maze getMaze() {
+		return this.maze;
 	}
 }
 

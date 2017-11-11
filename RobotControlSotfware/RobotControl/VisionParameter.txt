@@ -1,4 +1,6 @@
-thresBlueAreaOfROI 0.2
 thresCrossAreaOfROI 0.7
 thresBinary 50
+thresBlueAreaOfROI 0.2
+lowerBoundBlue 60
+upperBoundBlue 130
 

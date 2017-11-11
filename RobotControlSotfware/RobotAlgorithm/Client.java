@@ -85,11 +85,10 @@ public class Client {
 		test(1, 1, 0, 1,(byte)7,(byte)3);// 22
 
 		System.out.println("The End of Client");
-
+		
 		mIn.close();
 		mOut.close();
 		mSocket.close();
-
 	}
 
 	// 벽이 있으면 true
