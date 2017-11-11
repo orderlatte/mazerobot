@@ -32,6 +32,10 @@ static fp_robot_moved fpRobotMoved;
 
 static T_robot_image_info robot_operation_image_info;
 
+static int            Pan;
+static int            Tilt;
+
+
 
 long micros_wrapper();
 
@@ -50,7 +54,7 @@ void robot_move_one_cell_foward(void)
 	else if(robot_move_one_cell_foward_state == 1)
 	{
 		robot_mode_setting(ROBOT_LINE_TRACKING, robot_operation_image_info.offset);
-		if(micros_wrapper()-timeoutstart > (700*1000))
+		if(micros_wrapper()-timeoutstart > (500*1000))
 		{
 			robot_move_one_cell_foward_state = 2;
 		}
@@ -106,7 +110,7 @@ void robot_trun_move_onecell(T_robot_operation_direction direction)
 			robot_mode_setting(ROBOT_RIGHT_ROTATING,robot_operation_image_info.offset);
 		}
 
-		if(micros_wrapper()-timeoutstart > (500*1000))
+		if(micros_wrapper()-timeoutstart > (700*1000))
 		{
 			if((robot_operation_image_info.linewidth < 190 && robot_operation_image_info.linewidth > 100)) //|| (micros_wrapper()-timeoutstart > (1200*1000)))
 			{
@@ -214,6 +218,67 @@ void robot_operation_auto_operation(void)
 				
 }
 
+
+void robot_operation_cam_position(int pan, int tilt)
+{
+	Pan = pan;
+	Tilt = tilt;
+	servos_cam_operation(pan, tilt);
+}
+
+
+void robot_operation_cam_manual(T_robot_operation_direction direction)
+{
+	switch(direction)
+	{
+		case ROBOT_CAM_DIRECTION_LEFT:
+			if(Pan < PAN_CAMERA_MAX)
+			{
+				Pan++;
+			}
+			break;
+		case ROBOT_CAM_DIRECTION_RIGHT:
+			if(Pan > PAN_CAMERA_MIN)
+			{
+				Pan--;
+			}
+			break;
+		case ROBOT_CAM_DIRECTION_DOWN:
+			if(Tilt < TILT_CAMERA_MAX)
+			{
+				Tilt++;
+			}
+			break;
+		case ROBOT_CAM_DIRECTION_UP:
+			if(Tilt > TILT_CAMERA_MIN)
+			{
+				Tilt--;
+			}
+			break;
+		case ROBOT_CAM_DIRECTION_CENTER:
+			Pan = 155;
+			Tilt = 155;
+			break;
+		case ROBOT_CAM_DIRECTION_LEFT_SIGN:
+			Pan = 240;
+			Tilt = 150;
+			break;
+		case ROBOT_CAM_DIRECTION_RIGHT_SIGN:
+			Pan = 68;
+			Tilt = 167;
+			break;
+		case ROBOT_CAM_DIRECTION_LINE:
+			Pan = TRK_LINE_CAM_PAN;
+			Tilt = TRK_LINE_CAM_TILT;
+			break;
+			
+	}
+	robot_operation_cam_position(Pan, Tilt);
+	printf("pan = %d, tilt = %d\n", Pan, Tilt);
+			
+}
+
+
 void *robot_operation_main(void *value)
 {
 	while(1)
@@ -237,7 +302,10 @@ void robot_operation_init(fp_get_image_offset getImageOffset, fp_robot_turned ro
 {
 	pthread_t thread1;
 	int x = 0;
+	Pan = TRK_LINE_CAM_PAN;
+	Tilt = TRK_LINE_CAM_TILT;
 	servos_manager_main();
+	robot_operation_cam_position(Pan, Tilt);
 	pthread_create(&thread1, NULL, &robot_operation_main, &x);
 
 	fpGetImageOffset = getImageOffset;

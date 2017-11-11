@@ -17,8 +17,8 @@ using namespace std;
 
 // Parameters for PID
 #define KP        1.0               // defaut 1.0
-#define KI        0.01               // defaut 0.1
-#define KD        0.01               // defaut 0.0
+#define KI        0.01             // defaut 0.1
+#define KD        0.0               // defaut 0.0
 #define BASESPEED 10.0               // Range 0-50
 #define M_BASESPEED 6.0               // Range 0-50
 
@@ -28,8 +28,7 @@ using namespace std;
 #define MAX_WHEEL_SPEED  50
 
 
-static int            Pan;
-static int            Tilt;
+
 static TPID           PID;
 
 
@@ -46,11 +45,15 @@ void servos_manager_init(void)
   
 		ResetServos(); // Set the servos to Center/Stopped
 		sleep(1);      // Wait for the servos to reach position
-		SetCameraServosLineTrackMode(Pan,Tilt); // Set Camera to line following position
 		InitPID(PID,KP,KI,KD,BASESPEED,BASESPEEDFUDGEFACTOR) ; //initialize the PID
 
 		servos_manager_init_flag = 1;
 	}
+}
+
+void servos_cam_operation(int pan, int tilt)
+{
+	SetCameraServos(pan,tilt);
 }
 
 
@@ -67,6 +70,29 @@ void robot_line_tracking_operation(float offset)
 
 void robot_mode_setting(T_robot_moving_mode robot_moving_mode, float offset)
 {
+	static unsigned long start_time;
+	static unsigned long execute_time;
+	static unsigned char pid_flag;
+
+	if(pid_flag == 0)
+	{
+		start_time = micros();
+		pid_flag = 1;
+	}
+	else if(pid_flag == 1)
+	{
+		execute_time = micros() - start_time;
+		if(execute_time > (100*1000))
+		{
+			pid_flag = 2;
+		}
+	}
+	else
+	{
+		pid_flag = 0;
+	}
+
+	
 	switch(robot_moving_mode)
 	{
 		case ROBOT_STOP:
@@ -74,7 +100,10 @@ void robot_mode_setting(T_robot_moving_mode robot_moving_mode, float offset)
 		break;
 
 		case ROBOT_LINE_TRACKING:
-			robot_line_tracking_operation(offset);
+			if(pid_flag == 2)
+			{
+				robot_line_tracking_operation(offset);
+			}
 		break;
 
 		case ROBOT_FORWARD_MOVING:
