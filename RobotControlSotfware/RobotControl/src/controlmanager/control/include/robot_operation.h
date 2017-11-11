@@ -57,6 +57,8 @@ void robot_operation_init(fp_get_image_offset getImageOffset, fp_robot_turned ro
 void robot_operation_manual(T_robot_operation_direction direction);
 void robot_operation_auto(T_robot_operation_direction direction);
 void robot_operation_cam_manual(T_robot_operation_direction direction);
+void robot_operation_meet_wall(T_robot_operation_direction direction);
+
 
 
 
