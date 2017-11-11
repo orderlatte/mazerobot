@@ -13,6 +13,8 @@ Detector::Detector()
 	m_thresBlueAreaOfROI = 0.2;
 	m_thresCrossAreaOfROI = 0.7;
 	m_thresBinary = 50;
+	m_lowerBoundBlue = 60;
+	m_upperBoundBlue = 130;
 }
 
 
@@ -25,7 +27,7 @@ bool Detector::findRedDot(cv::Mat& CameraImage,bool bDebug)
 	
 	bool ret = false;
 
-	Rect RoiRec(10, 2 * CameraImage.rows / 3, CameraImage.cols - 20, CameraImage.rows / 10); //Define region of interest rectangle
+	Rect RoiRec(10, CameraImage.rows / 3, CameraImage.cols - 20, CameraImage.rows / 10); //Define region of interest rectangle
 
 	Mat roi(CameraImage, RoiRec); // clip image to region of interest 
 
@@ -86,7 +88,10 @@ bool Detector::findGoalArea(cv::Mat& CameraImage, bool bDebug)
 	Mat result;
 
 	cvtColor(roi, HSV, CV_BGR2HSV);
-	inRange(HSV, Scalar(110, 0, 0), Scalar(130, 255, 255), threshold);
+	//inRange(HSV, Scalar(110, 0, 0), Scalar(130, 255, 255), threshold);
+	//inRange(HSV, Scalar(60, 0, 0), Scalar(130, 255, 255), threshold);
+	inRange(HSV, Scalar(m_lowerBoundBlue, 0, 0), Scalar(m_upperBoundBlue, 255, 255), threshold);
+
 
 	bitwise_and(roi, roi, result, threshold);
 
@@ -368,14 +373,21 @@ void Detector::SetParameter(map<string, float> mParam)
 {
 	map<string, float>::iterator itr;
 
-	itr = mParam.find("thresBlueAreaOfROI");
-	if (mParam.end() != itr) m_thresBlueAreaOfROI = itr->second;
-
 	itr = mParam.find("thresCrossAreaOfROI");
 	if (mParam.end() != itr) m_thresCrossAreaOfROI = itr->second;
 
 	itr = mParam.find("thresBinary");
 	if (mParam.end() != itr) m_thresBinary = itr->second;
+
+    itr = mParam.find("thresBlueAreaOfROI");
+	if (mParam.end() != itr) m_thresBlueAreaOfROI = itr->second;
+
+	itr = mParam.find("lowerBoundBlue");
+	if (mParam.end() != itr) m_lowerBoundBlue = itr->second;
+
+	itr = mParam.find("upperBoundBlue");
+	if (mParam.end() != itr) m_upperBoundBlue = itr->second;
+
 
 }
 

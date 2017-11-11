@@ -39,5 +39,7 @@ private:
 	float m_thresBlueAreaOfROI;
 	float m_thresCrossAreaOfROI;
 	int m_thresBinary;
+	int m_lowerBoundBlue;
+	int m_upperBoundBlue;
 };
 

@@ -20,7 +20,7 @@ class Position {
 	}
 
 	public Position getSouth() {
-		return new Position(x, y - 1);
+		return new Position(x, y + 1);
 	}
 
 	public Position getWest() {
@@ -28,7 +28,7 @@ class Position {
 	}
 
 	public Position getNorth() {
-		return new Position(x, y + 1);
+		return new Position(x, y - 1);
 	}
 
 	@Override

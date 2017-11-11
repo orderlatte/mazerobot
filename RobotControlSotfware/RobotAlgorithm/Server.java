@@ -25,6 +25,8 @@ public class Server {
 
 		while (true) {
 			in.read(bytes);
+			System.out.println("==================================");
+			System.out.println("From Robot:"+Client.byteArrayToHex(bytes));
 			process(bytes, out, solver, maze);
 		}
 	}
