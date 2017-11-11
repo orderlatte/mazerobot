@@ -55,6 +55,10 @@ void robot_move_one_cell_foward(void)
 		auto_init_flag = 0;
 		robot_move_one_cell_foward_state = 0;
 	}
+	if(robot_operation_image_info.linewidth > 190)
+	{
+		robot_operation_image_info.offset = 0;
+	}
 
 	
 	if(forward_moving_avoid_wall == ROBOT_OPERATION_DIRECTION_LEFT)
@@ -214,7 +218,7 @@ void robot_operation_manual_operation(void)
 	switch(robot_operation_info.direction)
 	{
 		case ROBOT_OPERATION_DIRECTION_FORWARD:
-			robot_mode_setting(ROBOT_LINE_TRACKING, robot_operation_image_info.offset);
+			robot_mode_setting(ROBOT_FORWARD_MOVING, robot_operation_image_info.offset);
 			break;
 		case ROBOT_OPERATION_DIRECTION_LEFT:
 			robot_mode_setting(ROBOT_LEFT_ROTATING,robot_operation_image_info.offset);

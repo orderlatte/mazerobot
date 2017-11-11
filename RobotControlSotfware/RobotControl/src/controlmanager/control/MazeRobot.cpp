@@ -588,6 +588,7 @@ void recognizeFloor(RobotVisionManager *rvm, FloorFinder *floorData) {
 	rvm->GetCamImage(redDotImage);
 	if (IsPi3 == true) flip(redDotImage, redDotImage,-1);       // if running on PI3 flip(-1)=180 degrees
 	if (rvm->FindRedDot(redDotImage) == true) {
+//		printf("recognizeFloor() - Red dot is here!\n");
 		floorData->RedDot = true;
 	}
 
@@ -595,6 +596,7 @@ void recognizeFloor(RobotVisionManager *rvm, FloorFinder *floorData) {
 	rvm->GetCamImage(goalImage);
 	if (IsPi3 == true) flip(goalImage, goalImage,-1);       // if running on PI3 flip(-1)=180 degrees
 	if (rvm->FindGoalArea(goalImage) == true) {
+//		printf("recognizeFloor() - Goal is here!\n");
 		floorData->Goal = true;
 	}
 }
