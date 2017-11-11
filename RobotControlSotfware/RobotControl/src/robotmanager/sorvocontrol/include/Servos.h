@@ -10,9 +10,6 @@
 
 #define SERVO_CENTER_OR_STOP 150
 
-#define TRK_LINE_CAM_PAN     155 //157
-#define TRK_LINE_CAM_TILT    210 //192
-
 
 #define CAMERA_PAN  0
 #define CAMERA_TILT 1
@@ -32,7 +29,7 @@ void CloseServos(void);
 int  SetServoPosition(unsigned int Servo,int &Position);
 void SetWheelSpeed(int left,int right);
 void ResetServos(void);
-void SetCameraServosLineTrackMode(int &Pan,int &Tilt);
+void SetCameraServos(int Pan,int Tilt);
 void SetCameraServosLineTrackMode(void);
 
 

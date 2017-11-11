@@ -115,30 +115,12 @@ void SetWheelSpeed(int left,int right)
 // SetCameraServosLineTrackMode - Puts the camera in the position
 // to track the line and sets pan and tilt tp that position
 ///---------------------------------------------------------------
-void SetCameraServosLineTrackMode(int &Pan,int &Tilt)
+void SetCameraServos(int Pan,int Tilt)
 {
-  Pan=TRK_LINE_CAM_PAN;
-  Tilt=TRK_LINE_CAM_TILT;
   SetServoPosition(CAMERA_PAN,Pan);
   SetServoPosition(CAMERA_TILT,Tilt);
 }
 //-----------------------------------------------------------------
 // END SetCameraServosLineTrackMode
 //-----------------------------------------------------------------
-//----------------------------------------------------------------
-// SetCameraServosLineTrackMode - Puts the camera in the position
-// to track the line
-///---------------------------------------------------------------
-void SetCameraServosLineTrackMode(void)
-{
-  int Pan=TRK_LINE_CAM_PAN;
-  int Tilt=TRK_LINE_CAM_TILT;
-  SetServoPosition(CAMERA_PAN,Pan);
-  SetServoPosition(CAMERA_TILT,Tilt);
-}
-//-----------------------------------------------------------------
-// END SetCameraServosLineTrackMode
-//-----------------------------------------------------------------
-//-----------------------------------------------------------------
-// END of File
-//-----------------------------------------------------------------
+

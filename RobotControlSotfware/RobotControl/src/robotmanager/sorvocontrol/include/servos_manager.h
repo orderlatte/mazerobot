@@ -16,6 +16,8 @@ typedef enum
 
 void robot_mode_setting(T_robot_moving_mode robot_moving_mode, float offset);
 void servos_manager_main(void);
+void servos_cam_operation(int Pan, int Tilt);
+
 
 #endif
 
