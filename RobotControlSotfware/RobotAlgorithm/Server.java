@@ -18,15 +18,16 @@ public class Server {
 	private void response(Socket sock) throws Exception {
 		InputStream in = sock.getInputStream();
 		OutputStream out = sock.getOutputStream();
-		byte[] bytes = new byte[13];
+		
 		Maze maze = new Maze();
 		MazeSolverAlgorithm solver = new MazeSolver_DepthFirst();
 		solver.init(maze);
 
+		byte[] bytes = new byte[13];
 		while (true) {
 			in.read(bytes);
 			System.out.println("==================================");
-			System.out.println("From Robot:"+Client.byteArrayToHex(bytes));
+			System.out.println("From Robot:" + Client.byteArrayToHex(bytes));
 			process(bytes, out, solver, maze);
 		}
 	}
@@ -40,10 +41,22 @@ public class Server {
 			out.flush();
 			break;
 		case 0x4:// 다음 방향 요청
-			maze.setMaze(Arrays.copyOfRange(bytes, 1, 13));
-			byte[] rv =solver.getNext();
-			System.out.println("다음방향: "+Client.byteArrayToHex(rv));
-			out.write(rv);
+			try {
+				maze.setMaze(Arrays.copyOfRange(bytes, 1, 13));
+				byte[] rv = solver.getNext();
+				System.out.println("다음방향: " + Client.byteArrayToHex(rv));
+				out.write(rv);
+				out.flush();
+			} catch (Exception e) {
+				e.printStackTrace();
+				out.write(MazeSolverAlgorithm.ERROR);
+				out.flush();
+			}
+			break;
+		case 0x9:// reset 요청 
+			solver.init(new Maze());
+			out.write(MazeSolverAlgorithm.INIT_OK);
+			System.out.println("==============INIT_OK=================");
 			out.flush();
 			break;
 		}
