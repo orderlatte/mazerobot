@@ -24,7 +24,7 @@ void StartingPoint::reset(int robotEWSNDirection, int robotPositionX, int robotP
 
 	switch (robotEWSNDirection) {
 	case EAST:
-		resetPosition(5-robotPosionY, -(5-robotPositonX));
+		resetPosition(5-robotPositionY, -(5-robotPositionX));
 		break;
 	case WEST:
 		resetPosition(-(5-robotPositionY) , 5-robotPositionX);
