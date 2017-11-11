@@ -20,9 +20,16 @@ typedef enum
 	ROBOT_COMMAND_INFORMATION_SEND =  4
 } T_robot_command;
 
+typedef enum
+{
+	ALGORITHM_RESULT_OK = 0,
+	ALGORITHM_RESULT_FULLY_MAPPED,
+	ALGORITHM_RESULT_ERROR
+} T_algorithm_result;
+
 // 1: EAST, 2: WEST, 4: SOUTH, 8: NORTH (first parameter)
 // 1: Success, 2: Error
-typedef void (*fp_ewsn_direction_result)(int, int);
+typedef void (*fp_ewsn_direction_result)(int, T_algorithm_result);
 
 class AlgorithmController {
 
@@ -32,16 +39,16 @@ private:
 	std::thread	      *TcpThread = NULL;
 
 public:
-	AlgorithmController(fp_ewsn_direction_result fp);
-	void SendRobotCell(RobotPosition *robotPosition, int signPosition, int signType, int redDot, WallFinder *wall);
-	void Open();
+	AlgorithmController();
+	void SendRobotCell(RobotPosition *robotPosition, int signPosition, int signType, int redDot, WallFinder *wall, fp_ewsn_direction_result fp);
+	bool Open();
 	void Close();
 	fp_getMap GetMapFP();
 
 private:
 	int GetNextDirection(unsigned char direction);
-	int GetResultFromAlgorithm(unsigned char result);
-	void SendRobotCellThread(RobotPosition *robotPosition, int signPosition, int signType, int redDot, WallFinder *wall);
+	T_algorithm_result GetResultFromAlgorithm(unsigned char result);
+	void SendRobotCellThread(RobotPosition *robotPosition, int signPosition, int signType, int redDot, WallFinder *wall, fp_ewsn_direction_result fp);
 };
 
 

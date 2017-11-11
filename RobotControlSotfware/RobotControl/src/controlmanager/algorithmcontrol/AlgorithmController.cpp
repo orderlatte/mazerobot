@@ -16,20 +16,19 @@
 using namespace std;
 
 static TTcpConnectedPort *TcpConnectedPort = NULL;
-static unsigned char *mapBuff;
+static unsigned char *mapBuff = NULL;
 static int mapBuffSize;
-static unsigned char *robotCellBuff;
+static unsigned char *robotCellBuff = NULL;
 static int robotCellSize;
-static unsigned char *robotEWSNBuff;
+static unsigned char *robotEWSNBuff = NULL;
 static int robotEWSNSize;
+static AlgorithmController *AlgCtrl = NULL;
 
 static std::thread *TestingThread = NULL;		// For testing
 static std::mutex algorithmmutex;
 
 
-AlgorithmController::AlgorithmController(fp_ewsn_direction_result fp) {
-	fpEWSNDirectionResult = fp;
-//	SendMap = sendMap;
+AlgorithmController::AlgorithmController() {
 
 	mapBuffSize = sizeof(unsigned char) + MAP_SIZE;
 	mapBuff = (unsigned char *)malloc(mapBuffSize);
@@ -42,25 +41,41 @@ AlgorithmController::AlgorithmController(fp_ewsn_direction_result fp) {
 	robotEWSNSize = sizeof(unsigned char) * 3;
 	robotEWSNBuff = (unsigned char *) malloc(robotEWSNSize);
 	memset(robotEWSNBuff, 0x00, robotEWSNSize);
+
+	AlgCtrl = this;
 }
 
-void AlgorithmController::Open() {
+bool AlgorithmController::Open() {
 	if ((TcpConnectedPort=OpenTcpConnection((const char*)"127.0.0.1",(const char*)"31000")) == NULL) {
 		printf("Open() - OpenTcpConnection is failed!\n");
-		return;
+		return false;
 	}
+
+	return true;
 }
 
-void AlgorithmController::SendRobotCell(RobotPosition *robotPosition, int signPosition, int signType, int redDot, WallFinder *wall) {
-	TestingThread = new std::thread(&AlgorithmController::SendRobotCellThread, this, robotPosition, signPosition, signType, redDot, wall);
+void AlgorithmController::SendRobotCell(RobotPosition *robotPosition, int signPosition, int signType, int redDot, WallFinder *wall, fp_ewsn_direction_result fp) {
+	TestingThread = new std::thread(&AlgorithmController::SendRobotCellThread, this, robotPosition, signPosition, signType, redDot, wall, fp);
 }
 
-void AlgorithmController::SendRobotCellThread(RobotPosition *robotPosition, int signPosition, int signType, int redDot, WallFinder *wall) {
-	int CurrentEWSNDirection = robotPosition->getCurrentEWSNDirection();
+void AlgorithmController::SendRobotCellThread(RobotPosition *robotPosition, int signPosition, int signType, int redDot, WallFinder *wall, fp_ewsn_direction_result fp) {
+	int CurrentEWSNDirection = robotPosition->GetCurrentEWSNDirection();
 	short *tmpPosition = 0x00;
-	int NextEWSNDirection = 0;
-	int Result = 0;
+	int NextEWSNDirection = NORTH;
+	T_algorithm_result Result = ALGORITHM_RESULT_ERROR;
 	int index = 0;
+	T_SensorData sensorData = {0, };
+
+	// To prevent race condition
+	algorithmmutex.lock();
+
+	// TODO: Get sensor data at 10 times and calculate average
+	sensorData = get_sensor_data();
+	wall->Init();
+	wall->recognizeWall(&sensorData);
+
+	// Assign call back function
+	fpEWSNDirectionResult = fp;
 
 	// Command
 	robotCellBuff[0] = 0x4;
@@ -77,10 +92,10 @@ void AlgorithmController::SendRobotCellThread(RobotPosition *robotPosition, int 
 	robotCellBuff[8] = 0x1;
 
 	tmpPosition = (short *)&robotCellBuff[10];
-	*tmpPosition = (short)robotPosition->getX();
+	*tmpPosition = (short)robotPosition->GetX();
 
 	tmpPosition = (short *)&robotCellBuff[12];
-	*tmpPosition = (short)robotPosition->getY();
+	*tmpPosition = (short)robotPosition->GetY();
 
 	// For debugging
 	printf("SendRobotCell() - robotCellBuff: 0x");
@@ -90,25 +105,22 @@ void AlgorithmController::SendRobotCellThread(RobotPosition *robotPosition, int 
 	printf("\n");
 
 	if (TcpConnectedPort == NULL) {
-		printf("SendRobotCellThread() - TcpConnectedPort is NULL!\n");
-		// TODO: Go to manual mode
-		return;
+		printf("SendRobotCellThread() - TcpConnectedPort is NULL! Try to connect again.\n");
+		if (Open() == false) {
+//			printf("SendRobotCellThread() - Open() is failed!\n");
+			goto cleanup;
+		}
 	}
-
-	// To prevent race condition
-	algorithmmutex.lock();
 
 	if (WriteDataTcp(TcpConnectedPort, robotCellBuff, robotCellSize) == -1) {
 		printf("SendRobotCell() - WriteDataTcp() is failed!\n");
-		return;
+		goto cleanup;
 	}
 
 	if (ReadDataTcp(TcpConnectedPort, robotEWSNBuff, robotEWSNSize) != robotEWSNSize) {
 		printf("SendRobotCell() - ReadDataTcp() is failed!\n");
-		return;
+		goto cleanup;
 	}
-
-	algorithmmutex.unlock();
 
 	// For debugging
 	printf("SendRobotCell() - robotEWSNBuff: 0x");
@@ -119,14 +131,20 @@ void AlgorithmController::SendRobotCellThread(RobotPosition *robotPosition, int 
 
 	if (robotEWSNBuff[0] != 0x8) {
 		printf("SendRobotCell() - robotEWSNBuff[0] is not 0x08. (%d)\n", mapBuff[0]);
-		return;
+		goto cleanup;
 	}
 
 	NextEWSNDirection = GetNextDirection(robotEWSNBuff[1]);
 	Result = GetResultFromAlgorithm(robotEWSNBuff[2]);
 
+cleanup:
+
 	fpEWSNDirectionResult(NextEWSNDirection, Result);
+
+	// Unlock mutex due to network connection, fpEWSNDirectionResult and other things are static variables which are shared automode and manual mode
+	algorithmmutex.unlock();
 }
+
 
 int AlgorithmController::GetNextDirection(unsigned char direction) {
 	switch (direction) {
@@ -149,21 +167,21 @@ int AlgorithmController::GetNextDirection(unsigned char direction) {
 	}
 }
 
-int AlgorithmController::GetResultFromAlgorithm(unsigned char result) {
+T_algorithm_result AlgorithmController::GetResultFromAlgorithm(unsigned char result) {
 	switch (result) {
 
 	case (unsigned char)0x0:
-		return 0;		// Success
+		return ALGORITHM_RESULT_OK;		// Success
 
 	case (unsigned char)0x1:
-		return 1;		// Fully mapping
+		return ALGORITHM_RESULT_FULLY_MAPPED;		// Fully mapping
 
 	case (unsigned char)0x2:
-		return 2;		// Error
+		return ALGORITHM_RESULT_ERROR;		// Error
 
 	default:
 		printf("GetResultFromAlgorithm() - It's not supported direction! (%x)\n", result);
-		return 2;
+		return ALGORITHM_RESULT_ERROR;
 	}
 }
 
@@ -172,27 +190,27 @@ static void RequestMap(unsigned char* map) {
 	int index = 0;
 	int printSize = 0;
 
-	if (TcpConnectedPort == NULL) {
-		printf("SendRobotCellThread() - TcpConnectedPort is NULL!\n");
-		// TODO: Go to manual mode
-		return;
-	}
-
 	// To prevent race condition
 	algorithmmutex.lock();
 
+	if (TcpConnectedPort == NULL) {
+		printf("SendRobotCellThread() - TcpConnectedPort is NULL!\n");
+//		if (AlgCtrl->Open() == false) {
+//			printf("SendRobotCellThread() - Open() is failed!\n");
+//			goto cleanup;
+//		}
+		goto cleanup;
+	}
+
 	if (WriteDataTcp(TcpConnectedPort, &request, sizeof(unsigned char)) == -1) {
 		printf("RequestMap() - WriteDataTcp() is failed!\n");
-		return;
+		goto cleanup;
 	}
 
 	if (ReadDataTcp(TcpConnectedPort, mapBuff, mapBuffSize) != mapBuffSize) {
 		printf("RequestMap() - ReadDataTcp() is failed!\n");
-		return;
+		goto cleanup;
 	}
-
-	// To prevent race condition
-	algorithmmutex.unlock();
 
 	// For debugging
 	printf("RequestMap() - mapBuff: 0x");
@@ -204,10 +222,15 @@ static void RequestMap(unsigned char* map) {
 
 	if (mapBuff[0] != 0x2) {
 		printf("RequestMap() - buff[0] is not 0x02. (%d)\n", mapBuff[0]);
-		return;
+		goto cleanup;
 	}
 
 	std::memcpy(map, mapBuff+sizeof(unsigned char), MAP_SIZE);
+
+
+cleanup:
+	// To prevent race condition
+	algorithmmutex.unlock();
 }
 
 fp_getMap AlgorithmController::GetMapFP() {

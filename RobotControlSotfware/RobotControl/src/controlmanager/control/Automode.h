@@ -27,20 +27,23 @@ typedef enum
 	AUTOMODE_STATUS_MAX
 } T_automode_status;
 
+typedef void (*fp_automode_fail)(void);
+
 
 class Automode {
 
 public:
-	Automode(RobotPosition *position);
+	Automode(RobotPosition *position, fp_automode_fail fp, AlgorithmController *algCtrl);
 	void init();
-	void setAlgorithmCtrl(AlgorithmController *algCtrl);
+	void resume();
+//	void setAlgorithmCtrl(AlgorithmController *algCtrl);
 	void doOperation();
 	fp_robot_turned getRobotTurnedFP();
 	fp_robot_moved getRobotMovedFP();
 	void stopRobot();
 	void avoidLeftWall();
 	void avoidRightWall();
-	fp_ewsn_direction_result getEWSNDirectionFP();
+//	fp_ewsn_direction_result getEWSNDirectionFP();
 
 private:
 	void doReady();
