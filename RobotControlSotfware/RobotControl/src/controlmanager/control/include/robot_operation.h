@@ -1,6 +1,9 @@
 #ifndef _ROBOT_OPERATION
 #define _ROBOT_OPERATION
 
+#define TRK_LINE_CAM_PAN     155 //157
+#define TRK_LINE_CAM_TILT    210 //192
+
 typedef enum
 {
 	ROBOT_OPERATION_DIRECTION_INIT = 0,
@@ -9,6 +12,14 @@ typedef enum
 	ROBOT_OPERATION_DIRECTION_BACKWARD,
 	ROBOT_OPERATION_DIRECTION_RIGHT,
 	ROBOT_OPERATION_DIRECTION_LEFT,
+	ROBOT_CAM_DIRECTION_UP,
+	ROBOT_CAM_DIRECTION_DOWN,
+	ROBOT_CAM_DIRECTION_LEFT,
+	ROBOT_CAM_DIRECTION_RIGHT,
+	ROBOT_CAM_DIRECTION_CENTER,
+	ROBOT_CAM_DIRECTION_RIGHT_SIGN,
+	ROBOT_CAM_DIRECTION_LEFT_SIGN,
+	ROBOT_CAM_DIRECTION_LINE,
 	ROBOT_OPERATION_DIRECTION_STOP,
 
 	ROBOT_OPERATION_DIRECTION_MAX
@@ -45,6 +56,8 @@ typedef void (*fp_robot_moved)();
 void robot_operation_init(fp_get_image_offset getImageOffset, fp_robot_turned robotTurned, fp_robot_moved robotMoved);
 void robot_operation_manual(T_robot_operation_direction direction);
 void robot_operation_auto(T_robot_operation_direction direction);
+void robot_operation_cam_manual(T_robot_operation_direction direction);
+
 
 
 

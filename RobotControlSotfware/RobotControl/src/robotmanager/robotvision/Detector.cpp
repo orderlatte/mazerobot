@@ -27,7 +27,7 @@ bool Detector::findRedDot(cv::Mat& CameraImage,bool bDebug)
 	
 	bool ret = false;
 
-	Rect RoiRec(10, CameraImage.rows / 3, CameraImage.cols - 20, CameraImage.rows / 10); //Define region of interest rectangle
+	Rect RoiRec(10, CameraImage.rows / 2, CameraImage.cols - 20, CameraImage.rows / 2); //Define region of interest rectangle
 
 	Mat roi(CameraImage, RoiRec); // clip image to region of interest 
 
@@ -316,13 +316,14 @@ float Detector::FindLineInImageAndComputeOffsetAndWidth(cv::Mat& CameraImage, in
 
 	if (bDebug) rectangle(CameraImage, RoiRec, ROI_COLOR, 3); // draw region of interest on camera image
 
+	int tmpWidth=0;
 	double minMaxCx = -DBL_MAX;
 	Rect selected_edge(0, 0, 0, 0); //Edge beging followed
 	Rect nav_point(0, 0, 0, 0);
 	for (unsigned int i = 0; i<contours.size(); i++)  //Find the biggest contour 
 	{
 		Moments mu = moments(contours[i]);
-
+		
 		if (mu.m00 > 100.0) // area threadhold
 		{
 			Rect r = boundingRect(contours[i]);
@@ -334,7 +335,8 @@ float Detector::FindLineInImageAndComputeOffsetAndWidth(cv::Mat& CameraImage, in
 			double cx;
 			cx = r.x + r.width / 2;
 			//line( CameraImage,Point(cx+10,0),Point(cx+10,CameraImage.rows),Scalar( 0, 255, 0 ),2,8); 
-			if (cx > minMaxCx)
+			if (r.width > tmpWidth)
+			//if (cx > minMaxCx)
 			{
 				minMaxCx = cx;
 				selected_edge = show;
@@ -344,10 +346,11 @@ float Detector::FindLineInImageAndComputeOffsetAndWidth(cv::Mat& CameraImage, in
 				nav_point.x = 10 + minMaxCx - 10;
 				nav_point.width = 20;
 
-				selectedWidth = r.width;
+				tmpWidth = r.width;
 			}
 		}
 	}
+	selectedWidth = tmpWidth;
 
 	if (fabs(minMaxCx) == DBL_MAX) minMaxCx = roi.cols / 2;
 
