@@ -27,7 +27,7 @@ bool Detector::findRedDot(cv::Mat& CameraImage,bool bDebug)
 	
 	bool ret = false;
 
-	Rect RoiRec(10, CameraImage.rows / 3, CameraImage.cols - 20, CameraImage.rows / 10); //Define region of interest rectangle
+	Rect RoiRec(10, CameraImage.rows / 2, CameraImage.cols - 20, CameraImage.rows / 2); //Define region of interest rectangle
 
 	Mat roi(CameraImage, RoiRec); // clip image to region of interest 
 
