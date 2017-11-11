@@ -20,10 +20,7 @@ public:
 	bool isStartingPoint(int robotPositionX, int robotPositionY);
 
 private:
-	void resetEast(int robotPositionX, int robotPositionY);
-	void resetWest(int robotPositionX, int robotPositionY);
-	void resetSouth(int robotPositionX, int robotPositionY);
-	void resetNorth(int robotPositionX, int robotPositionY);
+	void resetPosition(int robotPositionX, int robotPositionY);
 };
 
 
