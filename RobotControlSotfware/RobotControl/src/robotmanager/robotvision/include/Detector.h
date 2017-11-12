@@ -33,7 +33,6 @@ public:
 	float FindLineInImageAndComputeOffsetAndWidth(cv::Mat& CameraImage, int& selectedWidth, bool bDebug = false);
 
 	void SetParameter(map<string, float> mParam);
-	Mat GetImageWithoutShadow(Mat& CameraImage, bool bDebug=false);
 private:
 
 	float m_thresBlueAreaOfROI;
