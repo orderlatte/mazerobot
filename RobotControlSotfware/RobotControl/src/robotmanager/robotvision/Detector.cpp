@@ -311,7 +311,7 @@ float Detector::FindLineInImageAndComputeOffsetAndWidth(cv::Mat& CameraImage, in
 	GaussianBlur(mono, blur, Size(9, 9), 2, 2); // blur image to remove small irregularities
 	//threshold(blur, thresh, 0, 255, THRESH_BINARY_INV | THRESH_OTSU); //Color thresholding makes image more blacka nd white
     if(!ret) threshold(blur, thresh, m_thresBinary, 255, THRESH_BINARY_INV | THRESH_BINARY); //Color thresholding makes image more blacka nd white
-	else threshold(blur, thresh, m_thresBinary, 255, THRESH_BINARY_INV | THRESH_BINARY);
+	else threshold(blur, thresh, 90, 255, THRESH_BINARY_INV | THRESH_BINARY);
 
 	Mat erodeElmt = getStructuringElement(MORPH_RECT, Size(3, 3));
 	Mat dilateElmt = getStructuringElement(MORPH_RECT, Size(5, 5));
