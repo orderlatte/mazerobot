@@ -45,6 +45,7 @@ void Automode::init() {
 	MovingDirection = ROBOT_MOVING_DIRECTION_STOP;
 	FullyMappingCompleted = false;
 	robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
+	robot_operation_cam_manual(ROBOT_CAM_DIRECTION_LINE);
 }
 
 void Automode::resume() {
@@ -411,6 +412,8 @@ void Automode::doRecognizingSign() {
 	robot_operation_manual(ROBOT_OPERATION_DIRECTION_BACKWARD);
 	usleep(200000);
 	robot_operation_manual(ROBOT_OPERATION_DIRECTION_STOP);
+	usleep(300000);
+	robot_operation_cam_manual(ROBOT_CAM_DIRECTION_LINE);
 	sleep(2);		// For testing...
 
 	Status = AUTOMODE_STATUS_WATING_FOR_SIGN_RESULT;
@@ -503,7 +506,7 @@ void Automode::avoidLeftWall() {
 	switch (MovingDirection) {
 	case ROBOT_MOVING_DIRECTION_FORWARD:
 		// TODO: replace new API of robot_operation
-		robot_operation_manual(ROBOT_OPERATION_DIRECTION_RIGHT);	// Right
+		robot_operation_meet_wall(ROBOT_OPERATION_DIRECTION_RIGHT);	// Right
 //		usleep(100000);	// sleep 100 milliseconds
 //		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Left
 		break;
@@ -516,7 +519,7 @@ void Automode::avoidLeftWall() {
 
 	case ROBOT_MOVING_DIRECTION_LEFT_FORWARD:
 		// TODO: replace new API of robot_operation
-		robot_operation_manual(ROBOT_OPERATION_DIRECTION_RIGHT);	// Right
+		robot_operation_meet_wall(ROBOT_OPERATION_DIRECTION_RIGHT);	// Right
 //		usleep(100000);	// sleep 100 milliseconds
 //		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Left
 		break;
@@ -533,7 +536,7 @@ void Automode::avoidRightWall() {
 	switch (MovingDirection) {
 	case ROBOT_MOVING_DIRECTION_FORWARD:
 		// TODO: replace new API of robot_operation
-		robot_operation_manual(ROBOT_OPERATION_DIRECTION_LEFT);	// Left
+		robot_operation_meet_wall(ROBOT_OPERATION_DIRECTION_LEFT);	// Left
 //		usleep(100000);	// sleep 100 milliseconds
 //		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Left
 		break;
@@ -546,7 +549,7 @@ void Automode::avoidRightWall() {
 
 	case ROBOT_MOVING_DIRECTION_RIGHT_FORWARD:
 		// TODO: replace new API of robot_operation
-		robot_operation_manual(ROBOT_OPERATION_DIRECTION_LEFT);	// Left
+		robot_operation_meet_wall(ROBOT_OPERATION_DIRECTION_LEFT);	// Left
 //		usleep(100000);	// sleep 100 milliseconds
 //		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Left
 		break;
