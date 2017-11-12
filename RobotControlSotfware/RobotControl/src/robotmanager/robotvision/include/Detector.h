@@ -31,10 +31,10 @@ public:
 	bool findCrossArea(cv::Mat& CameraImage,bool bDebug=false);
 	float FindLineInImageAndComputeOffset(cv::Mat& CameraImage, bool bDebug = false);
 	float FindLineInImageAndComputeOffsetAndWidth(cv::Mat& CameraImage, int& selectedWidth, bool bDebug = false);
+	float FindLineInImageAndComputeOffsetAndWidth_OTSU(cv::Mat& CameraImage, int& selectedWidth, bool bDebug = false);
 
 	void SetParameter(map<string, float> mParam);
 private:
-
 	float m_thresBlueAreaOfROI;
 	float m_thresCrossAreaOfROI;
 	int m_thresBinary;
