@@ -105,7 +105,7 @@ bool Detector::findGoalArea(cv::Mat& CameraImage, bool bDebug)
 		if (!IsPi3) imshow("threshold_goalArea", threshold);
 		if (!IsPi3) imshow("result_goalArea", result);
 
-		cout << "area" << RoiRec.area() << " bluepoint:" << cnt << endl;
+//		cout << "area" << RoiRec.area() << " bluepoint:" << cnt << endl;
 		if (!IsPi3) imshow("camera_goal", CameraImage);
 	}
 

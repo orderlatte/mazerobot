@@ -176,7 +176,6 @@ int main(int argc, const char** argv)
 
 
   // TODO: Reset..! Add feature!
-
   do
   {
 	  if (CurrentStatus == ROBOT_STATUS_AUTO) {
@@ -566,8 +565,11 @@ void *image_capture_thread(void *value) {
 	while (1) {
 		rvm.GetCamImage(image);  // Get Camera image
 		if (IsPi3 == true) flip(image, image,-1);       // if running on PI3 flip(-1)=180 degrees
+		
+//		if(rvm.FindGoalArea(image)) cout << "Find!!!!" << endl ;
 
 		ImageOffset=rvm.FindLineInImageAndComputeOffsetAndWidth(image, linewidth);
+		
 
 		if (linewidth > 190) {
 			recognizeFloor(&rvm, floor);

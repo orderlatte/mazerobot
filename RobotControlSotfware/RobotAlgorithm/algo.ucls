@@ -56,61 +56,61 @@
     </display>  
   </class>  
   <association id="7">    
-    <end type="SOURCE" refId="4" navigable="false">      
-      <attribute id="8" name="maze">        
+    <end type="SOURCE" refId="3" navigable="false">      
+      <attribute id="8" name="robotPosition">        
         <position height="0" width="0" x="0" y="0"/>      
       </attribute>      
       <multiplicity id="9" minimum="0" maximum="1">        
         <position height="0" width="0" x="0" y="0"/>      
       </multiplicity>    
     </end>    
-    <end type="TARGET" refId="3" navigable="true"/>    
+    <end type="TARGET" refId="1" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <dependency id="10">    
-    <end type="SOURCE" refId="4"/>    
-    <end type="TARGET" refId="2"/>  
-  </dependency>  
-  <association id="11">    
+  <association id="10">    
     <end type="SOURCE" refId="3" navigable="false">      
-      <attribute id="12" name="cellArray">        
+      <attribute id="11" name="cellArray">        
         <position height="0" width="0" x="0" y="0"/>      
       </attribute>      
-      <multiplicity id="13" minimum="0" maximum="2147483647">        
+      <multiplicity id="12" minimum="0" maximum="2147483647">        
         <position height="0" width="0" x="0" y="0"/>      
       </multiplicity>    
     </end>    
     <end type="TARGET" refId="2" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <association id="14">    
+  <association id="13">    
     <end type="SOURCE" refId="4" navigable="false">      
-      <attribute id="15" name="oldPositionTogo">        
+      <attribute id="14" name="oldPositionTogo">        
         <position height="0" width="0" x="0" y="0"/>      
       </attribute>      
-      <multiplicity id="16" minimum="0" maximum="1">        
+      <multiplicity id="15" minimum="0" maximum="1">        
         <position height="0" width="0" x="0" y="0"/>      
       </multiplicity>    
     </end>    
     <end type="TARGET" refId="1" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <realization id="17">    
+  <association id="16">    
+    <end type="SOURCE" refId="4" navigable="false">      
+      <attribute id="17" name="maze">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="18" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="3" navigable="true"/>    
+    <display labels="true" multiplicity="true"/>  
+  </association>  
+  <dependency id="19">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="2"/>  
+  </dependency>  
+  <realization id="20">    
     <end type="SOURCE" refId="4"/>    
     <end type="TARGET" refId="5"/>  
   </realization>  
-  <association id="18">    
-    <end type="SOURCE" refId="3" navigable="false">      
-      <attribute id="19" name="robotPosition">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </attribute>      
-      <multiplicity id="20" minimum="0" maximum="1">        
-        <position height="0" width="0" x="0" y="0"/>      
-      </multiplicity>    
-    </end>    
-    <end type="TARGET" refId="1" navigable="true"/>    
-    <display labels="true" multiplicity="true"/>  
-  </association>  
   <dependency id="21">    
     <end type="SOURCE" refId="6"/>    
     <end type="TARGET" refId="5"/>  

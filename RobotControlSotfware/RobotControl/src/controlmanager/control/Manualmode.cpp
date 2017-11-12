@@ -71,31 +71,31 @@ void Manualmode::doOperation() {
 		break;
 
 	case MANUALMODE_CMD_CAMERA_LEFT:
-		// TODO: Call API of robot_operation
+		robot_operation_cam_manual(ROBOT_CAM_DIRECTION_LEFT);
 		break;
 
 	case MANUALMODE_CMD_CAMERA_RIGHT:
-		// TODO: Call API of robot_operation
+		robot_operation_cam_manual(ROBOT_CAM_DIRECTION_RIGHT);
 		break;
 
 	case MANUALMODE_CMD_CAMERA_UPPER:
-		// TODO: Call API of robot_operation
+		robot_operation_cam_manual(ROBOT_CAM_DIRECTION_UP);
 		break;
 
 	case MANUALMODE_CMD_CAMERA_LOWER:
-		// TODO: Call API of robot_operation
+		robot_operation_cam_manual(ROBOT_CAM_DIRECTION_DOWN);
 		break;
 
 	case MANUALMODE_CMD_CAMERA_CENTER:
-		// TODO: Call API of robot_operation
+		robot_operation_cam_manual(ROBOT_CAM_DIRECTION_CENTER);
 		break;
 
 	case MANUALMODE_CMD_CAMERA_LEFT_WALL:
-		// TODO: Call API of robot_operation
+		robot_operation_cam_manual(ROBOT_CAM_DIRECTION_LEFT_SIGN);
 		break;
 
 	case MANUALMODE_CMD_CAMERA_RIGHT_WALL:
-		// TODO: Call API of robot_operation
+		robot_operation_cam_manual(ROBOT_CAM_DIRECTION_RIGHT_SIGN);
 		break;
 
 	default:
