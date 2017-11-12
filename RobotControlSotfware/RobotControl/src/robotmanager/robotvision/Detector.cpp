@@ -79,7 +79,8 @@ bool Detector::findGoalArea(cv::Mat& CameraImage, bool bDebug)
 
 	//const float thresBlueAreaOfROI = 0.2;  // blue point ���� ���� // need tuning
 
-	Rect RoiRec(10, 3 * CameraImage.rows / 4, CameraImage.cols - 20, CameraImage.rows / 12); //Define region of interest rectangle
+	//Rect RoiRec(10, 3 * CameraImage.rows / 4, CameraImage.cols - 20, CameraImage.rows / 12); //Define region of interest rectangle
+	Rect RoiRec(10, 2 * CameraImage.rows / 3, CameraImage.cols - 20, CameraImage.rows / 12);
 	//Rect RoiRec(10, 10, CameraImage.cols - 20, CameraImage.rows / 12); //Define region of interest rectangle
 
 	Mat roi(CameraImage, RoiRec); // clip image to region of interest 
