@@ -239,7 +239,6 @@ void Automode::moveNextCell() {
 void Automode::sendRobotStatusToAlgorithm() {
 //	int point = 0x0; // Starting point, Goal
 
-    // TODO: Ad sign information
 	printf("position = %d, type = %d\n", FloorData->Sign_position, FloorData->Sign_type);
 	AlgorithmCtrl->SendRobotCell(Position, FloorData->Sign_position, FloorData->Sign_type, FloorData, &wallData, (fp_ewsn_direction_result)CallBabckToGetEWSNDirectionAutomode);
 
@@ -426,7 +425,7 @@ void Automode::doRecognizingSign() {
 
 	printf("doRecognizingSign() is called.\n");
 	
-//	#ifndef UBUNTU		// For building in ubuntu. Below code sould be built in raspberry pi.
+	#ifndef UBUNTU		// For building in ubuntu. Below code sould be built in raspberry pi.
 	static unsigned long recognize_start_time;
 	static unsigned char recognize_state;
 	static unsigned char recognize_wall_cnt;
@@ -534,7 +533,7 @@ void Automode::doRecognizingSign() {
 	}
 	
 
-//	#endif //UBUNTU
+	#endif //UBUNTU
 
 }
 

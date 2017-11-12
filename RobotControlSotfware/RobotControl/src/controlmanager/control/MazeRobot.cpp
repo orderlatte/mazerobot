@@ -619,9 +619,17 @@ void recognizeFloor(RobotVisionManager *rvm, FloorFinder *floorData) {
 	if (IsPi3 == true) flip(redDotImage, redDotImage,-1);       // if running on PI3 flip(-1)=180 degrees
 	if (rvm->FindRedDot(redDotImage) == true) {
 //		printf("recognizeFloor() - Red dot is here!\n");
-		floorData->RedDot = true;
-		floorData->Sign_type= 0;
-		floorData->RedDotRecognize = true;
+		int positionX = 0;
+		int positionY = 0;
+		CurrentPosition.GetNextPosition(&positionX, &positionY);
+
+		if (floorData->isAlreadyFoundedRedDot(positionX, positionY) == false) {
+			floorData->RedDot = true;
+			floorData->Sign_type= 0;
+			floorData->RedDotRecognize = true;
+		} else {
+			floorData->setRedDotPosition(positionX, positionY);
+		}
 	}
 
 	// Get new floor image to find goal
