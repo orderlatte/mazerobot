@@ -33,7 +33,7 @@ void WallFinder::Init() {
 }
 
 void WallFinder::recognizeWall() {
-	int maxCount = 3;
+	int maxCount = 2;
 	int index = 0;
 	T_SensorData sensorData[maxCount] = {0, };
 	int blockedFrontWallCount = 0;
@@ -63,17 +63,17 @@ void WallFinder::recognizeWall() {
 		}
 	}
 
-	if (blockedFrontWallCount >= 2) {
+	if (blockedFrontWallCount >= 1) {
 		printf("recognizeWall() Front wall is existed\n");
 		BlockedFrontWall = true;
 	}
 
-	if (blockedLeftWallCount >= 2) {
+	if (blockedLeftWallCount >= 1) {
 		printf("recognizeWall() Left wall is existed\n");
 		BlockedLeftWall = true;
 	}
 
-	if (blockedRightWallCount >= 2) {
+	if (blockedRightWallCount >= 1) {
 		printf("recognizeWall() Right wall is existed\n");
 		BlockedRightWall = true;
 	}

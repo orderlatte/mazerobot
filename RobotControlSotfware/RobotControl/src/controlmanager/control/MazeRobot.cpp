@@ -219,7 +219,7 @@ void CallBackNetworkDisconnected() {
 }
 
 void CallBackReset() {
-	printf"CallBackReset() is called!\n");
+	printf("CallBackReset() is called!\n");
 
 	robot_operation_manual(ROBOT_OPERATION_DIRECTION_STOP);
 	CurrentStatus = ROBOT_STATUS_MANUAL;

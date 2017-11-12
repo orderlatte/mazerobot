@@ -426,7 +426,7 @@ void Automode::doRecognizingSign() {
 
 	printf("doRecognizingSign() is called.\n");
 	
-	#ifndef UBUNTU		// For building in ubuntu. Below code sould be built in raspberry pi.
+//	#ifndef UBUNTU		// For building in ubuntu. Below code sould be built in raspberry pi.
 	static unsigned long recognize_start_time;
 	static unsigned char recognize_state;
 	static unsigned char recognize_wall_cnt;
@@ -534,7 +534,7 @@ void Automode::doRecognizingSign() {
 	}
 	
 
-	#endif //UBUNTU
+//	#endif //UBUNTU
 
 }
 
