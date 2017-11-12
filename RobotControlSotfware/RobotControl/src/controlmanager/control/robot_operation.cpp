@@ -90,7 +90,7 @@ void robot_move_one_cell_foward(void)
 	else if(robot_move_one_cell_foward_state == 1)
 	{
 		robot_mode_setting(ROBOT_LINE_TRACKING, robot_operation_image_info.offset);
-		if(micros_wrapper()-timeoutstart > (500*1000))
+		if(micros_wrapper()-timeoutstart > (400*1000))
 		{
 			robot_move_one_cell_foward_state = 2;
 		}
@@ -172,15 +172,24 @@ void robot_back_move_one_cell(void)
 	}
 	else if(robot_turn_to_cross_state == 1)
 	{
+		SetWheelSpeed(-10,0);
+		if(micros_wrapper()-timeoutstart > (800*1000))
+		{
+			timeoutstart = micros_wrapper();
+			robot_turn_to_cross_state = 2;
+		}
+	}	
+	else if(robot_turn_to_cross_state == 2)
+	{
 		//robot_mode_setting(ROBOT_LEFT_ROTATING,offset);
 		robot_mode_setting(ROBOT_LEFT_ROTATING,robot_operation_image_info.offset);
-		if(micros_wrapper()-timeoutstart > (1800*1000))
+		if(micros_wrapper()-timeoutstart > (1000*1000))
 		{
-			robot_turn_to_cross_state = 2;
+			robot_turn_to_cross_state = 3;
 			timeoutstart = micros_wrapper();
 		}
 	}
-	else if(robot_turn_to_cross_state == 2)
+	else if(robot_turn_to_cross_state == 3)
 	{
 		if((robot_operation_image_info.linewidth < 190 && robot_operation_image_info.linewidth > 100))// || (micros_wrapper()-timeoutstart > (200*1000)))
 		{
@@ -196,7 +205,7 @@ void robot_back_move_one_cell(void)
 void robot_operation_manual(T_robot_operation_direction direction)
 {
 	robot_operation_info.direction = direction;
-	robot_operation_info.robot_run = 0;
+	robot_operation_info.robot_run = 1;
 	robot_operation_info.mode = ROBOT_OPERATION_MANUAL;
 	auto_init_flag = 1;
 }
@@ -216,24 +225,27 @@ void robot_operation_meet_wall(T_robot_operation_direction direction)
 
 void robot_operation_manual_operation(void)
 {
-	switch(robot_operation_info.direction)
+	if(robot_operation_info.robot_run == 1)
 	{
-		case ROBOT_OPERATION_DIRECTION_FORWARD:
-			robot_mode_setting(ROBOT_FORWARD_MOVING, robot_operation_image_info.offset);
-			break;
-		case ROBOT_OPERATION_DIRECTION_LEFT:
-			robot_mode_setting(ROBOT_LEFT_ROTATING,robot_operation_image_info.offset);
-			break;
-		case ROBOT_OPERATION_DIRECTION_RIGHT:
-			robot_mode_setting(ROBOT_RIGHT_ROTATING,robot_operation_image_info.offset);
-			break;
-		case ROBOT_OPERATION_DIRECTION_BACKWARD:
-			robot_mode_setting(ROBOT_BACKWARD_MOVING, robot_operation_image_info.offset);
-			break;
-		default:
-			robot_mode_setting(ROBOT_STOP, robot_operation_image_info.offset);
-			break;
-				
+		switch(robot_operation_info.direction)
+		{
+			case ROBOT_OPERATION_DIRECTION_FORWARD:
+				robot_mode_setting(ROBOT_FORWARD_MOVING, robot_operation_image_info.offset);
+				break;
+			case ROBOT_OPERATION_DIRECTION_LEFT:
+				robot_mode_setting(ROBOT_LEFT_ROTATING,robot_operation_image_info.offset);
+				break;
+			case ROBOT_OPERATION_DIRECTION_RIGHT:
+				robot_mode_setting(ROBOT_RIGHT_ROTATING,robot_operation_image_info.offset);
+				break;
+			case ROBOT_OPERATION_DIRECTION_BACKWARD:
+				robot_mode_setting(ROBOT_BACKWARD_MOVING, robot_operation_image_info.offset);
+				break;
+			default:
+				robot_mode_setting(ROBOT_STOP, robot_operation_image_info.offset);
+				robot_operation_info.robot_run = 0;
+				break;
+		}
 	}
 }
 
@@ -255,6 +267,7 @@ void robot_operation_auto_operation(void)
 				break;
 			default:
 				robot_mode_setting(ROBOT_STOP, robot_operation_image_info.offset);
+				robot_operation_info.robot_run = 0;
 				break;
 				
 		}

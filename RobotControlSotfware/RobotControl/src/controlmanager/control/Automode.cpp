@@ -417,6 +417,7 @@ void Automode::doRecognizingSign() {
 	robot_operation_manual(ROBOT_OPERATION_DIRECTION_BACKWARD);
 	usleep(200000);
 	robot_operation_manual(ROBOT_OPERATION_DIRECTION_STOP);
+	usleep(300000);
 	robot_operation_cam_manual(ROBOT_CAM_DIRECTION_LINE);
 	sleep(2);		// For testing...
 

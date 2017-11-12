@@ -79,7 +79,8 @@ bool Detector::findGoalArea(cv::Mat& CameraImage, bool bDebug)
 
 	//const float thresBlueAreaOfROI = 0.2;  // blue point ���� ���� // need tuning
 
-	Rect RoiRec(10, 3 * CameraImage.rows / 4, CameraImage.cols - 20, CameraImage.rows / 12); //Define region of interest rectangle
+	//Rect RoiRec(10, 3 * CameraImage.rows / 4, CameraImage.cols - 20, CameraImage.rows / 12); //Define region of interest rectangle
+	Rect RoiRec(10, 2 * CameraImage.rows / 3, CameraImage.cols - 20, CameraImage.rows / 12);
 	//Rect RoiRec(10, 10, CameraImage.cols - 20, CameraImage.rows / 12); //Define region of interest rectangle
 
 	Mat roi(CameraImage, RoiRec); // clip image to region of interest 
@@ -105,12 +106,13 @@ bool Detector::findGoalArea(cv::Mat& CameraImage, bool bDebug)
 		if (!IsPi3) imshow("threshold_goalArea", threshold);
 		if (!IsPi3) imshow("result_goalArea", result);
 
-//		cout << "area" << RoiRec.area() << " bluepoint:" << cnt << endl;
+		//cout << "area" << RoiRec.area() << " bluepoint:" << cnt << endl;
 		if (!IsPi3) imshow("camera_goal", CameraImage);
 	}
 
 	if (cnt > (RoiRec.area()*m_thresBlueAreaOfROI))
 	{
+		if (bDebug) cout << "area" << RoiRec.area() << " bluepoint:" << cnt << endl;
 		ret = true;
 	}
 
@@ -287,6 +289,12 @@ float Detector::FindLineInImageAndComputeOffset(cv::Mat& CameraImage, bool bDebu
 
 float Detector::FindLineInImageAndComputeOffsetAndWidth(cv::Mat& CameraImage, int& selectedWidth, bool bDebug)
 {
+	bool ret = false;
+	//Mat tmp;
+	//tmp = CameraImage.clone();
+	//ret = findGoalArea(tmp,false);
+
+
 	char text[1024];
 	float offsetfromcenter;
 	cv::Scalar mean, stddev;
@@ -305,7 +313,13 @@ float Detector::FindLineInImageAndComputeOffsetAndWidth(cv::Mat& CameraImage, in
 											//std::cout<<"Variance: "<<stddev.val[0]<<std::endl;
 	GaussianBlur(mono, blur, Size(9, 9), 2, 2); // blur image to remove small irregularities
 	//threshold(blur, thresh, 0, 255, THRESH_BINARY_INV | THRESH_OTSU); //Color thresholding makes image more blacka nd white
-    threshold(blur, thresh, m_thresBinary, 255, THRESH_BINARY_INV | THRESH_BINARY); //Color thresholding makes image more blacka nd white
+
+	threshold(blur, thresh, m_thresBinary, 255, THRESH_BINARY_INV | THRESH_BINARY); //Color thresholding makes image more blacka nd white
+
+	IplImage tmpimg = thresh;
+	int cnt = cvCountNonZero(&tmpimg);  // black pixel
+
+	if(cnt<1000) threshold(blur, thresh, 90, 255, THRESH_BINARY_INV | THRESH_BINARY);
 
 	Mat erodeElmt = getStructuringElement(MORPH_RECT, Size(3, 3));
 	Mat dilateElmt = getStructuringElement(MORPH_RECT, Size(5, 5));
