@@ -143,10 +143,10 @@ void Automode::doReceivedMovingDirection() {
 		Status = AUTOMODE_STATUS_TURNING;
 		break;
 
-	case ROBOT_MOVING_DIRECTION_BACK:
+	case ROBOT_MOVING_DIRECTION_BACK_FORWARD:
 		robot_operation_auto(ROBOT_OPERATION_DIRECTION_BACKWARD);
 		printf("doReceivedMovingDirection() - Robot is moving backward.\n");
-		Status = AUTOMODE_STATUS_MOVING;
+		Status = AUTOMODE_STATUS_TURNING;
 		break;
 
 	case ROBOT_MOVING_DIRECTION_STOP:
@@ -182,8 +182,13 @@ void Automode::doTurned() {
 		Status = AUTOMODE_STATUS_MOVING;
 		break;
 
+	case ROBOT_MOVING_DIRECTION_BACK_FORWARD:
+		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Backward
+		printf("doTurned() - Robot is turned back and is moving forward.\n");
+		Status = AUTOMODE_STATUS_MOVING;
+		break;
+
 	case ROBOT_MOVING_DIRECTION_FORWARD:
-	case ROBOT_MOVING_DIRECTION_BACK:
 	case ROBOT_MOVING_DIRECTION_STOP:
 	default:
 		printf("doTurned() - Error! This is not supported direction(%d).\n", MovingDirection);
@@ -202,7 +207,7 @@ void Automode::moveNextCell() {
 		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Forward
 		break;
 
-	case ROBOT_MOVING_DIRECTION_BACK:
+	case ROBOT_MOVING_DIRECTION_BACK_FORWARD:
 		robot_operation_auto(ROBOT_OPERATION_DIRECTION_BACKWARD);	// Backward
 		break;
 
@@ -492,11 +497,11 @@ void Automode::setStatus(T_automode_status status) {
 void Automode::stopRobot() {
 	printf("stopRobot() in Automode is called.(%d)\n", Status);
 
-	// TODO: Stop and go to manual mode
-//	if (Status == AUTOMODE_STATUS_MOVING) {
-//		robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
-//		Status = AUTOMODE_STATUS_READY;
-//	}
+	if (Status == AUTOMODE_STATUS_MOVING) {
+		robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
+		Status = AUTOMODE_STATUS_READY;
+		fpAutomodeFail();
+	}
 }
 
 void Automode::avoidLeftWall() {
@@ -504,23 +509,8 @@ void Automode::avoidLeftWall() {
 
 	switch (MovingDirection) {
 	case ROBOT_MOVING_DIRECTION_FORWARD:
-		// TODO: replace new API of robot_operation
-		robot_operation_meet_wall(ROBOT_OPERATION_DIRECTION_RIGHT);	// Right
-//		usleep(100000);	// sleep 100 milliseconds
-//		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Left
-		break;
-
-//	case ROBOT_MOVING_DIRECTION_BACK:
-//		robot_operation_manual(ROBOT_OPERATION_DIRECTION_LEFT);	// Left
-//		usleep(500000);	// sleep 500 milliseconds
-//		robot_operation_auto(ROBOT_MOVING_DIRECTION_BACK);	// Left
-//		break;
-
 	case ROBOT_MOVING_DIRECTION_LEFT_FORWARD:
-		// TODO: replace new API of robot_operation
 		robot_operation_meet_wall(ROBOT_OPERATION_DIRECTION_RIGHT);	// Right
-//		usleep(100000);	// sleep 100 milliseconds
-//		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Left
 		break;
 
 	default:
@@ -534,23 +524,8 @@ void Automode::avoidRightWall() {
 
 	switch (MovingDirection) {
 	case ROBOT_MOVING_DIRECTION_FORWARD:
-		// TODO: replace new API of robot_operation
-		robot_operation_meet_wall(ROBOT_OPERATION_DIRECTION_LEFT);	// Left
-//		usleep(100000);	// sleep 100 milliseconds
-//		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Left
-		break;
-
-//	case ROBOT_MOVING_DIRECTION_BACK:
-//		robot_operation_manual(ROBOT_OPERATION_DIRECTION_RIGHT);	// Right
-//		usleep(100000);	// sleep 100 milliseconds
-//		robot_operation_auto(ROBOT_MOVING_DIRECTION_BACK);	// Left
-//		break;
-
 	case ROBOT_MOVING_DIRECTION_RIGHT_FORWARD:
-		// TODO: replace new API of robot_operation
 		robot_operation_meet_wall(ROBOT_OPERATION_DIRECTION_LEFT);	// Left
-//		usleep(100000);	// sleep 100 milliseconds
-//		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Left
 		break;
 
 	default:

@@ -78,8 +78,13 @@ void UdpSendJpeg::SendJpeg()
 			printf("UdpSenderJpeg -> SendUdpMsg error!");
 			continue;
 		}
-//		printf("Send jpeg.\n");
 		jpegmutex.unlock();
+
+		static bool test = true;
+		if (test == true) {
+			printf("SendJpeg() - sendbuff.size(): %d\n", (int)sendbuff.size());
+			test = false;
+		}
 	}
 }
 

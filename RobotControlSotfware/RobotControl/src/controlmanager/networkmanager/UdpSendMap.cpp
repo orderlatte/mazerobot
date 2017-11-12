@@ -58,9 +58,6 @@ void UdpSendMap::SendMap()
 	// For debugging
 	printf("Send map thread is running!!\n");
 
-	// For testing
-//	int count = 1;
-
 	while (1)
 	{
 		if (Map == NULL) {
@@ -70,35 +67,14 @@ void UdpSendMap::SendMap()
 
 		GetMap(Map);
 
-//		mapmutex.lock();
 		if((UdpMapSender.SendUDPMsg(UdpLocalPort, UdpDest, Map, MAP_SIZE)) == -1) {
 			printf("Error to send map to Remote UI");
 		}
-//		mapmutex.unlock();
 
 		// For debugging
-		printf("Send map!\n");
+//		printf("Send map!\n");
 
 		sleep(1);
-
-		// For testing
-//		count+=1;
-//
-//		switch (count) {
-//		case 3:
-//			std::memcpy(Map+sizeof(unsigned char), &map2, MAP_SIZE);
-//			break;
-//		case 6:
-//			std::memcpy(Map+sizeof(unsigned char), &map3, MAP_SIZE);
-//			break;
-//		case 9:
-//			std::memcpy(Map+sizeof(unsigned char), &map4, MAP_SIZE);
-//			break;
-//		case 12:
-//			std::memcpy(Map+sizeof(unsigned char), &map5, MAP_SIZE);
-//			count =0;
-//			break;
-//		}
 	}
 }
 

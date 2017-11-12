@@ -109,7 +109,7 @@ T_robot_moving_direction RobotPosition::GetEastDirectionToMove(int direction) {
 	case EAST:
 		return ROBOT_MOVING_DIRECTION_FORWARD;
 	case WEST:
-		return ROBOT_MOVING_DIRECTION_BACK;
+		return ROBOT_MOVING_DIRECTION_BACK_FORWARD;
 	case SOUTH:
 		return ROBOT_MOVING_DIRECTION_RIGHT_FORWARD;
 	case NORTH:
@@ -123,7 +123,7 @@ T_robot_moving_direction RobotPosition::GetEastDirectionToMove(int direction) {
 T_robot_moving_direction RobotPosition::GetWestDirectionToMove(int direction) {
 	switch (direction) {
 	case EAST:
-		return ROBOT_MOVING_DIRECTION_BACK;
+		return ROBOT_MOVING_DIRECTION_BACK_FORWARD;
 	case WEST:
 		return ROBOT_MOVING_DIRECTION_FORWARD;
 	case SOUTH:
@@ -145,7 +145,7 @@ T_robot_moving_direction RobotPosition::GetSouthDirectionToMove(int direction) {
 	case SOUTH:
 		return ROBOT_MOVING_DIRECTION_FORWARD;
 	case NORTH:
-		return ROBOT_MOVING_DIRECTION_BACK;
+		return ROBOT_MOVING_DIRECTION_BACK_FORWARD;
 	default:
 		printf("GetSouthDirectionToMove() - Fault - Unknown direction: %d\n", direction);
 		return ROBOT_MOVING_DIRECTION_ERROR;
@@ -159,7 +159,7 @@ T_robot_moving_direction RobotPosition::GetNorthDirectionToMove(int direction) {
 	case WEST:
 		return ROBOT_MOVING_DIRECTION_LEFT_FORWARD;
 	case SOUTH:
-		return ROBOT_MOVING_DIRECTION_BACK;
+		return ROBOT_MOVING_DIRECTION_BACK_FORWARD;
 	case NORTH:
 		return ROBOT_MOVING_DIRECTION_FORWARD;
 	default:
@@ -196,7 +196,7 @@ void RobotPosition::SetEastDirectionToMove(T_robot_moving_direction nextDirectio
 	case ROBOT_MOVING_DIRECTION_FORWARD:
 		NextDirection = EAST;
 		break;
-	case ROBOT_MOVING_DIRECTION_BACK:
+	case ROBOT_MOVING_DIRECTION_BACK_FORWARD:
 		NextDirection = WEST;
 		break;
 	case ROBOT_MOVING_DIRECTION_LEFT_FORWARD:
@@ -216,7 +216,7 @@ void RobotPosition::SetWestDirectionToMove(T_robot_moving_direction nextDirectio
 	case ROBOT_MOVING_DIRECTION_FORWARD:
 		NextDirection = WEST;
 		break;
-	case ROBOT_MOVING_DIRECTION_BACK:
+	case ROBOT_MOVING_DIRECTION_BACK_FORWARD:
 		NextDirection = EAST;
 		break;
 	case ROBOT_MOVING_DIRECTION_LEFT_FORWARD:
@@ -236,7 +236,7 @@ void RobotPosition::SetSouthDirectionToMove(T_robot_moving_direction nextDirecti
 	case ROBOT_MOVING_DIRECTION_FORWARD:
 		NextDirection = SOUTH;
 		break;
-	case ROBOT_MOVING_DIRECTION_BACK:
+	case ROBOT_MOVING_DIRECTION_BACK_FORWARD:
 		NextDirection = NORTH;
 		break;
 	case ROBOT_MOVING_DIRECTION_LEFT_FORWARD:
@@ -256,7 +256,7 @@ void RobotPosition::SetNorthDirectionToMove(T_robot_moving_direction nextDirecti
 	case ROBOT_MOVING_DIRECTION_FORWARD:
 		NextDirection = NORTH;
 		break;
-	case ROBOT_MOVING_DIRECTION_BACK:
+	case ROBOT_MOVING_DIRECTION_BACK_FORWARD:
 		NextDirection = SOUTH;
 		break;
 	case ROBOT_MOVING_DIRECTION_LEFT_FORWARD:

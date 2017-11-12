@@ -96,6 +96,8 @@ void AlgorithmController::SendRobotCellThread(RobotPosition *robotPosition, int 
 	// Starting position
 	if (StartingData->isStartingPoint(robotPosition->GetX(), robotPosition->GetY()) == true) {
 		robotCellBuff[3] = 0x01;
+	} else {
+		robotCellBuff[3] = 0x00;
 	}
 
 	robotCellBuff[4] = signType; // TODO: sign type
@@ -232,12 +234,12 @@ static void RequestMap(unsigned char* map) {
 	}
 
 	// For debugging
-	printf("RequestMap() - mapBuff: 0x");
-	printSize = sizeof(unsigned char) + (sizeof(double) * 5);
-	for (index = 0; index < printSize ; index++) {
-		printf("%1x", mapBuff[index]);
-	}
-	printf("\n");
+//	printf("RequestMap() - mapBuff: 0x");
+//	printSize = sizeof(unsigned char) + (sizeof(double) * 5);
+//	for (index = 0; index < printSize ; index++) {
+//		printf("%1x", mapBuff[index]);
+//	}
+//	printf("\n");
 
 	if (mapBuff[0] != 0x2) {
 		printf("RequestMap() - buff[0] is not 0x02. (%d)\n", mapBuff[0]);

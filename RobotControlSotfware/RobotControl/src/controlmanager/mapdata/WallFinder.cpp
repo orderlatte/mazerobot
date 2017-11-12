@@ -48,7 +48,7 @@ void WallFinder::recognizeWall(T_SensorData* sensorData) {
 		BlockedRightWall = true;
 	}
 
-	printDebug();
+//	printDebug();
 }
 
 void WallFinder::printDebug() {

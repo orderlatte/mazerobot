@@ -37,6 +37,7 @@
 #include "RobotPosition.h"
 #include "FloorFinder.h"
 #include "StartingPoint.h"
+#include "UiCmdHandler.h"
 
 #define INIT 0
 #define STOP 1
@@ -60,9 +61,6 @@ static UdpSendMap	  *MapSender = NULL;
 static T_robot_status PreviousStatus;
 static T_robot_status CurrentStatus;
 //static int            EWSNDirection = NORTH;
-static bool           HitTheFrontWall;	// TODO: Remove Hit variables..
-static bool			  HitTheLeftWall;
-static bool 		  HitTheRightWall;
 static RobotPosition  CurrentPosition;
 static Automode       *AutomodeRobot = NULL;
 static Manualmode     *ManualmodeRobot = NULL;
@@ -71,33 +69,9 @@ static bool 		  toggle_mode_debug = false;
 static bool			  isResumeAutomode = false;
 static FloorFinder	  *FloorData = NULL;
 static StartingPoint  *StartingData = NULL;
-float	      		  ImageOffset;		   // computed robot deviation from the line
-int 			      linewidth;
-
-// TODO: Below codes should move to UI interaction code
-typedef enum
-{
-	UI_COMMAND_MODE_MANUAL = 0,
-	UI_COMMAND_MODE_AUTO,
-	UI_COMMAND_DIRECTION_FORWARD,
-	UI_COMMAND_DIRECTION_BACK,
-	UI_COMMAND_DIRECTION_TURN_LEFT,
-	UI_COMMAND_DIRECTION_TURN_RIGHT,
-	UI_COMMAND_DIRECTION_STOP,
-	UI_COMMAND_CELL_MOVED,
-	UI_COMMAND_CAMERA_LEFT,
-	UI_COMMAND_CAMERA_RIGHT,
-	UI_COMMAND_CAMERA_UPPER,
-	UI_COMMAND_CAMERA_LOWER,
-	UI_COMMAND_CAMERA_CENTER,
-	UI_COMMAND_CAMERA_LEFT_WALL,
-	UI_COMMAND_CAMERA_RIGHT_WALL,
-	UI_COMMAND_MAX
-} T_ui_command;
-typedef void (*fp_ui_command)(T_ui_command command);
-static fp_ui_command fpUiCommand;
-void ui_command_init(fp_ui_command fp);
-/////////////////
+static UiCmdHandler   *UiCmd = NULL;
+float	      		  ImageOffset = 0.0;	// computed robot deviation from the line
+int 			      linewidth = 0;
 
 static void  Setup_Control_C_Signal_Handler_And_Keyboard_No_Enter(void);
 static void  CleanUp(void);
@@ -121,9 +95,9 @@ void recognizeFloor(RobotVisionManager *rvm, FloorFinder *floorData) ;
 //-----------------------------------------------------------------
 int main(int argc, const char** argv)
 {
-  if (argc !=4)
+  if (argc != 5)
   {
-      fprintf(stderr,"usage %s hostname video_port map_port\n", argv[0]);
+      fprintf(stderr,"usage %s hostname video_port map_port cmd_port\n", argv[0]);
       exit(0);
   }
 
@@ -165,19 +139,20 @@ int main(int argc, const char** argv)
 
   creat_image_capture_thread(FloorData);
 
-  ui_command_init(CallBackHandleUiCommand);
-
   PreviousStatus = ROBOT_STATUS_MANUAL;
   CurrentStatus = ROBOT_STATUS_MANUAL;
-  HitTheFrontWall = false;
-  HitTheLeftWall = false;
-  HitTheRightWall = false;
 
-
+  UiCmd = new UiCmdHandler(CallBackHandleUiCommand);
+  if (UiCmd->Open(argv[4]) == false) {
+	  printf("UiCmd->Open() is failed!\n");
+	  return(-1);
+  }
 
   // TODO: Reset..! Add feature!
   do
   {
+	  HandleInputChar();
+
 	  if (CurrentStatus == ROBOT_STATUS_AUTO) {
 		  // TODO: Restore status from manual mode
 		  if (PreviousStatus == ROBOT_STATUS_MANUAL) {
@@ -336,21 +311,6 @@ void CallBackHandleUiCommand (T_ui_command command) {
 	}
 }
 
-void *ui_command_thread(void *value) {
-	do {
-		HandleInputChar();          // Handle Keyboard Input
-		usleep(1000);			// sleep 1 milliseconds
-	} while(1);
-}
-
-// TODO: Test code. It should be move to UI network interface
-void ui_command_init(fp_ui_command fp)
-{
-	pthread_t thread1;
-	int x = 0;
-	fpUiCommand = fp;
-	pthread_create(&thread1, NULL, &ui_command_thread, &x);
-}
 
 //-----------------------------------------------------------------
 // END main
@@ -502,27 +462,19 @@ static void stopRobot(T_sensor_type sensorType)
 
 	switch (sensorType) {
 	case SENSOR_TYPE_SONAR:
-		HitTheFrontWall = true;
-
 		if (CurrentStatus == ROBOT_STATUS_AUTO) {
 			AutomodeRobot->stopRobot();
 		} else {
 			robot_operation_manual(ROBOT_OPERATION_DIRECTION_STOP);
 		}
-
-		HitTheFrontWall = false;
 		break;
 
 	case SENSOR_TYPE_LASER_LEFT:
-		HitTheLeftWall = true;
 		avoidLeftWall();
-		HitTheLeftWall = false;
 		break;
 
 	case SENSOR_TYPE_LASER_RIGHT:
-		HitTheRightWall = true;
 		avoidRightWall();
-		HitTheRightWall = false;
 		break;
 
 	default:
@@ -537,7 +489,7 @@ static void avoidLeftWall() {
 	if (CurrentStatus == ROBOT_STATUS_AUTO) {
 		AutomodeRobot->avoidLeftWall();
 	} else if (CurrentStatus == ROBOT_STATUS_MANUAL) {
-		// TODO: something...
+		robot_operation_meet_wall(ROBOT_OPERATION_DIRECTION_RIGHT);
 	}
 }
 
@@ -547,7 +499,7 @@ static void avoidRightWall() {
 	if (CurrentStatus == ROBOT_STATUS_AUTO) {
 		AutomodeRobot->avoidRightWall();
 	} else if (CurrentStatus == ROBOT_STATUS_MANUAL) {
-		// TODO: something...
+		robot_operation_meet_wall(ROBOT_OPERATION_DIRECTION_LEFT);
 	}
 }
 

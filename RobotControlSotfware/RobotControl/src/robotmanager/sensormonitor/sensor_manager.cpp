@@ -40,9 +40,9 @@ using namespace std;
 void *sonar_thread(void *value) {
 
 	while (1) {
-		sensor_data.sonar_distance= sonar();
+		sensor_data.sonar_distance = sonar();
 
-		if (sensor_data.sonar_distance < 2 && sensor_data.sonar_distance > 0) {	// Below 2cm
+		if (sensor_data.sonar_distance < 1.5 && sensor_data.sonar_distance > 0) {	// Below 1.5cm
 			printf("sonar_distance: %ld\n", sensor_data.sonar_distance);
 			stopRobot(SENSOR_TYPE_SONAR);
 		}
@@ -58,12 +58,12 @@ void *laser_thread(void *value) {
 		sensor_data.laser_left_distance = laser_left();
 		sensor_data.laser_right_distance = laser_right();
 
-		if (sensor_data.laser_left_distance < 20 && sensor_data.laser_left_distance > 0) {	// Below 20mm (2cm)
+		if (sensor_data.laser_left_distance < 40 && sensor_data.laser_left_distance > 0) {	// Below 40mm (4cm)
 			printf("laser_left_distance: %d\n", sensor_data.laser_left_distance);
 			stopRobot(SENSOR_TYPE_LASER_LEFT);
 		}
 
-		if (sensor_data.laser_right_distance < 20  && sensor_data.laser_right_distance > 0) {	// Below 20mm (2cm)
+		if (sensor_data.laser_right_distance < 40  && sensor_data.laser_right_distance > 0) {	// Below 40mm (4cm)
 			printf("laser_right_distance: %d\n", sensor_data.laser_right_distance);
 			stopRobot(SENSOR_TYPE_LASER_RIGHT);
 		}

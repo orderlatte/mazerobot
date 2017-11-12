@@ -60,7 +60,7 @@ TUdpLocalPort* NetworkUDP::OpenUdpPort(short localport)
       return(NULL); 
     }
 
-  int bufsize = 200 * 1024;
+  int bufsize = 400 * 1024;
   if (setsockopt(UdpLocalPort->UdpFd, SOL_SOCKET, SO_SNDBUF, (char *)&bufsize, sizeof(bufsize)) == -1)
 	{
 	     CloseUdpPort(&UdpLocalPort);
