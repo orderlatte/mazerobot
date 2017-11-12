@@ -105,12 +105,13 @@ bool Detector::findGoalArea(cv::Mat& CameraImage, bool bDebug)
 		if (!IsPi3) imshow("threshold_goalArea", threshold);
 		if (!IsPi3) imshow("result_goalArea", result);
 
-		cout << "area" << RoiRec.area() << " bluepoint:" << cnt << endl;
+		//cout << "area" << RoiRec.area() << " bluepoint:" << cnt << endl;
 		if (!IsPi3) imshow("camera_goal", CameraImage);
 	}
 
 	if (cnt > (RoiRec.area()*m_thresBlueAreaOfROI))
 	{
+		if (bDebug) cout << "area" << RoiRec.area() << " bluepoint:" << cnt << endl;
 		ret = true;
 	}
 
@@ -287,6 +288,10 @@ float Detector::FindLineInImageAndComputeOffset(cv::Mat& CameraImage, bool bDebu
 
 float Detector::FindLineInImageAndComputeOffsetAndWidth(cv::Mat& CameraImage, int& selectedWidth, bool bDebug)
 {
+	Mat tmp; 
+	tmp = CameraImage.clone();
+	bool ret = findGoalArea(tmp,false);
+
 	char text[1024];
 	float offsetfromcenter;
 	cv::Scalar mean, stddev;
@@ -305,7 +310,8 @@ float Detector::FindLineInImageAndComputeOffsetAndWidth(cv::Mat& CameraImage, in
 											//std::cout<<"Variance: "<<stddev.val[0]<<std::endl;
 	GaussianBlur(mono, blur, Size(9, 9), 2, 2); // blur image to remove small irregularities
 	//threshold(blur, thresh, 0, 255, THRESH_BINARY_INV | THRESH_OTSU); //Color thresholding makes image more blacka nd white
-    threshold(blur, thresh, m_thresBinary, 255, THRESH_BINARY_INV | THRESH_BINARY); //Color thresholding makes image more blacka nd white
+    if(!ret) threshold(blur, thresh, m_thresBinary, 255, THRESH_BINARY_INV | THRESH_BINARY); //Color thresholding makes image more blacka nd white
+	else threshold(blur, thresh, m_thresBinary, 255, THRESH_BINARY_INV | THRESH_BINARY);
 
 	Mat erodeElmt = getStructuringElement(MORPH_RECT, Size(3, 3));
 	Mat dilateElmt = getStructuringElement(MORPH_RECT, Size(5, 5));
