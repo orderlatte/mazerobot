@@ -16,6 +16,10 @@ public:
 	bool RedDot;
 //	bool StartingPoint;
 	bool Goal;
+	bool RedDotRecognize;
+	int Sign_type;
+	int Sign_position;
+	
 
 public:
 	FloorFinder();

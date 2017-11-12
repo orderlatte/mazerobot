@@ -12,6 +12,10 @@
 #include "robot_operation.h"
 #include "WallFinder.h"
 #include "Direction.h"
+#ifndef UBUNTU		// For building in ubuntu. Below code sould be built in raspberry pi.
+#include <wiringPi.h>
+#endif //UBUNTU
+
 
 using namespace std;
 
@@ -236,8 +240,8 @@ void Automode::sendRobotStatusToAlgorithm() {
 //	int point = 0x0; // Starting point, Goal
 
     // TODO: Ad sign information
-
-	AlgorithmCtrl->SendRobotCell(Position, 0, 0, FloorData, &wallData, (fp_ewsn_direction_result)CallBabckToGetEWSNDirectionAutomode);
+	printf("position = %d, type = %d\n", FloorData->Sign_position, FloorData->Sign_type);
+	AlgorithmCtrl->SendRobotCell(Position, FloorData->Sign_position, FloorData->Sign_type, FloorData, &wallData, (fp_ewsn_direction_result)CallBabckToGetEWSNDirectionAutomode);
 
 //	TestingThread = new std::thread(&Automode::getTestNextDirectionForTesting, this, &wallData, fpEWSNDirectionCallBack);
 }
@@ -419,17 +423,119 @@ void Automode::doMoved() {
 }
 
 void Automode::doRecognizingSign() {
-	// TODO: Thread start to recognize Sign.
 
 	printf("doRecognizingSign() is called.\n");
-	robot_operation_manual(ROBOT_OPERATION_DIRECTION_BACKWARD);
-	usleep(200000);
-	robot_operation_manual(ROBOT_OPERATION_DIRECTION_STOP);
-	usleep(300000);
-	robot_operation_cam_manual(ROBOT_CAM_DIRECTION_LINE);
-	sleep(2);		// For testing...
+	
+	#ifndef UBUNTU		// For building in ubuntu. Below code sould be built in raspberry pi.
+	static unsigned long recognize_start_time;
+	static unsigned char recognize_state;
+	static unsigned char recognize_wall_cnt;
+	
+	int positon = Position->GetCurrentEWSNDirection();
 
-	Status = AUTOMODE_STATUS_WATING_FOR_SIGN_RESULT;
+	if(recognize_state == 0)
+	{
+		recognize_start_time = micros();
+		recognize_state = 1;
+	}
+	else if(recognize_state == 1)
+	{
+		robot_operation_manual(ROBOT_OPERATION_DIRECTION_BACKWARD);
+		recognize_state = 2;
+	}
+	else if(recognize_state == 2)
+	{
+		if(micros() - recognize_start_time > (200*1000))
+		{
+			robot_operation_manual(ROBOT_OPERATION_DIRECTION_STOP);
+			recognize_start_time = micros();
+			recognize_state = 3;
+		}
+	}
+	else if(recognize_state == 3)
+	{
+		if(recognize_wall_cnt == 0)
+		{
+			robot_operation_cam_manual(ROBOT_CAM_DIRECTION_CENTER);
+		}
+		else if(recognize_wall_cnt == 1)
+		{
+			robot_operation_cam_manual(ROBOT_CAM_DIRECTION_LEFT_SIGN);
+		}
+		else if(recognize_wall_cnt == 2)
+		{
+			robot_operation_cam_manual(ROBOT_CAM_DIRECTION_RIGHT_SIGN);
+		}
+		recognize_state = 4;
+	}
+	else if(recognize_state == 4)
+	{
+		if(micros() - recognize_start_time > (1000*1000))
+		{
+			recognize_start_time = micros();
+			recognize_wall_cnt++;
+			recognize_state = 3;
+		}
+	}
+
+	if(FloorData->Sign_type != 0)
+	{
+		if(recognize_wall_cnt == 0)
+		{
+			FloorData->Sign_position = positon;
+		}
+		else if(recognize_wall_cnt == 1)
+		{
+			switch(positon)
+			{
+				case EAST:
+					FloorData->Sign_position = NORTH;
+					break;
+				case WEST:
+					FloorData->Sign_position = SOUTH;
+					break;
+				case SOUTH:
+					FloorData->Sign_position = EAST;
+					break;
+				case NORTH:
+					FloorData->Sign_position = WEST;
+					break;
+			}
+		}
+		else if(recognize_wall_cnt == 2)
+		{
+			switch(positon)
+			{
+				case EAST:
+					FloorData->Sign_position = SOUTH;
+					break;
+				case WEST:
+					FloorData->Sign_position = NORTH;
+					break;
+				case SOUTH:
+					FloorData->Sign_position = WEST;
+					break;
+				case NORTH:
+					FloorData->Sign_position = EAST;
+					break;
+			}
+		}
+		FloorData->RedDotRecognize = false;
+		robot_operation_cam_manual(ROBOT_CAM_DIRECTION_LINE);
+		Status = AUTOMODE_STATUS_RESUME_TRAVLE;
+		recognize_state = 0;
+		recognize_wall_cnt = 0;
+	}
+
+	if(recognize_wall_cnt > 3)
+	{
+		fpAutomodeFail();
+		Status = AUTOMODE_STATUS_READY;
+	}
+	
+
+	#endif //UBUNTU
+
 }
 
 void Automode::doWaitingForSignResult() {

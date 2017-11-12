@@ -560,18 +560,49 @@ void *image_capture_thread(void *value) {
 
 	RobotVisionManager rvm;
 
+	int sign_type;
+
 	rvm.SetDebug(true);	// For debugging
 
 	while (1) {
-		rvm.GetCamImage(image);  // Get Camera image
-		if (IsPi3 == true) flip(image, image,-1);       // if running on PI3 flip(-1)=180 degrees
-
-		ImageOffset=rvm.FindLineInImageAndComputeOffsetAndWidth(image, linewidth);
-
-		if (linewidth > 190) {
-			recognizeFloor(&rvm, floor);
+		if(floor->RedDotRecognize == false)
+		{
+			rvm.GetCamImage(image);  // Get Camera image
+			if (IsPi3 == true) flip(image, image,-1);       // if running on PI3 flip(-1)=180 degrees
+	
+			ImageOffset=rvm.FindLineInImageAndComputeOffsetAndWidth(image, linewidth);
+	
+			if (linewidth > 190) {
+				recognizeFloor(&rvm, floor);
+			}
 		}
+		else
+		{
+			rvm.GetCamImage(image);  // Get Camera image
+			if (IsPi3 == true) flip(image, image,-1);       // if running on PI3 flip(-1)=180 degrees
 
+			sign_type = rvm.RecognizeImage(image);
+
+			switch(sign_type)
+			{
+				case 0:
+					floor->Sign_type = 1;
+					break;
+				case 1:
+					floor->Sign_type = 2;
+					break;
+				case 2:
+					floor->Sign_type = 4;
+					break;
+				case 3:
+					floor->Sign_type = 8;
+					break;
+				default:
+					floor->Sign_type = 0;
+					break;
+			}
+		}
+	
 		VideoSender.SetImage(&image);
 		usleep(1000);			  // sleep 1 milliseconds
 	}
@@ -589,6 +620,8 @@ void recognizeFloor(RobotVisionManager *rvm, FloorFinder *floorData) {
 	if (rvm->FindRedDot(redDotImage) == true) {
 //		printf("recognizeFloor() - Red dot is here!\n");
 		floorData->RedDot = true;
+		floorData->Sign_type= 0;
+		floorData->RedDotRecognize = true;
 	}
 
 	// Get new floor image to find goal

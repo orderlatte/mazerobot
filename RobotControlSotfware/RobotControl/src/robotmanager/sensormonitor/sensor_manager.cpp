@@ -127,9 +127,37 @@ void sensor_manager_init(fp_robot_stop fpstop)
 
 double sonar(void)
 {
+	double sonar_distance_temp = 0;
+	double sonar_distance_temp_min = 0;
+	double sonar_distance_temp_max = 0;
+	double sonar_distance_temp_sum = 0;
 	double sonar_distance;
-	
-	sonar_distance = SonarDistance(30000);
+
+	for(int i = 0 ; i<3 ; i++)
+	{
+		sonar_distance_temp = SonarDistance(30000);
+		
+		if(i == 0)
+		{	
+			sonar_distance_temp_min = sonar_distance_temp;
+			sonar_distance_temp_max = sonar_distance_temp;
+			sonar_distance_temp_sum = sonar_distance_temp;
+		}
+		else
+		{
+			sonar_distance_temp_sum = sonar_distance_temp_sum + sonar_distance_temp;
+			if(sonar_distance_temp_max < sonar_distance_temp)
+			{
+				sonar_distance_temp_max = sonar_distance_temp;
+			}	
+			if(sonar_distance_temp_min > sonar_distance_temp)
+			{
+				sonar_distance_temp_min = sonar_distance_temp;
+			}
+		}
+	}
+
+	sonar_distance = sonar_distance_temp_sum - sonar_distance_temp_max - sonar_distance_temp_min;
 	
 	//cout << "Distance is " << sonar_distance << " cm." << endl;
 	
@@ -144,8 +172,6 @@ int32_t laser_right(void)
 	unsigned int	count=0;
 	// Get distance from VL53L0X  on TCA9548A bus 1 
 	distance=getDistance(ObjectNum_0);
-	if (distance > 0)
-        //printf("0: %d mm, %d cm, %d\n",distance, (distance/10),count);
 	
 	usleep(timing);
 	count++;
@@ -164,8 +190,6 @@ int32_t laser_left(void)
 	unsigned int	count=0;
 	// Get distance from VL53L0X  on TCA9548A bus 1 
 	distance=getDistance(ObjectNum_1);
-	if (distance > 0)
-       // printf("1: %d mm, %d cm, %d\n",distance, (distance/10),count);
 	
 	usleep(timing);
 	count++;

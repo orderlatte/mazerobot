@@ -23,6 +23,9 @@ void FloorFinder::init() {
 	RedDot = false;
 //	StartingPoint = false;
 	Goal = false;
+	RedDotRecognize = false;
+	Sign_position = 0;
+	Sign_type = 0;
 }
 
 void FloorFinder::printDebug() {

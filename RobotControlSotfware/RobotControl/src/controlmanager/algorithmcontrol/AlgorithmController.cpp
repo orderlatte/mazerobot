@@ -58,7 +58,7 @@ bool AlgorithmController::Open() {
 }
 
 void AlgorithmController::SendRobotCell(RobotPosition *robotPosition, int signPosition, int signType, FloorFinder *floor, WallFinder *wall, fp_ewsn_direction_result fp) {
-	TestingThread = new std::thread(&AlgorithmController::SendRobotCellThread, this, robotPosition, 0, 0, floor, wall, fp);
+	TestingThread = new std::thread(&AlgorithmController::SendRobotCellThread, this, robotPosition, signPosition, signType, floor, wall, fp);
 }
 
 void AlgorithmController::SendRobotCellThread(RobotPosition *robotPosition, int signPosition, int signType, FloorFinder *floor, WallFinder *wall, fp_ewsn_direction_result fp) {
@@ -83,7 +83,7 @@ void AlgorithmController::SendRobotCellThread(RobotPosition *robotPosition, int 
 
 	// Robot Cell
 	robotCellBuff[1] = (unsigned char) CurrentEWSNDirection;	// robot EWSN direction
-	robotCellBuff[2] = signPosition; // TODO: sign position
+	robotCellBuff[2] = (unsigned char)signPosition; // TODO: sign position
 
 	// Goal position
 	if (floor->Goal == true) {
@@ -98,7 +98,7 @@ void AlgorithmController::SendRobotCellThread(RobotPosition *robotPosition, int 
 		robotCellBuff[3] = 0x00;
 	}
 
-	robotCellBuff[4] = signType; // TODO: sign type
+	robotCellBuff[4] = (unsigned char)signType; // TODO: sign type
 
 	robotCellBuff[5] = (unsigned char) floor->RedDot;
 	floor->RedDot = false;
