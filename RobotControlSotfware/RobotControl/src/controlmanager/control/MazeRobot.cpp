@@ -566,7 +566,7 @@ void *image_capture_thread(void *value) {
 		rvm.GetCamImage(image);  // Get Camera image
 		if (IsPi3 == true) flip(image, image,-1);       // if running on PI3 flip(-1)=180 degrees
 		
-		if(rvm.FindGoalArea(image)) cout << "Find!!!!" << endl ;
+//		if(rvm.FindGoalArea(image)) cout << "Find!!!!" << endl ;
 
 		ImageOffset=rvm.FindLineInImageAndComputeOffsetAndWidth(image, linewidth);
 		
@@ -595,12 +595,12 @@ void recognizeFloor(RobotVisionManager *rvm, FloorFinder *floorData) {
 	}
 
 	// Get new floor image to find goal
-//	rvm->GetCamImage(goalImage);
-//	if (IsPi3 == true) flip(goalImage, goalImage,-1);       // if running on PI3 flip(-1)=180 degrees
-//	if (rvm->FindGoalArea(goalImage) == true) {
-////		printf("recognizeFloor() - Goal is here!\n");
-//		floorData->Goal = true;
-//	}
+	rvm->GetCamImage(goalImage);
+	if (IsPi3 == true) flip(goalImage, goalImage,-1);       // if running on PI3 flip(-1)=180 degrees
+	if (rvm->FindGoalArea(goalImage) == true) {
+//		printf("recognizeFloor() - Goal is here!\n");
+		floorData->Goal = true;
+	}
 }
 
 void creat_image_capture_thread(FloorFinder *floorData)
