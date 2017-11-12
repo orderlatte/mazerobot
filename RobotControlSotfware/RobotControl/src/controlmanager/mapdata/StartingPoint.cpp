@@ -42,7 +42,6 @@ void StartingPoint::reset(int robotEWSNDirection, int robotPositionX, int robotP
 }
 
 void StartingPoint::resetPosition(int robotPositionX, int robotPositionY) {
-	// TODO: Caculate reset position...
 	PositionX = 5+robotPositionX;
 	PositionY = 5+robotPositionY;
 }

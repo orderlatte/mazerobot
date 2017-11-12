@@ -115,26 +115,6 @@ void Manualmode::setCommand(T_manualmode_command command) {
 	Command = command;
 }
 
-//static void CallBabckToGetEWSNDirectionManualmode(int ewsnDirection, T_algorithm_result result) {
-//	printf("CallBabckToGetEWSNDirectionManualmode(%d) is called.\n", ewsnDirection);
-//
-//	if (result == ALGORITHM_RESULT_ERROR) {
-//		printf("CallBabckToGetEWSNDirectionManualmode() - Error! Algorithm is not operated properly. Robot will be stopped.\n");
-//		// There is no further action.. We could not do any more.
-//		// TODO: Send UI that current status is error status.
-//		Position->RecoverCoordinates();
-//		return;
-//	}
-//
-//	if (result == ALGORITHM_RESULT_FULLY_MAPPED) {
-//		printf("CallBabckToGetEWSNDirectionManualmode() - Fully mapping is completed.\n");
-//		// TODO: Send UI that map is fully mapped.
-//		return;
-//	}
-//
-//	MovingDirection = Position->SetEWSNDirectionToMove(ewsnDirection);
-//	Command = MANUALMODE_CMD_READY;
-//}
 
 
 //-----------------------------------------------------------------

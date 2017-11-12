@@ -67,15 +67,13 @@ void AlgorithmController::SendRobotCellThread(RobotPosition *robotPosition, int 
 	int NextEWSNDirection = NORTH;
 	T_algorithm_result Result = ALGORITHM_RESULT_ERROR;
 	int index = 0;
-	T_SensorData sensorData = {0, };
+//	T_SensorData sensorData = {0, };
 
 	// To prevent race condition
 	algorithmmutex.lock();
 
-	// TODO: Get sensor data at 10 times and calculate average
-	sensorData = get_sensor_data();
 	wall->Init();
-	wall->recognizeWall(&sensorData);
+	wall->recognizeWall();
 
 	// Assign call back function
 	fpEWSNDirectionResult = fp;
@@ -283,6 +281,50 @@ void AlgorithmController::Close() {
 		free(robotCellBuff);
 		robotCellBuff = NULL;
 	}
+}
+
+void AlgorithmController::Reset() {
+	unsigned char reset = 0x9;
+	unsigned char response = 0x0;
+
+	// To prevent race condition
+	algorithmmutex.lock();
+
+	if (TcpConnectedPort == NULL) {
+		printf("Reset() - TcpConnectedPort is NULL!\n");
+//		if (AlgCtrl->Open() == false) {
+//			printf("SendRobotCellThread() - Open() is failed!\n");
+//			goto cleanup;
+//		}
+		goto cleanup;
+	}
+
+	if (WriteDataTcp(TcpConnectedPort, &reset, sizeof(unsigned char)) == -1) {
+		printf("Reset() - WriteDataTcp() is failed!\n");
+		goto cleanup;
+	}
+
+	if (ReadDataTcp(TcpConnectedPort, &response, sizeof(unsigned char)) != sizeof(unsigned char)) {
+		printf("Reset() - ReadDataTcp() is failed!\n");
+		goto cleanup;
+	}
+
+	// For debugging
+//	printf("RequestMap() - mapBuff: 0x");
+//	printSize = sizeof(unsigned char) + (sizeof(double) * 5);
+//	for (index = 0; index < printSize ; index++) {
+//		printf("%1x", mapBuff[index]);
+//	}
+//	printf("\n");
+
+	if (response != 0x0) {
+		printf("Reset() - response is not 0x0. (%d)\n", mapBuff[0]);
+		goto cleanup;
+	}
+
+cleanup:
+	// To prevent race condition
+	algorithmmutex.unlock();
 }
 
 

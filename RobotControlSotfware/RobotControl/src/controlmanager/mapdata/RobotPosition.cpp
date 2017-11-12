@@ -16,6 +16,10 @@ using namespace std;
 
 
 RobotPosition::RobotPosition() {
+	Init();
+}
+
+void RobotPosition::Init() {
 	CurrentX = 5;
 	CurrentY = 5;
 	CurrentDirection = NORTH;
@@ -39,6 +43,26 @@ T_robot_moving_direction RobotPosition::SetEWSNDirectionToMove(int nextDirection
 	default:
 		printf("SetEWSNDirectionToMove() - Fault - Unknown next direction: %d\n", nextDirection);
 		return ROBOT_MOVING_DIRECTION_ERROR;
+	}
+}
+
+void RobotPosition::GetNextPosition(int *x, int *y) {
+	switch(NextDirection) {
+		case EAST:
+			*x = CurrentX + 1;
+			break;
+		case WEST:
+			*x = CurrentX - 1;
+			break;
+		case SOUTH:
+			*y = CurrentY + 1;
+			break;
+		case NORTH:
+			*y = CurrentY - 1;
+			break;
+		default:
+			printf("SuccessToMove() - Next direction is invalid! (%d)", NextDirection);
+			break;
 	}
 }
 

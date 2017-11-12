@@ -24,6 +24,7 @@ static AlgorithmController *AlgorithmCtrl = NULL;
 static bool FullyMappingCompleted;
 static fp_automode_fail fpAutomodeFail;
 static FloorFinder *FloorData;
+static NextPositionSender *NextPosition;
 
 //static std::thread	  *TestingThread=NULL;		// For testing
 
@@ -32,12 +33,13 @@ static void CallBackRobotTurned();
 static void CallBackRobotMoved();
 
 
-Automode::Automode(RobotPosition *position, fp_automode_fail fp, AlgorithmController *algCtrl, FloorFinder *floor) {
+Automode::Automode(RobotPosition *position, fp_automode_fail fp, AlgorithmController *algCtrl, FloorFinder *floor, NextPositionSender *positionSender) {
 	Position = position;
 	fpAutomodeFail = fp;
 	init();
 	AlgorithmCtrl = algCtrl;
 	FloorData = floor;
+	NextPosition = positionSender;
 }
 
 void Automode::init() {
@@ -339,6 +341,9 @@ void Automode::sendRobotStatusToAlgorithm() {
 //}
 
 static void CallBabckToGetEWSNDirectionAutomode(int ewsnDirection, T_algorithm_result result) {
+	int nextX = 0;
+	int nextY = 0;
+
 	printf("CallBabckToGetEWSNDirectionAutomode(%d) is called.\n", ewsnDirection);
 
 	if (result == ALGORITHM_RESULT_ERROR) {
@@ -353,12 +358,15 @@ static void CallBabckToGetEWSNDirectionAutomode(int ewsnDirection, T_algorithm_r
 		FullyMappingCompleted = true;
 		Status = AUTOMODE_STATUS_READY;
 		robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
-		// TODO: Robot should transit to manual mode and the map is fully mapped.
 		return;
 	}
 
 	MovingDirection = Position->SetEWSNDirectionToMove(ewsnDirection);
 	Status = AUTOMODE_STATUS_RECEIVED_MOVING_DIRECTION;
+
+	// Calculate Next Position
+	Position->GetNextPosition(&nextX, &nextY);
+	NextPosition->SendPosition(nextX, nextY);
 }
 
 static void CallBackRobotTurned() {

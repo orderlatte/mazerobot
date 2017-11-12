@@ -21,12 +21,14 @@ private:
 
 public:
 	RobotPosition();
+	void Init();
 	T_robot_moving_direction SetEWSNDirectionToMove(int nextDirection);
 //	void SetDirectionToMove(T_robot_moving_direction nextDirection);
 	void SuccessToMove();
 	void RecoverCoordinates();
 	int GetX();
 	int GetY();
+	void GetNextPosition(int *x, int *y);
 	int GetCurrentEWSNDirection();
 
 private:

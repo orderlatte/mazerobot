@@ -316,10 +316,10 @@ float Detector::FindLineInImageAndComputeOffsetAndWidth(cv::Mat& CameraImage, in
 
 	threshold(blur, thresh, m_thresBinary, 255, THRESH_BINARY_INV | THRESH_BINARY); //Color thresholding makes image more blacka nd white
 
-	IplImage tmpimg = thresh;
-	int cnt = cvCountNonZero(&tmpimg);  // black pixel
-
-	if(cnt<1000) threshold(blur, thresh, 90, 255, THRESH_BINARY_INV | THRESH_BINARY);
+//	IplImage tmpimg = thresh;
+//	int cnt = cvCountNonZero(&tmpimg);  // black pixel
+//
+//	if(cnt<1000) threshold(blur, thresh, 90, 255, THRESH_BINARY_INV | THRESH_BINARY);
 
 	Mat erodeElmt = getStructuringElement(MORPH_RECT, Size(3, 3));
 	Mat dilateElmt = getStructuringElement(MORPH_RECT, Size(5, 5));

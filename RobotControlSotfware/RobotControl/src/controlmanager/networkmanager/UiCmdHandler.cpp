@@ -24,15 +24,18 @@ static int 				  cmdBuffSize;
 
 //static std::mutex algorithmmutex;
 
-UiCmdHandler::UiCmdHandler(fp_ui_command fp) {
+UiCmdHandler::UiCmdHandler(fp_ui_command fpCmd, fp_network_disconnected fpNw, fp_reset fpRe) {
 	cmdBuffSize = sizeof(unsigned char) * 4;
 	cmdBuff = (unsigned char *)malloc(cmdBuffSize);
 	memset(cmdBuff, 0x00, cmdBuffSize);
 
-	fpUiCommand = fp;
+	fpUiCommand = fpCmd;
+	fpDisconnected = fpNw;
+	fpReset = fpRe;
 }
 
 bool UiCmdHandler::Open(const char *portno) {
+	printf("UiCmdHandler. Open port is %s.\n", portno);
 	TcpListenPort = OpenTcpListenPort(atoi(portno));
 	if (TcpListenPort == NULL)  {
 		printf("UiCmdHandler Open() - TcpListenPort is null!\n");
@@ -69,37 +72,49 @@ void UiCmdHandler::HandleUiCmd() {
 	// For debugging
 	printf("HandleUiCmd() - UI command handle thread is running!!\n");
 
+	TcpConnectedPort = AcceptTcpConnection(TcpListenPort, &cli_addr, &clilen);
+	if (TcpConnectedPort == NULL) {
+		printf("HandleUiCmd() - AcceptTcpConnection Failed\n");
+		Close();
+		fpDisconnected();
+		return;
+	}
+
 	while (1)
 	{
-		TcpConnectedPort = AcceptTcpConnection(TcpListenPort, &cli_addr, &clilen);
-		if (TcpConnectedPort == NULL) {
-			printf("HandleUiCmd() - AcceptTcpConnection Failed\n");
-			// TODO: Suspend mode call
-			return;
-		}
-
 		if (ReadDataTcp(TcpConnectedPort, cmdBuff, cmdBuffSize) != cmdBuffSize) {
 			printf("HandleUiCmd() - ReadDataTcp is failed!\n");
-			// TODO: Suspend mode call
+			Close();
+			fpDisconnected();
 			return;
 		}
 
-		printf("HandleUiCmd() - Received UI command.\n");
+//		printf("HandleUiCmd() - Received UI command.\n");
 
 		ParseUiCmd();
 	}
 }
 
 void UiCmdHandler::ParseUiCmd() {
+	switch (cmdBuff[0]) {
+	case 0x1:	// Command
+		ParseMode();
+		ParseDirection();
+		ParseCamera();
+		break;
 
-	if (cmdBuff[0] != 0x1) {
-		printf("ParseUiCmd() - It's invalid command.\n");
-		return;
+	case 0x2:	// Reset
+		Reset();
+		break;
+
+	default:
+		printf("ParseUiCmd() - It's invalid command.(%d)\n", cmdBuff[0]);
+		break;
 	}
+}
 
-	ParseMode();
-	ParseDirection();
-	ParseCamera();
+void UiCmdHandler::Reset() {
+	fpReset();
 }
 
 void UiCmdHandler::ParseMode() {
@@ -110,10 +125,12 @@ void UiCmdHandler::ParseMode() {
 
 	case 0x1:	// Manual
 		fpUiCommand(UI_COMMAND_MODE_MANUAL);
+		printf("UI command transit manual mode.\n");
 		break;
 
 	case 0x2:	// Auto
 		fpUiCommand(UI_COMMAND_MODE_AUTO);
+		printf("UI command transit auto mode.\n");
 		break;
 
 	default:
@@ -130,22 +147,27 @@ void UiCmdHandler::ParseDirection() {
 
 	case 0x1:	// Forward
 		fpUiCommand(UI_COMMAND_DIRECTION_FORWARD);
+		printf("UI command is forward.\n");
 		break;
 
 	case 0x2:	// Back
 		fpUiCommand(UI_COMMAND_DIRECTION_BACK);
+		printf("UI command is backward.\n");
 		break;
 
 	case 0x3:	// Left
 		fpUiCommand(UI_COMMAND_DIRECTION_TURN_LEFT);
+		printf("UI command is left.\n");
 		break;
 
 	case 0x4:	// Right
 		fpUiCommand(UI_COMMAND_DIRECTION_TURN_RIGHT);
+		printf("UI command is right.\n");
 		break;
 
 	case 0x5:	// Stop
 		fpUiCommand(UI_COMMAND_DIRECTION_STOP);
+		printf("UI command is stop.\n");
 		break;
 
 	default:
@@ -162,22 +184,27 @@ void UiCmdHandler::ParseCamera() {
 
 	case 0x1:	// Upper
 		fpUiCommand(UI_COMMAND_CAMERA_UPPER);
+		printf("UI command is camera upper.\n");
 		break;
 
 	case 0x2:	// Lower
 		fpUiCommand(UI_COMMAND_CAMERA_LOWER);
+		printf("UI command is camera lower.\n");
 		break;
 
 	case 0x3:	// Left
 		fpUiCommand(UI_COMMAND_CAMERA_LEFT);
+		printf("UI command is camera left.\n");
 		break;
 
 	case 0x4:	// Right
 		fpUiCommand(UI_COMMAND_CAMERA_RIGHT);
+		printf("UI command is camera right.\n");
 		break;
 
 	case 0x5:	// Center
 		fpUiCommand(UI_COMMAND_CAMERA_CENTER);
+		printf("UI command is camera center.\n");
 		break;
 
 	default:

@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
+#include <unistd.h>
 
 
 using namespace std;
@@ -29,21 +30,50 @@ void WallFinder::Init() {
 	BlockedLeftWall = false;
 	BlockedRightWall = false;
 	BlockedBackWall = false;
-//	CurrentEWSNDirection = EWSNDirection;
 }
 
-void WallFinder::recognizeWall(T_SensorData* sensorData) {
-	if (sensorData->sonar_distance < 15 && sensorData->sonar_distance > 0) { // Less than 10cm
+void WallFinder::recognizeWall() {
+	int maxCount = 3;
+	int index = 0;
+	T_SensorData sensorData[maxCount] = {0, };
+	int blockedFrontWallCount = 0;
+	int blockedLeftWallCount = 0;
+	int blockedRightWallCount = 0;
+
+	for (index = 0; index < maxCount; index++) {
+		sensorData[index] = get_sensor_data();
+
+		usleep(60000);
+	}
+
+	for (index = 0; index < maxCount; index++) {
+		if (sensorData[index].sonar_distance < 15 && sensorData[index].sonar_distance > 0) { // Less than 10cm
+	//			printf("recognizeWall() Front wall is existed\n");
+			blockedFrontWallCount++;
+		}
+
+		if (sensorData[index].laser_left_distance < 150 && sensorData[index].laser_left_distance > 0) {  // Less than
+	//			printf("recognizeWall() Left wall is existed\n");
+			blockedLeftWallCount++;
+		}
+
+		if (sensorData[index].laser_right_distance < 150 && sensorData[index].laser_right_distance > 0) {  // Less than
+	//			printf("recognizeWall() Right wall is existed\n");
+			blockedRightWallCount++;
+		}
+	}
+
+	if (blockedFrontWallCount >= 2) {
 		printf("recognizeWall() Front wall is existed\n");
 		BlockedFrontWall = true;
 	}
 
-	if (sensorData->laser_left_distance < 150 && sensorData->laser_left_distance > 0) {  // Less than
+	if (blockedLeftWallCount >= 2) {
 		printf("recognizeWall() Left wall is existed\n");
 		BlockedLeftWall = true;
 	}
 
-	if (sensorData->laser_right_distance < 150 && sensorData->laser_right_distance > 0) {  // Less than
+	if (blockedRightWallCount >= 2) {
 		printf("recognizeWall() Right wall is existed\n");
 		BlockedRightWall = true;
 	}

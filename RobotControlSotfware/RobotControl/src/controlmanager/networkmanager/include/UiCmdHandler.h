@@ -32,6 +32,8 @@ typedef enum
 } T_ui_command;
 
 typedef void (*fp_ui_command)(T_ui_command command);
+typedef void (*fp_network_disconnected)(void);
+typedef void (*fp_reset)(void);
 
 
 class UiCmdHandler {
@@ -39,9 +41,11 @@ class UiCmdHandler {
 private:
 	std::thread *TcpThread = NULL;
 	fp_ui_command fpUiCommand;
+	fp_network_disconnected fpDisconnected;
+	fp_reset fpReset;
 
 public:
-	UiCmdHandler(fp_ui_command fp);
+	UiCmdHandler(fp_ui_command fpCmd, fp_network_disconnected fpNw, fp_reset fpRe);
 	bool Open(const char *portno);
 	void Close();
 
@@ -52,6 +56,7 @@ private:
 	void ParseDirection();
 	void ParseCamera();
 	void CreateThreadToSendMap();
+	void Reset();
 };
 
 

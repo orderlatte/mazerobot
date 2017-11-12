@@ -38,6 +38,7 @@
 #include "FloorFinder.h"
 #include "StartingPoint.h"
 #include "UiCmdHandler.h"
+#include "NextPositionSender.h"
 
 #define INIT 0
 #define STOP 1
@@ -70,6 +71,7 @@ static bool			  isResumeAutomode = false;
 static FloorFinder	  *FloorData = NULL;
 static StartingPoint  *StartingData = NULL;
 static UiCmdHandler   *UiCmd = NULL;
+static NextPositionSender	 *PositionSender = NULL;
 float	      		  ImageOffset = 0.0;	// computed robot deviation from the line
 int 			      linewidth = 0;
 
@@ -84,7 +86,9 @@ static T_robot_image_info getImageOffset();
 void creat_image_capture_thread(FloorFinder *floorData);
 void CallBackHandleUiCommand (T_ui_command command);
 void CallBackAutomodeFail();
-void recognizeFloor(RobotVisionManager *rvm, FloorFinder *floorData) ;
+void recognizeFloor(RobotVisionManager *rvm, FloorFinder *floorData);
+void CallBackNetworkDisconnected();
+void CallBackReset();
 
 //extern static void CallBackRobotTurned();
 //extern static void CallBackRobotMoved();
@@ -95,9 +99,9 @@ void recognizeFloor(RobotVisionManager *rvm, FloorFinder *floorData) ;
 //-----------------------------------------------------------------
 int main(int argc, const char** argv)
 {
-  if (argc != 5)
+  if (argc != 6)
   {
-      fprintf(stderr,"usage %s hostname video_port map_port cmd_port\n", argv[0]);
+      fprintf(stderr,"usage %s hostname video_port map_port status_port cmd_port\n", argv[0]);
       exit(0);
   }
 
@@ -118,8 +122,12 @@ int main(int argc, const char** argv)
 	  printf("main() - Open() is failed!\n");
   }
 
+  PositionSender = new NextPositionSender((char *)argv[1], (char *)argv[5]);
+  if (PositionSender->Open() == false) {
+  	  printf("main() - PositionSender->Open() is failed!\n");
+  }
 
-  AutomodeRobot = new Automode(&CurrentPosition, CallBackAutomodeFail, AlgorithmCtrl, FloorData);
+  AutomodeRobot = new Automode(&CurrentPosition, CallBackAutomodeFail, AlgorithmCtrl, FloorData, PositionSender);
   ManualmodeRobot = new Manualmode(&CurrentPosition, AlgorithmCtrl);
 
 //  AutomodeRobot->setAlgorithmCtrl(AlgorithmCtrl);
@@ -142,20 +150,17 @@ int main(int argc, const char** argv)
   PreviousStatus = ROBOT_STATUS_MANUAL;
   CurrentStatus = ROBOT_STATUS_MANUAL;
 
-  UiCmd = new UiCmdHandler(CallBackHandleUiCommand);
+  UiCmd = new UiCmdHandler(CallBackHandleUiCommand, CallBackNetworkDisconnected, CallBackReset);
   if (UiCmd->Open(argv[4]) == false) {
 	  printf("UiCmd->Open() is failed!\n");
 	  return(-1);
   }
-
-  // TODO: Reset..! Add feature!
 
   do
   {
 	  HandleInputChar();
 
 	  if (CurrentStatus == ROBOT_STATUS_AUTO) {
-		  // TODO: Restore status from manual mode
 		  if (PreviousStatus == ROBOT_STATUS_MANUAL) {
 			  if (isResumeAutomode == false) {
 				  AutomodeRobot->init();
@@ -175,7 +180,25 @@ int main(int argc, const char** argv)
 
 		  ManualmodeRobot->doOperation();
 	  } else {
-		  printf("Robot is suspend mode.\n");
+		  if (AlgorithmCtrl->Open() == false) {
+			  printf("main() - AlgorithmCtrl->Open() is failed!\n");
+			  usleep(500000);
+			  continue;
+		  }
+
+		  if (UiCmd->Open(argv[4]) == false) {
+			  printf("main() - UiCmd->Open() is failed!\n");
+			  usleep(500000);
+			  continue;
+		  }
+
+		  if (PositionSender->Open() == false) {
+			  printf("main() - PositionSender->Open() is failed!\n");
+			  usleep(500000);
+			  continue;
+		  }
+
+		  CurrentStatus = ROBOT_STATUS_MANUAL;
 	  }
 
 	  usleep(2000);			  // sleep 2 milliseconds
@@ -188,6 +211,28 @@ int main(int argc, const char** argv)
 void CallBackAutomodeFail() {
 	CurrentStatus = ROBOT_STATUS_MANUAL;
 	toggle_mode_debug = false;
+}
+
+void CallBackNetworkDisconnected() {
+	robot_operation_manual(ROBOT_OPERATION_DIRECTION_STOP);
+	CurrentStatus = ROBOT_STATUS_SUSPEND;
+}
+
+void CallBackReset() {
+	printf"CallBackReset() is called!\n");
+
+	robot_operation_manual(ROBOT_OPERATION_DIRECTION_STOP);
+	CurrentStatus = ROBOT_STATUS_MANUAL;
+
+	AlgorithmCtrl->Reset();
+	AutomodeRobot->init();
+	ManualmodeRobot->init();
+	StartingData->reset(CurrentPosition.GetCurrentEWSNDirection(), CurrentPosition.GetX(), CurrentPosition.GetY());
+	CurrentPosition.Init();
+	toggle_mode_debug = false;
+	isResumeAutomode = false;
+	FloorData->init();
+	PositionSender->Init();
 }
 
 void CallBackHandleUiCommand (T_ui_command command) {
@@ -353,6 +398,8 @@ static void CleanUp(void)
  free(AutomodeRobot);
 
  VideoSender.CloseUdp();
+
+
  ResetServos();                    // Reset servos to center or stopped
  CloseServos();                    // Close servo device driver
  printf("restored\n");

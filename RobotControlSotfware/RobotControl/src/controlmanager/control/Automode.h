@@ -14,6 +14,7 @@
 #include "RobotPosition.h"
 #include "WallFinder.h"
 #include "FloorFinder.h"
+#include "NextPositionSender.h"
 
 typedef enum
 {
@@ -36,7 +37,7 @@ typedef void (*fp_automode_fail)(void);
 class Automode {
 
 public:
-	Automode(RobotPosition *position, fp_automode_fail fp, AlgorithmController *algCtrl, FloorFinder *floor);
+	Automode(RobotPosition *position, fp_automode_fail fp, AlgorithmController *algCtrl, FloorFinder *floor, NextPositionSender *positionSender);
 	void init();
 	void resume();
 //	void setAlgorithmCtrl(AlgorithmController *algCtrl);

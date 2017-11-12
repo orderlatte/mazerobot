@@ -26,7 +26,7 @@ private:
 public:
 	WallFinder();
 	void Init();
-	void recognizeWall(T_SensorData* sensorData);
+	void recognizeWall();
 	bool getCheckedFrontWall();
 	bool getCheckedLeftWall();
 	bool getCheckedRightWall();
