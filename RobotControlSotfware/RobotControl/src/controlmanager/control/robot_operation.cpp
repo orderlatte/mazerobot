@@ -90,7 +90,7 @@ void robot_move_one_cell_foward(void)
 	else if(robot_move_one_cell_foward_state == 1)
 	{
 		robot_mode_setting(ROBOT_LINE_TRACKING, robot_operation_image_info.offset);
-		if(micros_wrapper()-timeoutstart > (500*1000))
+		if(micros_wrapper()-timeoutstart > (400*1000))
 		{
 			robot_move_one_cell_foward_state = 2;
 		}
@@ -172,15 +172,24 @@ void robot_back_move_one_cell(void)
 	}
 	else if(robot_turn_to_cross_state == 1)
 	{
+		SetWheelSpeed(-10,0);
+		if(micros_wrapper()-timeoutstart > (800*1000))
+		{
+			timeoutstart = micros_wrapper();
+			robot_turn_to_cross_state = 2;
+		}
+	}	
+	else if(robot_turn_to_cross_state == 2)
+	{
 		//robot_mode_setting(ROBOT_LEFT_ROTATING,offset);
 		robot_mode_setting(ROBOT_LEFT_ROTATING,robot_operation_image_info.offset);
-		if(micros_wrapper()-timeoutstart > (1800*1000))
+		if(micros_wrapper()-timeoutstart > (1000*1000))
 		{
-			robot_turn_to_cross_state = 2;
+			robot_turn_to_cross_state = 3;
 			timeoutstart = micros_wrapper();
 		}
 	}
-	else if(robot_turn_to_cross_state == 2)
+	else if(robot_turn_to_cross_state == 3)
 	{
 		if((robot_operation_image_info.linewidth < 190 && robot_operation_image_info.linewidth > 100))// || (micros_wrapper()-timeoutstart > (200*1000)))
 		{
