@@ -33,7 +33,7 @@ public class Maze {
 		return cellArray;
 	}
 
-	public Cell getMaze(int x, int y) {
+	public Cell getCell(int x, int y) {
 		return this.cellArray[y][x];
 	}
 
