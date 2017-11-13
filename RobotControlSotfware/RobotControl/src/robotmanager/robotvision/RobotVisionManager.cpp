@@ -105,6 +105,14 @@ bool RobotVisionManager::FindGoalArea()
 	return m_detector->findGoalArea(cameraimg, m_bDebug);
 }
 
+bool RobotVisionManager::FindStartArea()
+{
+	Mat cameraimg;
+	cap >> cameraimg;
+	//return m_detector->findGoalArea(cameraimg, m_sParameter.thresBlueAreaOfROI, m_bDebug);
+	return m_detector->findStartArea(cameraimg, m_bDebug);
+}
+
 bool RobotVisionManager::FindCrossArea()
 {
 	Mat cameraimg;
@@ -135,6 +143,12 @@ bool RobotVisionManager::FindGoalArea(cv::Mat& cameraimg)
 {
 	return m_detector->findGoalArea(cameraimg,  m_bDebug);
 }
+
+bool RobotVisionManager::FindStartArea(cv::Mat& cameraimg)
+{
+	return m_detector->findStartArea(cameraimg, m_bDebug);
+}
+
 
 bool RobotVisionManager::FindCrossArea(cv::Mat& camimage)
 {

@@ -32,6 +32,8 @@ public:
 	float FindLineInImageAndComputeOffset(cv::Mat& CameraImage, bool bDebug = false);
 	float FindLineInImageAndComputeOffsetAndWidth(cv::Mat& CameraImage, int& selectedWidth, bool bDebug = false);
 	float FindLineInImageAndComputeOffsetAndWidth_OTSU(cv::Mat& CameraImage, int& selectedWidth, bool bDebug = false);
+	
+	bool findStartArea(cv::Mat& CameraImage, bool  bDebug = false);
 
 	void SetParameter(map<string, float> mParam);
 private:
@@ -40,6 +42,8 @@ private:
 	int m_thresBinary;
 	int m_lowerBoundBlue;
 	int m_upperBoundBlue;
+	int m_lowerBoundGreen;
+	int m_upperBoundGreen;
 	int m_binarizationMethod;
 };
 

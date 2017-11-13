@@ -39,12 +39,14 @@ public:
 	//void Initialize(VisionParameter param);
 	bool FindRedDot();
 	bool FindGoalArea();
+	bool FindStartArea();
 	bool FindCrossArea();
 	float FindLineInImageAndComputeOffset();
 	float FindLineInImageAndComputeOffsetAndWidth(int& selectedWidth);
 
 	bool FindRedDot(cv::Mat& cameraimg);
 	bool FindGoalArea(cv::Mat& cameraimg);
+	bool FindStartArea(cv::Mat& cameraimg);
 	bool FindCrossArea(cv::Mat& cameraimg);
 	float FindLineInImageAndComputeOffset(cv::Mat& cameraimg);
 	float FindLineInImageAndComputeOffsetAndWidth(cv::Mat& camimage, int& selectedWidth);
