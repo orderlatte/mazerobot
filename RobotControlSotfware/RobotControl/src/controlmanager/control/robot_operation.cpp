@@ -39,6 +39,12 @@ T_robot_operation_direction forward_moving_avoid_wall;
 
 static unsigned char auto_init_flag;
 
+extern double pid_kp;
+extern double pid_ki;
+extern double pid_kd;
+extern TPID PID;
+
+
 
 
 long micros_wrapper();
@@ -215,6 +221,7 @@ void robot_operation_auto(T_robot_operation_direction direction)
 	robot_operation_info.direction = direction;
 	robot_operation_info.robot_run = 1;
 	robot_operation_info.mode = ROBOT_OPERATION_AUTO;
+	InitPID(PID,pid_kp,pid_ki,pid_kd,BASESPEED,BASESPEEDFUDGEFACTOR) ; //initialize the PID
 }
 
 void robot_operation_meet_wall(T_robot_operation_direction direction)

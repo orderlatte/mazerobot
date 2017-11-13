@@ -1,7 +1,7 @@
 package robot_algorithm;
 
 public class Cell {
-	byte[] data = new byte[8];
+	private byte[] data = new byte[8];
 
 	public static final byte MASK_EAST = 0x01;
 	public static final byte MASK_WEST = 0x02;

@@ -423,14 +423,15 @@ void Automode::doMoved() {
 
 void Automode::doRecognizingSign() {
 
-	printf("doRecognizingSign() is called.\n");
+//	printf("doRecognizingSign() is called.\n");
 	
 	#ifndef UBUNTU		// For building in ubuntu. Below code sould be built in raspberry pi.
 	static unsigned long recognize_start_time;
 	static unsigned char recognize_state;
 	static unsigned char recognize_wall_cnt;
 	
-	int positon = Position->GetCurrentEWSNDirection();
+	int positon;
+	
 
 	if(recognize_state == 0)
 	{
@@ -469,7 +470,7 @@ void Automode::doRecognizingSign() {
 	}
 	else if(recognize_state == 4)
 	{
-		if(micros() - recognize_start_time > (1000*1000))
+		if(micros() - recognize_start_time > (2000*1000))
 		{
 			recognize_start_time = micros();
 			recognize_wall_cnt++;
@@ -477,8 +478,9 @@ void Automode::doRecognizingSign() {
 		}
 	}
 
-	if(FloorData->Sign_type != 0)
+	if((FloorData->Sign_type != 0) && (recognize_state == 4) && (micros() - recognize_start_time > (500*1000)))
 	{
+		positon = Position->GetNextEWSNDirection();
 		if(recognize_wall_cnt == 0)
 		{
 			FloorData->Sign_position = positon;
@@ -519,7 +521,7 @@ void Automode::doRecognizingSign() {
 					break;
 			}
 		}
-		FloorData->RedDotRecognize = false;
+
 		robot_operation_cam_manual(ROBOT_CAM_DIRECTION_LINE);
 		Status = AUTOMODE_STATUS_RESUME_TRAVLE;
 		recognize_state = 0;
@@ -528,8 +530,27 @@ void Automode::doRecognizingSign() {
 
 	if(recognize_wall_cnt > 3)
 	{
-		fpAutomodeFail();
-		Status = AUTOMODE_STATUS_READY;
+//		fpAutomodeFail();
+		positon = Position->GetNextEWSNDirection();
+		switch(positon)
+		{
+			case EAST:
+				FloorData->Sign_position = SOUTH;
+				break;
+			case WEST:
+				FloorData->Sign_position = NORTH;
+				break;
+			case SOUTH:
+				FloorData->Sign_position = WEST;
+				break;
+			case NORTH:
+				FloorData->Sign_position = EAST;
+				break;
+		}
+
+		FloorData->Sign_type = 1;
+
+		Status = AUTOMODE_STATUS_RESUME_TRAVLE;
 	}
 	
 
@@ -548,6 +569,8 @@ void Automode::doWaitingForSignResult() {
 
 void Automode::doResumeTravel() {
 	printf("doResumeTravel() is called.\n");
+
+	FloorData->RedDotRecognize = false;
 
 	robot_operation_manual(ROBOT_OPERATION_DIRECTION_FORWARD);
 	usleep(900000);	// For testing...

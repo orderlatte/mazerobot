@@ -3,6 +3,9 @@
 #include <signal.h>
 #include <iostream>
 #include <unistd.h>
+#include <map>
+#include <fstream>
+
 
 #include "PID.h"
 #include "Servos.h"
@@ -15,21 +18,50 @@
 
 using namespace std;
 
-// Parameters for PID
-#define KP        1.0               // defaut 1.0
-#define KI        0.03             // defaut 0.1
-#define KD        0.001               // defaut 0.0
-#define BASESPEED 10.0               // Range 0-50
-#define M_BASESPEED 6.0               // Range 0-50
-
-#define BASESPEEDFUDGEFACTOR 0.80   // default 1.25
-
-#define MIN_WHEEL_SPEED -50
-#define MAX_WHEEL_SPEED  50
+double pid_kp;
+double pid_ki;
+double pid_kd;
+TPID PID;
 
 
+map<string, float> PID_Param;
 
-static TPID           PID;
+
+void PID_readParameter(void)
+{
+	string tmp;
+	float tmpFloat;
+
+	ifstream inFile("PIDParameter.txt");
+
+	if (inFile.is_open())
+	{
+		while (!inFile.eof()) {
+			inFile >> tmp;
+			inFile >> tmpFloat;
+			PID_Param[tmp] = tmpFloat;
+		}
+		cout << "PIDParameter reading complete!!!" << endl;
+	}
+	else
+	{
+		cerr << "Can't open!!! : PIDParameter.txt" << endl;
+	}
+
+	inFile.close();
+
+	map<string, float>::iterator itr;
+
+	itr = PID_Param.find("pid_kp");
+	if (PID_Param.end() != itr) pid_kp = itr->second;
+
+	itr = PID_Param.find("pid_ki");
+	if (PID_Param.end() != itr) pid_ki = itr->second;
+
+    itr = PID_Param.find("pid_kd");
+	if (PID_Param.end() != itr) pid_kd = itr->second;
+
+}
 
 
 void servos_manager_init(void)
@@ -42,10 +74,11 @@ void servos_manager_init(void)
 		{
 			printf("Open Servos Failed\n");
 		}
+		PID_readParameter();
   
 		ResetServos(); // Set the servos to Center/Stopped
 		sleep(1);      // Wait for the servos to reach position
-		InitPID(PID,KP,KI,KD,BASESPEED,BASESPEEDFUDGEFACTOR) ; //initialize the PID
+		InitPID(PID,pid_kp,pid_ki,pid_kd,BASESPEED,BASESPEEDFUDGEFACTOR) ;
 
 		servos_manager_init_flag = 1;
 	}
@@ -83,7 +116,7 @@ void robot_mode_setting(T_robot_moving_mode robot_moving_mode, float offset)
 	else if(pid_flag == 1)
 	{
 		execute_time = micros() - start_time;
-		if(execute_time > (100*1000))
+		if(execute_time > (50*1000))
 		{
 			pid_flag = 2;
 		}

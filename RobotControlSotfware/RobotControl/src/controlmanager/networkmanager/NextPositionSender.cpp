@@ -91,6 +91,8 @@ void NextPositionSender::SendThread() {
 	tmpPosition = (short *)&statusBuff[4];
 	*tmpPosition = (short)PositionY;
 
+	printf("SendThread() Next position : %d, %d\n", PositionX, PositionY);
+
 	if (WriteDataTcp(TcpConnectedPort,statusBuff,statusBuffSize) != sizeof(statusBuffSize)) {
 		printf("SendThread() is failed!\n");
 		return;

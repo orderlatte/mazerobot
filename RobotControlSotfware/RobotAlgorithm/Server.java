@@ -19,7 +19,7 @@ public class Server {
 		InputStream in = sock.getInputStream();
 		OutputStream out = sock.getOutputStream();
 
-		MazeSolverAlgorithm solver = new MazeSolver_DepthFirst();
+		MazeSolverAlgorithm solver = new MazeSolver_DepthFirst1();
 		solver.init();
 
 		byte[] bytes = new byte[13];
@@ -27,8 +27,9 @@ public class Server {
 			in.read(bytes);
 			System.out.println("==================================");
 			System.out.println("From Robot:" + Client.byteArrayToHex(bytes));
-			process(bytes, out, solver, sock);			
-			if(sock.isClosed()) break;
+			process(bytes, out, solver, sock);
+			if (sock.isClosed())
+				break;
 		}
 	}
 
@@ -53,8 +54,21 @@ public class Server {
 			}
 			break;
 		case 0x9:// reset ø‰√ª
+			switch (bytes[1]) {
+			case 0x01:
+				solver = new MazeSolver_DepthFirst1();
+				break;
+			case 0x02:
+				solver = new MazeSolver_DepthFirst2();
+				break;
+			case 0x03:
+				solver = new MazeSolver_DepthFirst3();
+				break;
+			default:
+				solver = new MazeSolver_DepthFirst1();
+			}
 			solver.init();
-			out.write(MazeSolverAlgorithm.INIT_OK);			
+			out.write(MazeSolverAlgorithm.INIT_OK);
 			out.flush();
 			System.out.println("==============INIT_OK=================");
 			break;
