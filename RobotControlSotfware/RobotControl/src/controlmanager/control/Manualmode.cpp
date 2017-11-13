@@ -20,6 +20,7 @@ static RobotPosition *Position = NULL;
 static AlgorithmController *AlgorithmCtrl = NULL;
 //static T_robot_moving_direction MovingDirection;
 static WallFinder wallData;
+static bool isBackManual = false;
 
 //static std::thread	  *TestingThread=NULL;		// For testing
 
@@ -51,6 +52,7 @@ void Manualmode::doOperation() {
 
 	case MANUALMODE_CMD_BACK:
 		robot_operation_manual(ROBOT_OPERATION_DIRECTION_BACKWARD);
+		isBackManual = true;
 		break;
 
 	case MANUALMODE_CMD_TURN_LEFT:
@@ -63,6 +65,7 @@ void Manualmode::doOperation() {
 
 	case MANUALMODE_CMD_STOP:
 		robot_operation_manual(ROBOT_OPERATION_DIRECTION_STOP);
+		isBackManual = false;
 		break;
 
 	case MANUALMODE_CMD_CELL_MOVED:
@@ -113,6 +116,14 @@ void Manualmode::doOperation() {
 
 void Manualmode::setCommand(T_manualmode_command command) {
 	Command = command;
+}
+
+void Manualmode::stopRobot() {
+	printf("stopRobot() in Manualmode is called.(%d)\n", isBackManual);
+
+	if (isBackManual == false) {
+		robot_operation_manual(ROBOT_OPERATION_DIRECTION_STOP);
+	}
 }
 
 

@@ -22,7 +22,7 @@ using namespace std;
 
 static T_automode_status Status;
 static RobotPosition *Position = NULL;
-static T_robot_moving_direction MovingDirection;
+T_robot_moving_direction MovingDirection;
 static WallFinder wallData;
 static AlgorithmController *AlgorithmCtrl = NULL;
 static bool FullyMappingCompleted;
@@ -239,8 +239,7 @@ void Automode::moveNextCell() {
 void Automode::sendRobotStatusToAlgorithm() {
 //	int point = 0x0; // Starting point, Goal
 
-	printf("position = %d, type = %d\n", FloorData->Sign_position, FloorData->Sign_type);
-	AlgorithmCtrl->SendRobotCell(Position, FloorData->Sign_position, FloorData->Sign_type, FloorData, &wallData, (fp_ewsn_direction_result)CallBabckToGetEWSNDirectionAutomode);
+	AlgorithmCtrl->SendRobotCell(Position, FloorData, &wallData, (fp_ewsn_direction_result)CallBabckToGetEWSNDirectionAutomode);
 
 //	TestingThread = new std::thread(&Automode::getTestNextDirectionForTesting, this, &wallData, fpEWSNDirectionCallBack);
 }
@@ -431,6 +430,9 @@ void Automode::doRecognizingSign() {
 	static unsigned char recognize_wall_cnt;
 	
 	int positon;
+	int redDotindex = 0;
+	int nextPositionX = 0;
+	int nextPositionY = 0;
 	
 
 	if(recognize_state == 0)
@@ -445,11 +447,15 @@ void Automode::doRecognizingSign() {
 	}
 	else if(recognize_state == 2)
 	{
-		if(micros() - recognize_start_time > (200*1000))
+		if(micros() - recognize_start_time > (450*1000))
 		{
 			robot_operation_manual(ROBOT_OPERATION_DIRECTION_STOP);
 			recognize_start_time = micros();
 			recognize_state = 3;
+		}
+		else if(micros() - recognize_start_time > (400*1000))
+		{
+			robot_operation_manual(ROBOT_OPERATION_DIRECTION_LEFT);
 		}
 	}
 	else if(recognize_state == 3)
@@ -526,6 +532,11 @@ void Automode::doRecognizingSign() {
 		Status = AUTOMODE_STATUS_RESUME_TRAVLE;
 		recognize_state = 0;
 		recognize_wall_cnt = 0;
+
+		Position->GetNextPosition(&nextPositionX, &nextPositionY);
+		if (FloorData->setRedDotSign(nextPositionX, nextPositionY) == false) {
+			printf("doRecognizingSign() - setRedDotSign() is failed! (%d, %d)\n", nextPositionX, nextPositionY);
+		}
 	}
 
 	if(recognize_wall_cnt > 3)
@@ -549,10 +560,18 @@ void Automode::doRecognizingSign() {
 		}
 
 		FloorData->Sign_type = 1;
-
+		robot_operation_cam_manual(ROBOT_CAM_DIRECTION_LINE);
 		Status = AUTOMODE_STATUS_RESUME_TRAVLE;
+		recognize_state = 0;
+		recognize_wall_cnt = 0;
+
+		Position->GetNextPosition(&nextPositionX, &nextPositionY);
+		if (FloorData->setRedDotSign(nextPositionX, nextPositionY) == false) {
+			printf("doRecognizingSign() - setRedDotSign() is failed! (%d, %d)\n", nextPositionX, nextPositionY);
+		}
 	}
 	
+
 
 	#endif //UBUNTU
 
@@ -562,8 +581,6 @@ void Automode::doWaitingForSignResult() {
 	// Do nothing...
 
 	printf("doWaitingForSignResult() is called.\n");
-
-	// TODO: Below code should be move to thread callback
 	Status = AUTOMODE_STATUS_RESUME_TRAVLE;
 }
 
@@ -573,7 +590,7 @@ void Automode::doResumeTravel() {
 	FloorData->RedDotRecognize = false;
 
 	robot_operation_manual(ROBOT_OPERATION_DIRECTION_FORWARD);
-	usleep(900000);	// For testing...
+	usleep(1300000);	// For testing...
 	robot_operation_manual(ROBOT_OPERATION_DIRECTION_STOP);
 
 	Position->SuccessToMove();

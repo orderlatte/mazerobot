@@ -68,27 +68,30 @@ static Manualmode     *ManualmodeRobot = NULL;
 static AlgorithmController *AlgorithmCtrl = NULL;
 static bool 		  toggle_mode_debug = false;
 static bool			  isResumeAutomode = false;
+//static bool			  isGoalFound = false;
 static FloorFinder	  *FloorData = NULL;
 static StartingPoint  *StartingData = NULL;
 static UiCmdHandler   *UiCmd = NULL;
 static NextPositionSender	 *PositionSender = NULL;
 float	      		  ImageOffset = 0.0;	// computed robot deviation from the line
 int 			      linewidth = 0;
+extern T_robot_moving_direction MovingDirection;
+
 
 static void  Setup_Control_C_Signal_Handler_And_Keyboard_No_Enter(void);
 static void  CleanUp(void);
 static void  Control_C_Handler(int s);
 static void  HandleInputChar();
-static void  stopRobot(T_sensor_type sensorType);
+static void  stopRobot(T_sensor_type sensorType, int distance);
 static void  avoidLeftWall();
 static void  avoidRightWall();
 static T_robot_image_info getImageOffset();
 void creat_image_capture_thread(FloorFinder *floorData);
-void CallBackHandleUiCommand (T_ui_command command);
+void CallBackHandleUiCommand(T_ui_command command);
 void CallBackAutomodeFail();
 void recognizeFloor(RobotVisionManager *rvm, FloorFinder *floorData);
 void CallBackNetworkDisconnected();
-void CallBackReset();
+void CallBackReset(unsigned char algorithm);
 
 //extern static void CallBackRobotTurned();
 //extern static void CallBackRobotMoved();
@@ -218,21 +221,23 @@ void CallBackNetworkDisconnected() {
 	CurrentStatus = ROBOT_STATUS_SUSPEND;
 }
 
-void CallBackReset() {
+void CallBackReset(unsigned char algorithm) {
 	printf("CallBackReset() is called!\n");
 
-	robot_operation_manual(ROBOT_OPERATION_DIRECTION_STOP);
 	CurrentStatus = ROBOT_STATUS_MANUAL;
 
-	AlgorithmCtrl->Reset();
+	AlgorithmCtrl->Reset(algorithm);
 	AutomodeRobot->init();
 	ManualmodeRobot->init();
 	StartingData->reset(CurrentPosition.GetCurrentEWSNDirection(), CurrentPosition.GetX(), CurrentPosition.GetY());
 	CurrentPosition.Init();
 	toggle_mode_debug = false;
 	isResumeAutomode = false;
+//	isGoalFound = false;
 	FloorData->reset();
 	PositionSender->Init();
+	ImageOffset = 0.0;
+	linewidth = 0;
 }
 
 void CallBackHandleUiCommand (T_ui_command command) {
@@ -504,16 +509,20 @@ static void HandleInputChar()
   }
 }
 
-static void stopRobot(T_sensor_type sensorType)
+static void stopRobot(T_sensor_type sensorType, int distance)
 {
-	printf("stopRobot(%d) is called!!\n", sensorType);
+	printf("stopRobot(%d) is called!!. distance: %d\n", sensorType, distance);
 
 	switch (sensorType) {
 	case SENSOR_TYPE_SONAR:
 		if (CurrentStatus == ROBOT_STATUS_AUTO) {
-			AutomodeRobot->stopRobot();
+			if (distance <= 4) {
+				AutomodeRobot->stopRobot();
+			}
 		} else {
-			robot_operation_manual(ROBOT_OPERATION_DIRECTION_STOP);
+			if (distance <= 4) {
+				ManualmodeRobot->stopRobot();
+			}
 		}
 		break;
 
@@ -569,8 +578,15 @@ void *image_capture_thread(void *value) {
 		{
 			rvm.GetCamImage(image);  // Get Camera image
 			if (IsPi3 == true) flip(image, image,-1);       // if running on PI3 flip(-1)=180 degrees
-	
-			ImageOffset=rvm.FindLineInImageAndComputeOffsetAndWidth(image, linewidth);
+
+			if(MovingDirection == ROBOT_MOVING_DIRECTION_FORWARD)
+			{
+				ImageOffset=rvm.FindLineInImageAndComputeOffsetAndWidth_OTSU(image, linewidth);
+			}
+			else
+			{
+				ImageOffset=rvm.FindLineInImageAndComputeOffsetAndWidth(image, linewidth);
+			}
 	
 			if (linewidth > 190) {
 				recognizeFloor(&rvm, floor);
@@ -609,19 +625,19 @@ void *image_capture_thread(void *value) {
 }
 
 void recognizeFloor(RobotVisionManager *rvm, FloorFinder *floorData) {
+	int positionX = 0;
+	int positionY = 0;
 	cv::Mat redDotImage;
 	cv::Mat goalImage;
 
 	floorData->init();
+	CurrentPosition.GetNextPosition(&positionX, &positionY);
 
 	// Get new floor image to find red dot
 	rvm->GetCamImage(redDotImage);
 	if (IsPi3 == true) flip(redDotImage, redDotImage,-1);       // if running on PI3 flip(-1)=180 degrees
 	if (rvm->FindRedDot(redDotImage) == true) {
 //		printf("recognizeFloor() - Red dot is here!\n");
-		int positionX = 0;
-		int positionY = 0;
-		CurrentPosition.GetNextPosition(&positionX, &positionY);
 
 		if (floorData->isAlreadyFoundedRedDot(positionX, positionY) == false) {
 			floorData->RedDot = true;
@@ -631,12 +647,16 @@ void recognizeFloor(RobotVisionManager *rvm, FloorFinder *floorData) {
 		}
 	}
 
-	// Get new floor image to find goal
-	rvm->GetCamImage(goalImage);
-	if (IsPi3 == true) flip(goalImage, goalImage,-1);       // if running on PI3 flip(-1)=180 degrees
-	if (rvm->FindGoalArea(goalImage) == true) {
-//		printf("recognizeFloor() - Goal is here!\n");
-		floorData->Goal = true;
+	if (floorData->isAlreadyFoundedGoal(positionX, positionY) == false) {
+		// Get new floor image to find goal
+		rvm->GetCamImage(goalImage);
+		if (IsPi3 == true) flip(goalImage, goalImage,-1);       // if running on PI3 flip(-1)=180 degrees
+		if (rvm->FindGoalArea(goalImage) == true) {
+	//		printf("recognizeFloor() - Goal is here!\n");
+//			floorData->Goal = true;
+//			isGoalFound = true;
+			floorData->setGoalPosition(positionX, positionY);
+		}
 	}
 }
 

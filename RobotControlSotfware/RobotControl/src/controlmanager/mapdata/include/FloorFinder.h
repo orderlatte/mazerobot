@@ -20,12 +20,18 @@ typedef struct
 	int wallPosition;
 } T_red_dots;
 
+typedef struct
+{
+	int positionX;
+	int positionY;
+} T_goal;
+
 class FloorFinder {
 
 public:
 	bool RedDot;
 //	bool StartingPoint;
-	bool Goal;
+//	bool Goal;
 	bool RedDotRecognize;
 	int Sign_type;
 	int Sign_position;
@@ -37,8 +43,11 @@ public:
 	void reset();
 	void setRedDotPosition(int positionX, int positionY);
 	void setRedDotSign(int index, int type, int wallPosition);
+	bool setRedDotSign(int positionX, int positionY);
 	int getRedDotSign(int positionX, int positionY, int *type, int *wallPosition);
 	bool isAlreadyFoundedRedDot(int positionX, int positionY);
+	void setGoalPosition(int positionX, int positionY);
+	bool isAlreadyFoundedGoal(int positionX, int positionY);
 };
 
 

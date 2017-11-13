@@ -42,8 +42,8 @@ private:
 
 public:
 	AlgorithmController(StartingPoint *starting);
-	void SendRobotCell(RobotPosition *robotPosition, int signPosition, int signType, FloorFinder *floor, WallFinder *wall, fp_ewsn_direction_result fp);
-	void Reset();
+	void SendRobotCell(RobotPosition *robotPosition, FloorFinder *floor, WallFinder *wall, fp_ewsn_direction_result fp);
+	void Reset(unsigned char algorithm);
 	bool Open();
 	void Close();
 	fp_getMap GetMapFP();
@@ -51,7 +51,7 @@ public:
 private:
 	int GetNextDirection(unsigned char direction);
 	T_algorithm_result GetResultFromAlgorithm(unsigned char result);
-	void SendRobotCellThread(RobotPosition *robotPosition, int signPosition, int signType, FloorFinder *floor, WallFinder *wall, fp_ewsn_direction_result fp);
+	void SendRobotCellThread(RobotPosition *robotPosition, FloorFinder *floor, WallFinder *wall, fp_ewsn_direction_result fp);
 };
 
 
