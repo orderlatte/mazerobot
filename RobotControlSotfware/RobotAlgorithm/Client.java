@@ -53,6 +53,7 @@ public class Client {
 		// test(true, false, false, true, (byte) 6, (byte) 3);// 6
 
 		test(0, 1, 1, 0,(byte)5,(byte)5);// 1
+		test(0, 1, 1, 0,(byte)5,(byte)5);// 1 ==> 이동못하고 같은 장소 다시 보내는 상황
 		test(0, 0, 1, 0,(byte)6,(byte)5);// 2
 		test(0, 0, 1, 0,(byte)7,(byte)5);// 3
 		test(1, 0, 1, 0,(byte)8,(byte)5);// 4

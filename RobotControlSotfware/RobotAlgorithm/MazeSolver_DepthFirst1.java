@@ -5,36 +5,37 @@ import java.util.Set;
 
 import robot_algorithm.Cell.DirectionWallSet;
 
-public class MazeSolver_DepthFirst implements MazeSolverAlgorithm {
+//eswn
+public class MazeSolver_DepthFirst1 implements MazeSolverAlgorithm {
 
 	private Maze maze;
 	private Set<Node> unvisitedNodes;
 	private Set<Node> visitedNodes;
-	private byte[] oldDirectionTogo;
-	private Position oldPositionTogo;
+	private byte[] directionTogo;//다음갈방향
+	private Position positionTogo;//다음갈포지션	
+	private Position curPosition;//현재 위치
 
 	@Override
 	public void init() {
 		this.maze = new Maze();
 		unvisitedNodes = new HashSet<>();
 		visitedNodes = new HashSet<>();
-		oldDirectionTogo = null;
-		oldPositionTogo = null;
+		directionTogo = null;
+		positionTogo = null;
+		curPosition = null;
 	}
 
-	// <<트래버설 알고리즘>>
-	// 1.동서남북 순서로 안간곳이면 거기로 간다
-	// 1-1 이동할때 큐에 있는 곳으로 가면 해당 큐애 있느 노드를 가져와서 사용(큐에서는 삭제)
-	// 2.동서남북이 막혀있거나 간곳이면 부모로 돌아간다.
-	// <<fully mapping 알고리즘>>
-	// 각셀에서안간방향이남아있으면해당셀을큐에넣어둔다.
-	// 노드방문시큐에있는셀이면해당셀삭제한다
-	// 갈곳이없어서부모로돌아갈때위큐가비어있다면 풀리매핑!
 	@Override
 	public byte[] getNext() {
 		Position p = new Position(maze.getPositionOfRobot());
 		System.out.println("Current Position :" + p);
-		if (oldPositionTogo != null && !oldPositionTogo.equals(p))
+		
+		//지난번과 같은 셀 정보를 또 보낼경우에 다시 같은 방향을 알려준다
+		if(this.curPosition != null && this.curPosition.equals(p) && this.directionTogo != null)
+			return directionTogo;
+		
+		//지난번에 가라고 한 방향과 다른 셀로 갔을 경우 에러를 리턴한다.
+		if (positionTogo != null && !positionTogo.equals(p))
 			return ERROR;
 
 		Node curNode = getExistNode(p);
@@ -97,20 +98,22 @@ public class MazeSolver_DepthFirst implements MazeSolverAlgorithm {
 			if (this.unvisitedNodes.size() == 0) {// fully mapping 완료
 				return FULLYMAPPED;
 			} else {// 부모노드로 back 이동
-				oldDirectionTogo = curNode.getParentDirectionAsByte();
-				oldPositionTogo = curNode.parent.position;
-				return oldDirectionTogo;
+				directionTogo = curNode.getParentDirectionAsByte();
+				positionTogo = curNode.parent.position;
+				curPosition = curNode.position;
+				return directionTogo;
 			}
 		} else {// 새로운 노드로 이동
 			curNode.chilren.add(togo);
 			togo.parent = curNode;
-			oldDirectionTogo = togoValue;
-			oldPositionTogo = togo.position;
+			directionTogo = togoValue;
+			positionTogo = togo.position;
+			curPosition = curNode.position;
 			return togoValue;
 		}
 	}
 
-	public Node getExistNode(Position p) {
+	private Node getExistNode(Position p) {
 		Node node = getNodeFromSet(p, unvisitedNodes);
 		if (node == null)
 			node = getNodeFromSet(p, visitedNodes);
@@ -130,51 +133,4 @@ public class MazeSolver_DepthFirst implements MazeSolverAlgorithm {
 	public Maze getMaze() {
 		return this.maze;
 	}
-}
-
-class Node {
-	Position position;
-	boolean visited = false;
-	Node parent;
-	Set<Node> chilren = new HashSet<>();
-
-	public Node() {
-	}
-
-	public Node(Position p) {
-		position = p;
-	}
-
-	public byte[] getParentDirectionAsByte() {
-		int px = parent.position.x;
-		int py = parent.position.y;
-		if (px == position.x) {
-			if (py > position.y)
-				return MazeSolverAlgorithm.SOUTH;
-			else
-				return MazeSolverAlgorithm.NORTH;
-		} else {
-			if (px > position.x)
-				return MazeSolverAlgorithm.EAST;
-			else
-				return MazeSolverAlgorithm.WEST;
-		}
-	}
-
-	@Override
-	public int hashCode() {
-		return position.hashCode();
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		Position p = ((Node) obj).position;
-		return this.position.equals(p);
-	}
-
-	@Override
-	public String toString() {
-		return "Node[" + position;
-	}
-
 }
