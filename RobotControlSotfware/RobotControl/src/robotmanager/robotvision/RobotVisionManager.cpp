@@ -150,7 +150,7 @@ float RobotVisionManager::FindLineInImageAndComputeOffset(cv::Mat& cameraimg)
 
 float RobotVisionManager::FindLineInImageAndComputeOffsetAndWidth(cv::Mat& cameraimg, int& selectedWidth)
 {
-	return m_detector->FindLineInImageAndComputeOffsetAndWidth(cameraimg, selectedWidth, m_bDebug);
+	return m_detector->FindLineInImageAndComputeOffsetAndWidth(cameraimg, selectedWidth,m_bDebug);
 }
 
 void RobotVisionManager::SetDebug(bool bDebug)
