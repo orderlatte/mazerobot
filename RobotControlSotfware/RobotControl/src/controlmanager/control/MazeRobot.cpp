@@ -82,7 +82,7 @@ static void  Setup_Control_C_Signal_Handler_And_Keyboard_No_Enter(void);
 static void  CleanUp(void);
 static void  Control_C_Handler(int s);
 static void  HandleInputChar();
-static void  stopRobot(T_sensor_type sensorType);
+static void  stopRobot(T_sensor_type sensorType, int distance);
 static void  avoidLeftWall();
 static void  avoidRightWall();
 static T_robot_image_info getImageOffset();
@@ -509,16 +509,20 @@ static void HandleInputChar()
   }
 }
 
-static void stopRobot(T_sensor_type sensorType)
+static void stopRobot(T_sensor_type sensorType, int distance)
 {
-	printf("stopRobot(%d) is called!!\n", sensorType);
+	printf("stopRobot(%d) is called!!. distance: %d\n", sensorType, distance);
 
 	switch (sensorType) {
 	case SENSOR_TYPE_SONAR:
 		if (CurrentStatus == ROBOT_STATUS_AUTO) {
-			AutomodeRobot->stopRobot();
+			if (distance <= 5) {
+				AutomodeRobot->stopRobot();
+			}
 		} else {
-			ManualmodeRobot->stopRobot();
+			if (distance <= 4) {
+				ManualmodeRobot->stopRobot();
+			}
 		}
 		break;
 

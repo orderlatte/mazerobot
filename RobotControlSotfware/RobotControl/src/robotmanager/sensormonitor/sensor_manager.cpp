@@ -42,9 +42,9 @@ void *sonar_thread(void *value) {
 	while (1) {
 		sensor_data.sonar_distance = sonar();
 
-		if (sensor_data.sonar_distance < 4 && sensor_data.sonar_distance > 0) {	// Below 2 cm
+		if (sensor_data.sonar_distance < 5 && sensor_data.sonar_distance > 0) {	// Below 5 cm
 			printf("sonar_distance: %ld\n", sensor_data.sonar_distance);
-			stopRobot(SENSOR_TYPE_SONAR);
+			stopRobot(SENSOR_TYPE_SONAR, sensor_data.sonar_distance);
 		}
 	}
 }
@@ -60,12 +60,12 @@ void *laser_thread(void *value) {
 
 		if (sensor_data.laser_left_distance < 40 && sensor_data.laser_left_distance > 0) {	// Below 40mm (4cm)
 			printf("laser_left_distance: %d\n", sensor_data.laser_left_distance);
-			stopRobot(SENSOR_TYPE_LASER_LEFT);
+			stopRobot(SENSOR_TYPE_LASER_LEFT, sensor_data.laser_left_distance);
 		}
 
 		if (sensor_data.laser_right_distance < 40  && sensor_data.laser_right_distance > 0) {	// Below 40mm (4cm)
 			printf("laser_right_distance: %d\n", sensor_data.laser_right_distance);
-			stopRobot(SENSOR_TYPE_LASER_RIGHT);
+			stopRobot(SENSOR_TYPE_LASER_RIGHT, sensor_data.laser_right_distance);
 		}
 	}
 }
