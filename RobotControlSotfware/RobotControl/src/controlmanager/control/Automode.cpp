@@ -530,8 +530,27 @@ void Automode::doRecognizingSign() {
 
 	if(recognize_wall_cnt > 3)
 	{
-		fpAutomodeFail();
-		Status = AUTOMODE_STATUS_READY;
+//		fpAutomodeFail();
+		positon = Position->GetNextEWSNDirection();
+		switch(positon)
+		{
+			case EAST:
+				FloorData->Sign_position = SOUTH;
+				break;
+			case WEST:
+				FloorData->Sign_position = NORTH;
+				break;
+			case SOUTH:
+				FloorData->Sign_position = WEST;
+				break;
+			case NORTH:
+				FloorData->Sign_position = EAST;
+				break;
+		}
+
+		FloorData->Sign_type = 1;
+
+		Status = AUTOMODE_STATUS_RESUME_TRAVLE;
 	}
 	
 

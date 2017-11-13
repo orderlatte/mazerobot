@@ -231,7 +231,7 @@ void CallBackReset() {
 	CurrentPosition.Init();
 	toggle_mode_debug = false;
 	isResumeAutomode = false;
-	FloorData->init();
+	FloorData->reset();
 	PositionSender->Init();
 }
 
@@ -625,7 +625,7 @@ void recognizeFloor(RobotVisionManager *rvm, FloorFinder *floorData) {
 
 		if (floorData->isAlreadyFoundedRedDot(positionX, positionY) == false) {
 			floorData->RedDot = true;
-			floorData->Sign_type= 0;
+			floorData->Sign_type = 0;
 			floorData->RedDotRecognize = true;
 			floorData->setRedDotPosition(positionX, positionY);
 		}

@@ -16,7 +16,9 @@ typedef struct
 {
 	int positionX;
 	int positionY;
-} T_red_dot_position;
+	int type;
+	int wallPosition;
+} T_red_dots;
 
 class FloorFinder {
 
@@ -27,15 +29,15 @@ public:
 	bool RedDotRecognize;
 	int Sign_type;
 	int Sign_position;
-	T_red_dot_position RedDots[RED_DOT_MAX];
-	int RedDotCount;
-	
 
 public:
 	FloorFinder();
 	void printDebug();
 	void init();
+	void reset();
 	void setRedDotPosition(int positionX, int positionY);
+	void setRedDotSign(int index, int type, int wallPosition);
+	int getRedDotSign(int positionX, int positionY, int *type, int *wallPosition);
 	bool isAlreadyFoundedRedDot(int positionX, int positionY);
 };
 

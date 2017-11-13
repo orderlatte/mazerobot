@@ -67,6 +67,9 @@ void AlgorithmController::SendRobotCellThread(RobotPosition *robotPosition, int 
 	int NextEWSNDirection = NORTH;
 	T_algorithm_result Result = ALGORITHM_RESULT_ERROR;
 	int index = 0;
+	int redDotIndex = 0;
+	int sign_type = 0;
+	int sign_wall_position = 0;
 //	T_SensorData sensorData = {0, };
 
 	// To prevent race condition
@@ -83,7 +86,7 @@ void AlgorithmController::SendRobotCellThread(RobotPosition *robotPosition, int 
 
 	// Robot Cell
 	robotCellBuff[1] = (unsigned char) CurrentEWSNDirection;	// robot EWSN direction
-	robotCellBuff[2] = (unsigned char)signPosition; // TODO: sign position
+
 
 	// Goal position
 	if (floor->Goal == true) {
@@ -98,10 +101,26 @@ void AlgorithmController::SendRobotCellThread(RobotPosition *robotPosition, int 
 		robotCellBuff[3] = 0x00;
 	}
 
-	robotCellBuff[4] = (unsigned char)signType; // TODO: sign type
+	redDotIndex = floor->getRedDotSign(robotPosition->GetX(), robotPosition->GetY(), &sign_type, &sign_wall_position);
+	if (redDotIndex < 0) {
+		robotCellBuff[2] = (unsigned char) 0x0;
+		robotCellBuff[4] = (unsigned char) 0x0;
 
-	robotCellBuff[5] = (unsigned char) floor->RedDot;
-	floor->RedDot = false;
+		robotCellBuff[5] = (unsigned char) 0x0;
+		floor->RedDot = false;
+	} else {
+		if ((sign_type == 0) || (sign_wall_position == 0)) {
+			robotCellBuff[2] = (unsigned char) signPosition;
+			robotCellBuff[4] = (unsigned char) signType;
+			floor->setRedDotSign(redDotIndex, signType, signPosition);
+		} else {
+			robotCellBuff[2] = (unsigned char) sign_wall_position;
+			robotCellBuff[4] = (unsigned char) sign_type;
+		}
+
+		robotCellBuff[5] = (unsigned char) 0x1;
+		floor->RedDot = false;
+	}
 
 	robotCellBuff[6] = wall->getCheckedWalls(CurrentEWSNDirection);
 	robotCellBuff[7] = wall->getBlockedWalls(CurrentEWSNDirection);
