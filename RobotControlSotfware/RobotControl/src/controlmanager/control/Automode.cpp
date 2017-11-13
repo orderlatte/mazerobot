@@ -22,7 +22,7 @@ using namespace std;
 
 static T_automode_status Status;
 static RobotPosition *Position = NULL;
-static T_robot_moving_direction MovingDirection;
+T_robot_moving_direction MovingDirection;
 static WallFinder wallData;
 static AlgorithmController *AlgorithmCtrl = NULL;
 static bool FullyMappingCompleted;

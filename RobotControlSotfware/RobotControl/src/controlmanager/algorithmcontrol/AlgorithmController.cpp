@@ -89,9 +89,12 @@ void AlgorithmController::SendRobotCellThread(RobotPosition *robotPosition, int 
 	// Robot Cell
 	robotCellBuff[1] = (unsigned char) CurrentEWSNDirection;	// robot EWSN direction
 
+
 	currentPositionX = robotPosition->GetX();
 	currentPositionY = robotPosition->GetY();
-
+	
+	robotCellBuff[3] = 0x00;
+	
 	// Goal position
 	if (floor->isAlreadyFoundedGoal(currentPositionX, currentPositionY) == true) {
 		robotCellBuff[3] = 0x02;
@@ -101,7 +104,7 @@ void AlgorithmController::SendRobotCellThread(RobotPosition *robotPosition, int 
 	if (StartingData->isStartingPoint(currentPositionX, currentPositionY) == true) {
 		robotCellBuff[3] = 0x01;
 	} else {
-		robotCellBuff[3] = 0x00;
+		;//robotCellBuff[3] = 0x00;
 	}
 
 	redDotIndex = floor->getRedDotSign(currentPositionX, currentPositionY, &sign_type, &sign_wall_position);

@@ -75,6 +75,8 @@ static UiCmdHandler   *UiCmd = NULL;
 static NextPositionSender	 *PositionSender = NULL;
 float	      		  ImageOffset = 0.0;	// computed robot deviation from the line
 int 			      linewidth = 0;
+extern T_robot_moving_direction MovingDirection;
+
 
 static void  Setup_Control_C_Signal_Handler_And_Keyboard_No_Enter(void);
 static void  CleanUp(void);
@@ -572,8 +574,15 @@ void *image_capture_thread(void *value) {
 		{
 			rvm.GetCamImage(image);  // Get Camera image
 			if (IsPi3 == true) flip(image, image,-1);       // if running on PI3 flip(-1)=180 degrees
-	
-			ImageOffset=rvm.FindLineInImageAndComputeOffsetAndWidth(image, linewidth);
+
+			if(MovingDirection == ROBOT_MOVING_DIRECTION_FORWARD)
+			{
+				ImageOffset=rvm.FindLineInImageAndComputeOffsetAndWidth_OTSU(image, linewidth);
+			}
+			else
+			{
+				ImageOffset=rvm.FindLineInImageAndComputeOffsetAndWidth(image, linewidth);
+			}
 	
 			if (linewidth > 190) {
 				recognizeFloor(&rvm, floor);

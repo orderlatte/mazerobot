@@ -42,7 +42,7 @@ void *sonar_thread(void *value) {
 	while (1) {
 		sensor_data.sonar_distance = sonar();
 
-		if (sensor_data.sonar_distance < 2 && sensor_data.sonar_distance > 0) {	// Below 2 cm
+		if (sensor_data.sonar_distance < 4 && sensor_data.sonar_distance > 0) {	// Below 2 cm
 			printf("sonar_distance: %ld\n", sensor_data.sonar_distance);
 			stopRobot(SENSOR_TYPE_SONAR);
 		}
