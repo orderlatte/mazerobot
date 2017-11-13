@@ -57,6 +57,19 @@ void FloorFinder::setRedDotSign(int index, int type, int wallPosition) {
 	RedDots[index].wallPosition = wallPosition;
 }
 
+bool FloorFinder::setRedDotSign(int positionX, int positionY) {
+	int index;
+	for (index = 0; index < RedDotCount; index++) {
+		if ((positionX == RedDots[index].positionX) && (positionY == RedDots[index].positionY)) {
+			RedDots[index].type = Sign_type;
+			RedDots[index].wallPosition = Sign_position;
+			return true;
+		}
+	}
+
+	return false;
+}
+
 int FloorFinder::getRedDotSign(int positionX, int positionY, int *type, int *wallPosition) {
 	int index;
 	for (index = 0; index < RedDotCount; index++) {

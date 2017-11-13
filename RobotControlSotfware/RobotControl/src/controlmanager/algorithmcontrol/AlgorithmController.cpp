@@ -57,11 +57,11 @@ bool AlgorithmController::Open() {
 	return true;
 }
 
-void AlgorithmController::SendRobotCell(RobotPosition *robotPosition, int signPosition, int signType, FloorFinder *floor, WallFinder *wall, fp_ewsn_direction_result fp) {
-	TestingThread = new std::thread(&AlgorithmController::SendRobotCellThread, this, robotPosition, signPosition, signType, floor, wall, fp);
+void AlgorithmController::SendRobotCell(RobotPosition *robotPosition, FloorFinder *floor, WallFinder *wall, fp_ewsn_direction_result fp) {
+	TestingThread = new std::thread(&AlgorithmController::SendRobotCellThread, this, robotPosition, floor, wall, fp);
 }
 
-void AlgorithmController::SendRobotCellThread(RobotPosition *robotPosition, int signPosition, int signType, FloorFinder *floor, WallFinder *wall, fp_ewsn_direction_result fp) {
+void AlgorithmController::SendRobotCellThread(RobotPosition *robotPosition, FloorFinder *floor, WallFinder *wall, fp_ewsn_direction_result fp) {
 	int CurrentEWSNDirection = robotPosition->GetCurrentEWSNDirection();
 	short *tmpPosition = 0x00;
 	int NextEWSNDirection = NORTH;
@@ -111,22 +111,14 @@ void AlgorithmController::SendRobotCellThread(RobotPosition *robotPosition, int 
 	if (redDotIndex < 0) {
 		robotCellBuff[2] = (unsigned char) 0x0;
 		robotCellBuff[4] = (unsigned char) 0x0;
-
 		robotCellBuff[5] = (unsigned char) 0x0;
-		floor->RedDot = false;
 	} else {
-		if ((sign_type == 0) || (sign_wall_position == 0)) {
-			robotCellBuff[2] = (unsigned char) signPosition;
-			robotCellBuff[4] = (unsigned char) signType;
-			floor->setRedDotSign(redDotIndex, signType, signPosition);
-		} else {
-			robotCellBuff[2] = (unsigned char) sign_wall_position;
-			robotCellBuff[4] = (unsigned char) sign_type;
-		}
-
+		robotCellBuff[2] = (unsigned char) sign_wall_position;
+		robotCellBuff[4] = (unsigned char) sign_type;
 		robotCellBuff[5] = (unsigned char) 0x1;
-		floor->RedDot = false;
 	}
+
+	floor->RedDot = false;
 
 	robotCellBuff[6] = wall->getCheckedWalls(CurrentEWSNDirection);
 	robotCellBuff[7] = wall->getBlockedWalls(CurrentEWSNDirection);

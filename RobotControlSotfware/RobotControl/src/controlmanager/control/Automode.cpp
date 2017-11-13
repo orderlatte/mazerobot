@@ -239,8 +239,7 @@ void Automode::moveNextCell() {
 void Automode::sendRobotStatusToAlgorithm() {
 //	int point = 0x0; // Starting point, Goal
 
-	printf("position = %d, type = %d\n", FloorData->Sign_position, FloorData->Sign_type);
-	AlgorithmCtrl->SendRobotCell(Position, FloorData->Sign_position, FloorData->Sign_type, FloorData, &wallData, (fp_ewsn_direction_result)CallBabckToGetEWSNDirectionAutomode);
+	AlgorithmCtrl->SendRobotCell(Position, FloorData, &wallData, (fp_ewsn_direction_result)CallBabckToGetEWSNDirectionAutomode);
 
 //	TestingThread = new std::thread(&Automode::getTestNextDirectionForTesting, this, &wallData, fpEWSNDirectionCallBack);
 }
@@ -431,6 +430,9 @@ void Automode::doRecognizingSign() {
 	static unsigned char recognize_wall_cnt;
 	
 	int positon;
+	int redDotindex = 0;
+	int nextPositionX = 0;
+	int nextPositionY = 0;
 	
 
 	if(recognize_state == 0)
@@ -530,6 +532,11 @@ void Automode::doRecognizingSign() {
 		Status = AUTOMODE_STATUS_RESUME_TRAVLE;
 		recognize_state = 0;
 		recognize_wall_cnt = 0;
+
+		Position->GetNextPosition(&nextPositionX, &nextPositionY);
+		if (FloorData->setRedDotSign(nextPositionX, nextPositionY) == false) {
+			printf("doRecognizingSign() - setRedDotSign() is failed! (%d, %d)\n", nextPositionX, nextPositionY);
+		}
 	}
 
 	if(recognize_wall_cnt > 3)
@@ -557,8 +564,14 @@ void Automode::doRecognizingSign() {
 		Status = AUTOMODE_STATUS_RESUME_TRAVLE;
 		recognize_state = 0;
 		recognize_wall_cnt = 0;
+
+		Position->GetNextPosition(&nextPositionX, &nextPositionY);
+		if (FloorData->setRedDotSign(nextPositionX, nextPositionY) == false) {
+			printf("doRecognizingSign() - setRedDotSign() is failed! (%d, %d)\n", nextPositionX, nextPositionY);
+		}
 	}
 	
+
 
 	#endif //UBUNTU
 

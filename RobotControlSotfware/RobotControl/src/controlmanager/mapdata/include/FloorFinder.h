@@ -43,6 +43,7 @@ public:
 	void reset();
 	void setRedDotPosition(int positionX, int positionY);
 	void setRedDotSign(int index, int type, int wallPosition);
+	bool setRedDotSign(int positionX, int positionY);
 	int getRedDotSign(int positionX, int positionY, int *type, int *wallPosition);
 	bool isAlreadyFoundedRedDot(int positionX, int positionY);
 	void setGoalPosition(int positionX, int positionY);
