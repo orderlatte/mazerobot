@@ -43,7 +43,7 @@ private:
 public:
 	AlgorithmController(StartingPoint *starting);
 	void SendRobotCell(RobotPosition *robotPosition, int signPosition, int signType, FloorFinder *floor, WallFinder *wall, fp_ewsn_direction_result fp);
-	void Reset();
+	void Reset(unsigned char algorithm);
 	bool Open();
 	void Close();
 	fp_getMap GetMapFP();

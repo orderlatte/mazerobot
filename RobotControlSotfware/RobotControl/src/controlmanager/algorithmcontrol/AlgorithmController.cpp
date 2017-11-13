@@ -70,6 +70,8 @@ void AlgorithmController::SendRobotCellThread(RobotPosition *robotPosition, int 
 	int redDotIndex = 0;
 	int sign_type = 0;
 	int sign_wall_position = 0;
+	int currentPositionX = 0;
+	int currentPositionY = 0;
 //	T_SensorData sensorData = {0, };
 
 	// To prevent race condition
@@ -87,21 +89,22 @@ void AlgorithmController::SendRobotCellThread(RobotPosition *robotPosition, int 
 	// Robot Cell
 	robotCellBuff[1] = (unsigned char) CurrentEWSNDirection;	// robot EWSN direction
 
+	currentPositionX = robotPosition->GetX();
+	currentPositionY = robotPosition->GetY();
 
 	// Goal position
-	if (floor->Goal == true) {
+	if (floor->isAlreadyFoundedGoal(currentPositionX, currentPositionY) == true) {
 		robotCellBuff[3] = 0x02;
-		floor->Goal = false;
 	}
 
 	// Starting position
-	if (StartingData->isStartingPoint(robotPosition->GetX(), robotPosition->GetY()) == true) {
+	if (StartingData->isStartingPoint(currentPositionX, currentPositionY) == true) {
 		robotCellBuff[3] = 0x01;
 	} else {
 		robotCellBuff[3] = 0x00;
 	}
 
-	redDotIndex = floor->getRedDotSign(robotPosition->GetX(), robotPosition->GetY(), &sign_type, &sign_wall_position);
+	redDotIndex = floor->getRedDotSign(currentPositionX, currentPositionY, &sign_type, &sign_wall_position);
 	if (redDotIndex < 0) {
 		robotCellBuff[2] = (unsigned char) 0x0;
 		robotCellBuff[4] = (unsigned char) 0x0;
@@ -127,10 +130,10 @@ void AlgorithmController::SendRobotCellThread(RobotPosition *robotPosition, int 
 	robotCellBuff[8] = 0x1;
 
 	tmpPosition = (short *)&robotCellBuff[10];
-	*tmpPosition = (short)robotPosition->GetX();
+	*tmpPosition = (short)currentPositionX;
 
 	tmpPosition = (short *)&robotCellBuff[12];
-	*tmpPosition = (short)robotPosition->GetY();
+	*tmpPosition = (short)currentPositionY;
 
 	// For debugging
 	printf("SendRobotCell() - robotCellBuff: 0x");
@@ -302,9 +305,13 @@ void AlgorithmController::Close() {
 	}
 }
 
-void AlgorithmController::Reset() {
-	unsigned char reset = 0x9;
+void AlgorithmController::Reset(unsigned char algorithm) {
+	int resetSize = sizeof(unsigned char) * 2;
+	unsigned char reset[resetSize] = {0, };
 	unsigned char response = 0x0;
+
+	reset[0] = 0x9;
+	reset[1] = algorithm;
 
 	// To prevent race condition
 	algorithmmutex.lock();
@@ -318,7 +325,7 @@ void AlgorithmController::Reset() {
 		goto cleanup;
 	}
 
-	if (WriteDataTcp(TcpConnectedPort, &reset, sizeof(unsigned char)) == -1) {
+	if (WriteDataTcp(TcpConnectedPort, reset, resetSize) == -1) {
 		printf("Reset() - WriteDataTcp() is failed!\n");
 		goto cleanup;
 	}

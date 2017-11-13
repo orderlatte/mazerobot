@@ -16,6 +16,7 @@ using namespace std;
 
 static T_red_dots RedDots[RED_DOT_MAX] = {0, };
 static int RedDotCount = 0;
+static T_goal GoalPosition = {0, };
 
 
 FloorFinder::FloorFinder() {
@@ -25,7 +26,7 @@ FloorFinder::FloorFinder() {
 void FloorFinder::init() {
 	RedDot = false;
 //	StartingPoint = false;
-	Goal = false;
+//	Goal = false;
 	RedDotRecognize = false;
 	Sign_position = 0;
 	Sign_type = 0;
@@ -35,12 +36,13 @@ void FloorFinder::reset() {
 	init();
 	memset(RedDots, 0x00, sizeof(RedDots));
 	RedDotCount = 0;
+	memset(&GoalPosition, 0x00, sizeof(GoalPosition));
 }
 
 void FloorFinder::printDebug() {
 	printf("RedDot: %d\n", RedDot);
 //	printf("StartingPoint: %d\n", StartingPoint);
-	printf("Goal: %d\n", Goal);
+	printf("Goal: (%d, %d)\n", GoalPosition.positionX, GoalPosition.positionY);
 }
 
 void FloorFinder::setRedDotPosition(int positionX, int positionY) {
@@ -75,6 +77,19 @@ bool FloorFinder::isAlreadyFoundedRedDot(int positionX, int positionY) {
 			printf("(%d, %d) has already red dot!\n", positionX, positionY);
 			return true;
 		}
+	}
+
+	return false;
+}
+
+void FloorFinder::setGoalPosition(int positionX, int positionY) {
+	GoalPosition.positionX = positionX;
+	GoalPosition.positionY = positionY;
+}
+
+bool FloorFinder::isAlreadyFoundedGoal(int positionX, int positionY) {
+	if (GoalPosition.positionX == positionX && GoalPosition.positionY == positionY) {
+		return true;
 	}
 
 	return false;

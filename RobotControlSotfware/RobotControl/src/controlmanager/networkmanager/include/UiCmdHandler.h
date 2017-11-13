@@ -33,7 +33,7 @@ typedef enum
 
 typedef void (*fp_ui_command)(T_ui_command command);
 typedef void (*fp_network_disconnected)(void);
-typedef void (*fp_reset)(void);
+typedef void (*fp_reset)(unsigned char algorithm);
 
 
 class UiCmdHandler {

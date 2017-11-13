@@ -114,7 +114,17 @@ void UiCmdHandler::ParseUiCmd() {
 }
 
 void UiCmdHandler::Reset() {
-	fpReset();
+	switch (cmdBuff[1]) {
+	case 0x1:
+	case 0x2:
+	case 0x3:
+		fpReset(cmdBuff[1]);
+	break;
+
+	default:
+		printf("UiCmdHandler Reset() - It's not supported algorithm.(%d)\n", cmdBuff[1]);
+		break;
+	}
 }
 
 void UiCmdHandler::ParseMode() {

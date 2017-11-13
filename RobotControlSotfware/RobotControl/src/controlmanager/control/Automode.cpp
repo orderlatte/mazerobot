@@ -549,8 +549,10 @@ void Automode::doRecognizingSign() {
 		}
 
 		FloorData->Sign_type = 1;
-
+		robot_operation_cam_manual(ROBOT_CAM_DIRECTION_LINE);
 		Status = AUTOMODE_STATUS_RESUME_TRAVLE;
+		recognize_state = 0;
+		recognize_wall_cnt = 0;
 	}
 	
 
