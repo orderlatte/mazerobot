@@ -21,7 +21,7 @@ static int 				  statusBuffSize;
 static char     		 *Hostname = NULL;
 static char              *Portno = NULL;
 
-//static std::mutex algorithmmutex;
+static std::mutex position_mutex;
 
 NextPositionSender::NextPositionSender(char *hostname, char *portno) {
 	statusBuffSize = sizeof(unsigned char) * 5;
@@ -48,6 +48,9 @@ bool NextPositionSender::Open() {
 		return false;
 	}
 
+	// Send map thread
+	TcpThread = new std::thread(&NextPositionSender::SendThread, this);
+
 	return true;
 }
 
@@ -73,38 +76,50 @@ void NextPositionSender::Close() {
 void NextPositionSender::SendThread() {
 	short *tmpPosition = 0x0;
 
-	if (TcpConnectedPort == NULL) {
-		if (Open() == false) {
-			printf("NextPositionSender::SendThread() - Open() is failed!\n");
-			return;
-		}
-	}
-
-	// For debugging
 	printf("SendThread() - Next Position thread is running!!\n");
 
 	statusBuff[0] = 0x3;
 
-	tmpPosition = (short *)&statusBuff[2];
-	*tmpPosition = (short)PositionX;
+	while (1) {
+		// For debugging
 
-	tmpPosition = (short *)&statusBuff[4];
-	*tmpPosition = (short)PositionY;
+		position_mutex.lock();
 
-	printf("SendThread() Next position : %d, %d\n", PositionX, PositionY);
+		tmpPosition = (short *)&statusBuff[2];
+		*tmpPosition = (short)PositionX;
 
-	if (WriteDataTcp(TcpConnectedPort,statusBuff,statusBuffSize) != sizeof(statusBuffSize)) {
-		printf("SendThread() is failed!\n");
-		return;
+		tmpPosition = (short *)&statusBuff[4];
+		*tmpPosition = (short)PositionY;
+
+		position_mutex.unlock();
+
+		printf("SendThread() Next position : %d, %d\n", PositionX, PositionY);
+
+		if (TcpConnectedPort == NULL) {
+			TcpConnectedPort = OpenTcpConnection((const char *)Hostname, (const char *)Portno);
+		}
+
+		if (TcpConnectedPort == NULL) {
+			printf("NextPositionSender::SendThread() - After WriteDataTcp() - Open() is failed!\n");
+			usleep(500000); // 500 miliseconds
+			continue;
+		}
+
+		if (WriteDataTcp(TcpConnectedPort,statusBuff,statusBuffSize) != sizeof(statusBuffSize)) {
+			printf("NextPositionSender::SendThread() - WriteDataTcp() is failed!\n");
+		}
+
+		usleep(500000); // 500 miliseconds
 	}
 }
 
 void NextPositionSender::SendPosition(int positionX, int positionY) {
+	position_mutex.lock();
+
 	PositionX = positionX;
 	PositionY = positionY;
 
-	// Send map thread
-	TcpThread = new std::thread(&NextPositionSender::SendThread, this);
+	position_mutex.unlock();
 }
 
 

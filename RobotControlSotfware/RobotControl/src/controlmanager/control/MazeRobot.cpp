@@ -518,7 +518,7 @@ static void stopRobot(T_sensor_type sensorType)
 		if (CurrentStatus == ROBOT_STATUS_AUTO) {
 			AutomodeRobot->stopRobot();
 		} else {
-			robot_operation_manual(ROBOT_OPERATION_DIRECTION_STOP);
+			ManualmodeRobot->stopRobot();
 		}
 		break;
 

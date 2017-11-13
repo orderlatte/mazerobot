@@ -60,7 +60,7 @@ void UiCmdHandler::Close() {
 	delete TcpConnectedPort;
 	TcpConnectedPort = NULL;
 
-	CloseTcpListenPort(&TcpListenPort);
+//	CloseTcpListenPort(&TcpListenPort);
 
 	if (cmdBuff != NULL) {
 		free(cmdBuff);
@@ -72,16 +72,18 @@ void UiCmdHandler::HandleUiCmd() {
 	// For debugging
 	printf("HandleUiCmd() - UI command handle thread is running!!\n");
 
-	TcpConnectedPort = AcceptTcpConnection(TcpListenPort, &cli_addr, &clilen);
-	if (TcpConnectedPort == NULL) {
-		printf("HandleUiCmd() - AcceptTcpConnection Failed\n");
-		Close();
-		fpDisconnected();
-		return;
-	}
-
-	while (1)
+	do
 	{
+		if (TcpConnectedPort == NULL) {
+			TcpConnectedPort = AcceptTcpConnection(TcpListenPort, &cli_addr, &clilen);
+			if (TcpConnectedPort == NULL) {
+				printf("HandleUiCmd() - AcceptTcpConnection Failed\n");
+				Close();
+				fpDisconnected();
+				return;
+			}
+		}
+
 		if (ReadDataTcp(TcpConnectedPort, cmdBuff, cmdBuffSize) != cmdBuffSize) {
 			printf("HandleUiCmd() - ReadDataTcp is failed!\n");
 			Close();
@@ -92,7 +94,7 @@ void UiCmdHandler::HandleUiCmd() {
 //		printf("HandleUiCmd() - Received UI command.\n");
 
 		ParseUiCmd();
-	}
+	} while (1);
 }
 
 void UiCmdHandler::ParseUiCmd() {

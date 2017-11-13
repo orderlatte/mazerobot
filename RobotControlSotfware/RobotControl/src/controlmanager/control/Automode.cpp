@@ -564,8 +564,6 @@ void Automode::doWaitingForSignResult() {
 	// Do nothing...
 
 	printf("doWaitingForSignResult() is called.\n");
-
-	// TODO: Below code should be move to thread callback
 	Status = AUTOMODE_STATUS_RESUME_TRAVLE;
 }
 
