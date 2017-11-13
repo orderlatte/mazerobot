@@ -15,6 +15,7 @@ Detector::Detector()
 	m_thresBinary = 50;
 	m_lowerBoundBlue = 60;
 	m_upperBoundBlue = 130;
+	m_binarizationMethod = 1; // treshholding. not OTSU
 }
 
 
@@ -314,8 +315,8 @@ float Detector::FindLineInImageAndComputeOffsetAndWidth(cv::Mat& CameraImage, in
 	GaussianBlur(mono, blur, Size(9, 9), 2, 2); // blur image to remove small irregularities
 	//threshold(blur, thresh, 0, 255, THRESH_BINARY_INV | THRESH_OTSU); //Color thresholding makes image more blacka nd white
 
-	threshold(blur, thresh, m_thresBinary, 255, THRESH_BINARY_INV | THRESH_BINARY); //Color thresholding makes image more blacka nd white
-
+	if(m_binarizationMethod==1) threshold(blur, thresh, m_thresBinary, 255, THRESH_BINARY_INV | THRESH_BINARY); //Color thresholding makes image more blacka nd white
+	else threshold(blur, thresh, 0, 255, THRESH_BINARY_INV | THRESH_OTSU);
 	//IplImage tmpimg = thresh;
 	//int cnt = cvCountNonZero(&tmpimg);  // black pixel
 	//cout << "pixel: " << cnt << endl; 
@@ -506,6 +507,9 @@ void Detector::SetParameter(map<string, float> mParam)
 
 	itr = mParam.find("upperBoundBlue");
 	if (mParam.end() != itr) m_upperBoundBlue = itr->second;
+
+	itr = mParam.find("binaryMethod");
+	if (mParam.end() != itr) m_binarizationMethod = itr->second;
 
 
 }

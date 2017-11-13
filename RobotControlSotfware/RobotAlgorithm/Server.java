@@ -8,6 +8,8 @@ import java.util.Arrays;
 
 public class Server {
 
+	private MazeSolverAlgorithm solver;
+	
 	public Server() throws Exception {
 		System.out.println("Maze Solver Server Ready. Wait on port 31000");
 		Socket sock = new ServerSocket(31000).accept();
@@ -19,21 +21,21 @@ public class Server {
 		InputStream in = sock.getInputStream();
 		OutputStream out = sock.getOutputStream();
 
-		MazeSolverAlgorithm solver = new MazeSolver_DepthFirst1();
+		solver = new MazeSolver_DepthFirst1();
 		solver.init();
 
-		byte[] bytes = new byte[13];
+		byte[] bytes = new byte[1];
 		while (true) {
 			in.read(bytes);
 			System.out.println("==================================");
 			System.out.println("From Robot:" + Client.byteArrayToHex(bytes));
-			process(bytes, out, solver, sock);
+			process(bytes, out, sock);
 			if (sock.isClosed())
 				break;
 		}
 	}
 
-	private void process(byte[] bytes, OutputStream out, MazeSolverAlgorithm solver, Socket sock) throws Exception {
+	private void process(byte[] bytes, OutputStream out, Socket sock) throws Exception {
 
 		switch (bytes[0]) {
 		case 0x1:// full map 요청
@@ -43,7 +45,10 @@ public class Server {
 			break;
 		case 0x4:// 다음 방향 요청
 			try {
-				solver.getMaze().setCell(Arrays.copyOfRange(bytes, 1, 13));
+				byte[] input = new byte[12];
+				sock.getInputStream().read(input);
+				System.out.println("From Robot:" + Client.byteArrayToHex(input));
+				solver.getMaze().setCell(input);
 				byte[] rv = solver.getNext();
 				System.out.println("Next Direction: " + Client.byteArrayToHex(rv));
 				out.write(rv);
@@ -54,7 +59,10 @@ public class Server {
 			}
 			break;
 		case 0x9:// reset 요청
-			switch (bytes[1]) {
+			byte[] input = new byte[1];
+			sock.getInputStream().read(input);
+			System.out.println("From Robot:" + Client.byteArrayToHex(input));
+			switch (input[0]) {
 			case 0x01:
 				solver = new MazeSolver_DepthFirst1();
 				break;

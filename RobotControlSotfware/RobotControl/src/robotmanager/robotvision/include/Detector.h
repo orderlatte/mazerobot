@@ -40,5 +40,6 @@ private:
 	int m_thresBinary;
 	int m_lowerBoundBlue;
 	int m_upperBoundBlue;
+	int m_binarizationMethod;
 };
 

@@ -3,4 +3,5 @@ thresBinary 50
 thresBlueAreaOfROI 0.2
 lowerBoundBlue 60
 upperBoundBlue 130
+binaryMethod 1 
 
