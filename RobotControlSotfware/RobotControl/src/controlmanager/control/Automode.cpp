@@ -430,7 +430,8 @@ void Automode::doRecognizingSign() {
 	static unsigned char recognize_state;
 	static unsigned char recognize_wall_cnt;
 	
-	int positon = Position->GetCurrentEWSNDirection();
+	int positon;
+	
 
 	if(recognize_state == 0)
 	{
@@ -469,7 +470,7 @@ void Automode::doRecognizingSign() {
 	}
 	else if(recognize_state == 4)
 	{
-		if(micros() - recognize_start_time > (1000*1000))
+		if(micros() - recognize_start_time > (2000*1000))
 		{
 			recognize_start_time = micros();
 			recognize_wall_cnt++;
@@ -477,8 +478,9 @@ void Automode::doRecognizingSign() {
 		}
 	}
 
-	if(FloorData->Sign_type != 0)
+	if((FloorData->Sign_type != 0) && (recognize_state == 4) && (micros() - recognize_start_time > (500*1000)))
 	{
+		positon = Position->GetNextEWSNDirection();
 		if(recognize_wall_cnt == 0)
 		{
 			FloorData->Sign_position = positon;

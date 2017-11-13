@@ -122,6 +122,12 @@ int RobotPosition::GetCurrentEWSNDirection() {
 	return CurrentDirection;
 }
 
+int RobotPosition::GetNextEWSNDirection() {
+	printf("GetNextEWSNDirection() - CurrentDirection: %d\n", CurrentDirection);
+	return NextDirection;
+}
+
+
 void RobotPosition::PrintDebugLog() {
 	printf("CurrentX: %d\n", CurrentX);
 	printf("CurrentY: %d\n", CurrentY);

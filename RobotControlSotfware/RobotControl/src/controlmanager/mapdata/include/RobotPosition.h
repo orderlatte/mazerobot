@@ -30,6 +30,7 @@ public:
 	int GetY();
 	void GetNextPosition(int *x, int *y);
 	int GetCurrentEWSNDirection();
+	int GetNextEWSNDirection();
 
 private:
 	T_robot_moving_direction GetEastDirectionToMove(int direction);
