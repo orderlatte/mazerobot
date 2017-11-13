@@ -445,11 +445,15 @@ void Automode::doRecognizingSign() {
 	}
 	else if(recognize_state == 2)
 	{
-		if(micros() - recognize_start_time > (200*1000))
+		if(micros() - recognize_start_time > (450*1000))
 		{
 			robot_operation_manual(ROBOT_OPERATION_DIRECTION_STOP);
 			recognize_start_time = micros();
 			recognize_state = 3;
+		}
+		else if(micros() - recognize_start_time > (400*1000))
+		{
+			robot_operation_manual(ROBOT_OPERATION_DIRECTION_LEFT);
 		}
 	}
 	else if(recognize_state == 3)
@@ -573,7 +577,7 @@ void Automode::doResumeTravel() {
 	FloorData->RedDotRecognize = false;
 
 	robot_operation_manual(ROBOT_OPERATION_DIRECTION_FORWARD);
-	usleep(900000);	// For testing...
+	usleep(1300000);	// For testing...
 	robot_operation_manual(ROBOT_OPERATION_DIRECTION_STOP);
 
 	Position->SuccessToMove();

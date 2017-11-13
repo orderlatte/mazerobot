@@ -152,7 +152,7 @@ void robot_trun_move_onecell(T_robot_operation_direction direction)
 			robot_mode_setting(ROBOT_RIGHT_ROTATING,robot_operation_image_info.offset);
 		}
 
-		if(micros_wrapper()-timeoutstart > (800*1000))
+		if(micros_wrapper()-timeoutstart > (700*1000))
 		{
 			if((robot_operation_image_info.linewidth < 190 && robot_operation_image_info.linewidth > 100)) //|| (micros_wrapper()-timeoutstart > (1200*1000)))
 			{
@@ -324,7 +324,7 @@ void robot_operation_cam_manual(T_robot_operation_direction direction)
 			Tilt = 155;
 			break;
 		case ROBOT_CAM_DIRECTION_LEFT_SIGN:
-			Pan = 240;
+			Pan = 220;
 			Tilt = 150;
 			break;
 		case ROBOT_CAM_DIRECTION_RIGHT_SIGN:
