@@ -516,7 +516,7 @@ static void stopRobot(T_sensor_type sensorType, int distance)
 	switch (sensorType) {
 	case SENSOR_TYPE_SONAR:
 		if (CurrentStatus == ROBOT_STATUS_AUTO) {
-			if (distance <= 5) {
+			if (distance <= 4) {
 				AutomodeRobot->stopRobot();
 			}
 		} else {
