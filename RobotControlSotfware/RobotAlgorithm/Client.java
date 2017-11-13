@@ -1,6 +1,7 @@
 package robot_algorithm;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -84,14 +85,37 @@ public class Client {
 		test(0, 0, 0, 1,(byte)6,(byte)4);// 7
 		test(1, 0, 0, 0,(byte)7,(byte)4);// 6
 		test(1, 1, 0, 1,(byte)7,(byte)3);// 22
-
+//		
+//		testGetMapData();
+//		test(0, 0, 0, 0,(byte)5,(byte)5);// 1
+//		testGetMapData();
+//		sendReset();
+//		testGetMapData();
+		
+		
+		
 		System.out.println("The End of Client");
 		
 		mIn.close();
 		mOut.close();
 		mSocket.close();
 	}
+	
+	public void sendReset() throws IOException{
+		byte[] inBytes = new byte[3];
+		mSocket.getOutputStream().write(new byte[]{0x09, 0x01});
+		mSocket.getOutputStream().flush();
+		mSocket.getInputStream().read(inBytes);
+		System.out.println(" 클:" + this.byteArrayToHex(inBytes));
+	}
 
+	public void testGetMapData() throws Exception{
+		byte[] inBytes = new byte[11 * 11 * 8 + 1];
+		mSocket.getOutputStream().write(new byte[]{0x01});
+		mSocket.getOutputStream().flush();
+		mSocket.getInputStream().read(inBytes);
+		System.out.println(" 클:" + this.byteArrayToHex(inBytes));
+	}
 	// 벽이 있으면 true
 	public void test(int east, int west, int south, int north, byte x, byte y) throws Exception {
 		byte[] inBytes = new byte[3];
