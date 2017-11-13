@@ -627,7 +627,6 @@ void recognizeFloor(RobotVisionManager *rvm, FloorFinder *floorData) {
 			floorData->RedDot = true;
 			floorData->Sign_type= 0;
 			floorData->RedDotRecognize = true;
-		} else {
 			floorData->setRedDotPosition(positionX, positionY);
 		}
 	}

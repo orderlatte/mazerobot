@@ -47,18 +47,21 @@ T_robot_moving_direction RobotPosition::SetEWSNDirectionToMove(int nextDirection
 }
 
 void RobotPosition::GetNextPosition(int *x, int *y) {
+	*x = CurrentX;
+	*y = CurrentY;
+
 	switch(NextDirection) {
 		case EAST:
-			*x = CurrentX + 1;
+			*x += 1;
 			break;
 		case WEST:
-			*x = CurrentX - 1;
+			*x -= 1;
 			break;
 		case SOUTH:
-			*y = CurrentY + 1;
+			*y += 1;
 			break;
 		case NORTH:
-			*y = CurrentY - 1;
+			*y -= 1;
 			break;
 		default:
 			printf("SuccessToMove() - Next direction is invalid! (%d)", NextDirection);
@@ -115,7 +118,7 @@ void RobotPosition::RecoverCoordinates() {
 }
 
 int RobotPosition::GetCurrentEWSNDirection() {
-	printf("getCurrentEWSNDirection() - CurrentDirection: %d\n", CurrentDirection);
+//	printf("getCurrentEWSNDirection() - CurrentDirection: %d\n", CurrentDirection);
 	return CurrentDirection;
 }
 

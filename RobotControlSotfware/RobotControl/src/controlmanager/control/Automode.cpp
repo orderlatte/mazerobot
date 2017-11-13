@@ -423,7 +423,7 @@ void Automode::doMoved() {
 
 void Automode::doRecognizingSign() {
 
-	printf("doRecognizingSign() is called.\n");
+//	printf("doRecognizingSign() is called.\n");
 	
 	#ifndef UBUNTU		// For building in ubuntu. Below code sould be built in raspberry pi.
 	static unsigned long recognize_start_time;
@@ -519,7 +519,7 @@ void Automode::doRecognizingSign() {
 					break;
 			}
 		}
-		FloorData->RedDotRecognize = false;
+
 		robot_operation_cam_manual(ROBOT_CAM_DIRECTION_LINE);
 		Status = AUTOMODE_STATUS_RESUME_TRAVLE;
 		recognize_state = 0;
@@ -548,6 +548,8 @@ void Automode::doWaitingForSignResult() {
 
 void Automode::doResumeTravel() {
 	printf("doResumeTravel() is called.\n");
+
+	FloorData->RedDotRecognize = false;
 
 	robot_operation_manual(ROBOT_OPERATION_DIRECTION_FORWARD);
 	usleep(900000);	// For testing...
