@@ -47,17 +47,17 @@ void WallFinder::recognizeWall() {
 	}
 
 	for (index = 0; index < maxCount; index++) {
-		if (sensorData[index].sonar_distance < 15 && sensorData[index].sonar_distance > 0) { // Less than 10cm
+		if (sensorData[index].sonar_distance < 20 && sensorData[index].sonar_distance > 0) { // Less than 10cm
 	//			printf("recognizeWall() Front wall is existed\n");
 			blockedFrontWallCount++;
 		}
 
-		if (sensorData[index].laser_left_distance < 150 && sensorData[index].laser_left_distance > 0) {  // Less than
+		if (sensorData[index].laser_left_distance < 200 && sensorData[index].laser_left_distance > 0) {  // Less than
 	//			printf("recognizeWall() Left wall is existed\n");
 			blockedLeftWallCount++;
 		}
 
-		if (sensorData[index].laser_right_distance < 150 && sensorData[index].laser_right_distance > 0) {  // Less than
+		if (sensorData[index].laser_right_distance < 200 && sensorData[index].laser_right_distance > 0) {  // Less than
 	//			printf("recognizeWall() Right wall is existed\n");
 			blockedRightWallCount++;
 		}

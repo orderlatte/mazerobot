@@ -616,7 +616,7 @@ void *image_capture_thread(void *value) {
 					floor->Sign_type = 8;
 					break;
 				default:
-					floor->Sign_type = 0;
+					//floor->Sign_type = 0;
 					break;
 			}
 		}

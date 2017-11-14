@@ -438,6 +438,7 @@ void Automode::doRecognizingSign() {
 
 	if(recognize_state == 0)
 	{
+		robot_operation_manual(ROBOT_OPERATION_DIRECTION_STOP);
 		wallData.Init();
 		wallData.recognizeWall();
 
@@ -493,11 +494,11 @@ void Automode::doRecognizingSign() {
 	if((FloorData->Sign_type != 0) && (recognize_state == 4) && (micros() - recognize_start_time > (500*1000)))
 	{
 		positon = Position->GetNextEWSNDirection();
-		if(recognize_wall_cnt == 0)
+		if(recognize_wall_cnt == 1)
 		{
 			FloorData->Sign_position = positon;
 		}
-		else if(recognize_wall_cnt == 1)
+		else if(recognize_wall_cnt == 2)
 		{
 			switch(positon)
 			{
@@ -515,7 +516,7 @@ void Automode::doRecognizingSign() {
 					break;
 			}
 		}
-		else if(recognize_wall_cnt == 2)
+		else if(recognize_wall_cnt == 3)
 		{
 			switch(positon)
 			{
@@ -545,7 +546,7 @@ void Automode::doRecognizingSign() {
 		}
 	}
 
-	if(recognize_wall_cnt > 3)
+	if(recognize_wall_cnt > 4)
 	{
 //		fpAutomodeFail();
 		positon = Position->GetNextEWSNDirection();
