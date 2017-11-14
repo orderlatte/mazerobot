@@ -1,9 +1,11 @@
 thresCrossAreaOfROI 0.7
-thresBinary 70
+binaryMethod 1
+thresBinary1 50
+thresBinary2 100
 thresBlueAreaOfROI 0.2
 lowerBoundBlue 71
 upperBoundBlue 130
 lowerBoundGreen 40
 upperBoundGreen 70
-binaryMethod 1
+
 

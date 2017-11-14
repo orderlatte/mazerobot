@@ -49,7 +49,7 @@ public:
 	bool FindStartArea(cv::Mat& cameraimg);
 	bool FindCrossArea(cv::Mat& cameraimg);
 	float FindLineInImageAndComputeOffset(cv::Mat& cameraimg);
-	float FindLineInImageAndComputeOffsetAndWidth(cv::Mat& camimage, int& selectedWidth);
+	float FindLineInImageAndComputeOffsetAndWidth(cv::Mat& camimage, int& selectedWidth, int binParamNum=1);
 	float FindLineInImageAndComputeOffsetAndWidth_OTSU(cv::Mat& camimage, int& selectedWidth);
 
 	bool GetCamImage(cv::Mat& capimage);
