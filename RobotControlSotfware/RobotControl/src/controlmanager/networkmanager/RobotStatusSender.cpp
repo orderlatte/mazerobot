@@ -25,8 +25,8 @@ static int				  fullyMapBuffSize;
 static char     		 *Hostname = NULL;
 static char              *Portno = NULL;
 
-static std::mutex position_mutex;
-static std::mutex mode_mutex;
+//static std::mutex position_mutex;
+//static std::mutex mode_mutex;
 static std::mutex sender_mutex;
 
 RobotStatusSender::RobotStatusSender(char *hostname, char *portno, int mode) {
@@ -102,7 +102,7 @@ void RobotStatusSender::SendNextPositionThread() {
 	while (1) {
 		positionBuff[0] = 0x3;
 
-		position_mutex.lock();
+//		position_mutex.lock();
 
 		tmpPosition = (short *)&positionBuff[2];
 		*tmpPosition = (short)PositionX;
@@ -110,7 +110,7 @@ void RobotStatusSender::SendNextPositionThread() {
 		tmpPosition = (short *)&positionBuff[4];
 		*tmpPosition = (short)PositionY;
 
-		if ((PreviousPositionX != PositionX) && (PreviousPorisionY != PositionY)) {
+		if ((PreviousPositionX != PositionX) || (PreviousPorisionY != PositionY)) {
 			// For debugging
 			printf("SendNextPositionThread() - positionBuff: 0x");
 			for (index = 0; index < positionBuffSize; index++) {
@@ -120,12 +120,12 @@ void RobotStatusSender::SendNextPositionThread() {
 
 			PreviousPositionX = PositionX;
 			PreviousPorisionY = PositionY;
-			position_mutex.unlock();
+//			position_mutex.unlock();
 
 		} else {
 			usleep(250000); // 250 miliseconds
 
-			position_mutex.unlock();
+//			position_mutex.unlock();
 			continue;
 		}
 
@@ -155,14 +155,14 @@ bailout:
 }
 
 void RobotStatusSender::SendPosition(int positionX, int positionY) {
-	position_mutex.lock();
+//	position_mutex.lock();
 
 	PositionX = positionX;
 	PositionY = positionY;
 
 	printf("SendPosition() Next position : %d, %d\n", PositionX, PositionY);
 
-	position_mutex.unlock();
+//	position_mutex.unlock();
 }
 
 void RobotStatusSender::SendRobotModeThread() {
@@ -174,7 +174,7 @@ void RobotStatusSender::SendRobotModeThread() {
 
 		modeBuff[0] = 0x5;
 
-		mode_mutex.lock();
+//		mode_mutex.lock();
 
 		modeBuff[1] = (unsigned char) RobotMode;
 
@@ -188,9 +188,9 @@ void RobotStatusSender::SendRobotModeThread() {
 
 			PreviousRobotMode = RobotMode;
 
-			mode_mutex.unlock();
+//			mode_mutex.unlock();
 		} else {
-			mode_mutex.unlock();
+//			mode_mutex.unlock();
 
 			usleep(250000); // 250 miliseconds
 			continue;
@@ -222,11 +222,11 @@ bailout:
 }
 
 void RobotStatusSender::SendMode(int mode) {
-	mode_mutex.lock();
+//	mode_mutex.lock();
 
 	RobotMode = mode + 1;
 
-	mode_mutex.unlock();
+//	mode_mutex.unlock();
 }
 
 void RobotStatusSender::SendFullyMap() {
@@ -236,19 +236,25 @@ void RobotStatusSender::SendFullyMap() {
 	fullyMapBuff[0] = 0x6;
 	fullyMapBuff[1] = 0x1;
 
+	sender_mutex.lock();
+
 	if (TcpConnectedPort == NULL) {
 		TcpConnectedPort = OpenTcpConnection((const char *)Hostname, (const char *)Portno);
 	}
 
 	if (TcpConnectedPort == NULL) {
 		printf("SendFullyMap() - OpenTcpConnection() is failed!\n");
-		return;
+		goto bailout;
 	}
 
 	if (WriteDataTcp(TcpConnectedPort,fullyMapBuff,fullyMapBuffSize) != fullyMapBuffSize) {
 		printf("SendFullyMap() - WriteDataTcp() is failed!\n");
-		return;
+		goto bailout;
 	}
+
+bailout:
+
+	sender_mutex.unlock();
 }
 
 //-----------------------------------------------------------------
