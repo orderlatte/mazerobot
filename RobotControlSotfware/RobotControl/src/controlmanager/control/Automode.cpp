@@ -591,6 +591,8 @@ void Automode::doResumeTravel() {
 
 	robot_operation_manual(ROBOT_OPERATION_DIRECTION_FORWARD);
 	usleep(1300000);	// For testing...
+	robot_operation_manual(ROBOT_OPERATION_DIRECTION_LEFT);
+	usleep(300000);	// For testing...
 	robot_operation_manual(ROBOT_OPERATION_DIRECTION_STOP);
 
 	Position->SuccessToMove();

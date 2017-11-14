@@ -583,7 +583,7 @@ void *image_capture_thread(void *value) {
 
 			if(Status == AUTOMODE_STATUS_MOVING)
 			{
-				ImageOffset=rvm.FindLineInImageAndComputeOffsetAndWidth(image, linewidth , 2);
+				ImageOffset=rvm.FindLineInImageAndComputeOffsetAndWidth_OTSU(image, linewidth);
 			}
 			else
 			{
