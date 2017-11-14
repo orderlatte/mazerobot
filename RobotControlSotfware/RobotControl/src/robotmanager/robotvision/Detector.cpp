@@ -12,10 +12,14 @@ Detector::Detector()
 {
 	m_thresBlueAreaOfROI = 0.2;
 	m_thresCrossAreaOfROI = 0.7;
-	m_thresBinary = 50;
-	m_lowerBoundBlue = 60;
+	m_thresBinary1 = 50;
+	m_thresBinary2 = 100;
+	m_lowerBoundBlue = 71;
 	m_upperBoundBlue = 130;
 	m_binarizationMethod = 1; // treshholding. not OTSU
+
+	m_lowerBoundGreen = 40;
+	m_upperBoundGreen = 70;
 }
 
 
@@ -80,9 +84,9 @@ bool Detector::findGoalArea(cv::Mat& CameraImage, bool bDebug)
 
 	//const float thresBlueAreaOfROI = 0.2;  // blue point ���� ���� // need tuning
 
-	Rect RoiRec(10, 10, CameraImage.cols - 20, CameraImage.rows / 12); //Define region of interest rectangle
+	//Rect RoiRec(10, 3 * CameraImage.rows / 4, CameraImage.cols - 20, CameraImage.rows / 12); //Define region of interest rectangle
 	//Rect RoiRec(10, 2 * CameraImage.rows / 3, CameraImage.cols - 20, CameraImage.rows / 12);
-	//Rect RoiRec(10, 10, CameraImage.cols - 20, CameraImage.rows / 12); //Define region of interest rectangle
+	Rect RoiRec(10, 10, CameraImage.cols - 20, CameraImage.rows / 12); //Define region of interest rectangle
 
 	Mat roi(CameraImage, RoiRec); // clip image to region of interest 
 	Mat HSV;
@@ -113,7 +117,7 @@ bool Detector::findGoalArea(cv::Mat& CameraImage, bool bDebug)
 
 	if (cnt > (RoiRec.area()*m_thresBlueAreaOfROI))
 	{
-		if (bDebug) cout << "area" << RoiRec.area() << " bluepoint:" << cnt << endl;
+		if (bDebug) cout << "area " << RoiRec.area() << " bluepoint:" << cnt << endl;
 		ret = true;
 	}
 
@@ -288,7 +292,7 @@ float Detector::FindLineInImageAndComputeOffset(cv::Mat& CameraImage, bool bDebu
 	return offsetfromcenter + FUDGE_BIAS;
 }
 
-float Detector::FindLineInImageAndComputeOffsetAndWidth(cv::Mat& CameraImage, int& selectedWidth, bool bDebug)
+float Detector::FindLineInImageAndComputeOffsetAndWidth(cv::Mat& CameraImage, int& selectedWidth, int binParamNum, bool bDebug)
 {
 	bool ret = false;
 	//Mat tmp;
@@ -315,8 +319,10 @@ float Detector::FindLineInImageAndComputeOffsetAndWidth(cv::Mat& CameraImage, in
 	GaussianBlur(mono, blur, Size(9, 9), 2, 2); // blur image to remove small irregularities
 	//threshold(blur, thresh, 0, 255, THRESH_BINARY_INV | THRESH_OTSU); //Color thresholding makes image more blacka nd white
 
-	if(m_binarizationMethod==1) threshold(blur, thresh, m_thresBinary, 255, THRESH_BINARY_INV | THRESH_BINARY); //Color thresholding makes image more blacka nd white
-	else threshold(blur, thresh, 0, 255, THRESH_BINARY_INV | THRESH_OTSU);
+	if(m_binarizationMethod==0) threshold(blur, thresh, 0, 255, THRESH_BINARY_INV | THRESH_OTSU); //Color thresholding makes image more blacka nd white
+	else if(binParamNum==1) threshold(blur, thresh, m_thresBinary1, 255, THRESH_BINARY_INV | THRESH_BINARY);
+	else threshold(blur, thresh, m_thresBinary2, 255, THRESH_BINARY_INV | THRESH_BINARY);
+
 	//IplImage tmpimg = thresh;
 	//int cnt = cvCountNonZero(&tmpimg);  // black pixel
 	//cout << "pixel: " << cnt << endl; 
@@ -496,8 +502,11 @@ void Detector::SetParameter(map<string, float> mParam)
 	itr = mParam.find("thresCrossAreaOfROI");
 	if (mParam.end() != itr) m_thresCrossAreaOfROI = itr->second;
 
-	itr = mParam.find("thresBinary");
-	if (mParam.end() != itr) m_thresBinary = itr->second;
+	itr = mParam.find("thresBinary1");
+	if (mParam.end() != itr) m_thresBinary1 = itr->second;
+
+	itr = mParam.find("thresBinary2");
+	if (mParam.end() != itr) m_thresBinary2 = itr->second;
 
     itr = mParam.find("thresBlueAreaOfROI");
 	if (mParam.end() != itr) m_thresBlueAreaOfROI = itr->second;
@@ -508,9 +517,59 @@ void Detector::SetParameter(map<string, float> mParam)
 	itr = mParam.find("upperBoundBlue");
 	if (mParam.end() != itr) m_upperBoundBlue = itr->second;
 
+	itr = mParam.find("lowerBoundGreen");
+	if (mParam.end() != itr) m_lowerBoundGreen = itr->second;
+
+	itr = mParam.find("upperBoundGreen");
+	if (mParam.end() != itr) m_upperBoundGreen = itr->second;
+
 	itr = mParam.find("binaryMethod");
 	if (mParam.end() != itr) m_binarizationMethod = itr->second;
+}
+
+bool Detector::findStartArea(cv::Mat& CameraImage, bool bDebug)
+{
+	bool ret = false;
+
+	//const float thresBlueAreaOfROI = 0.2;  // blue point ���� ���� // need tuning
+
+	Rect RoiRec(10, 3 * CameraImage.rows / 4, CameraImage.cols - 20, CameraImage.rows / 12); //Define region of interest rectangle
+																							 //Rect RoiRec(10, 2 * CameraImage.rows / 3, CameraImage.cols - 20, CameraImage.rows / 12);
+																							 //Rect RoiRec(10, 10, CameraImage.cols - 20, CameraImage.rows / 12); //Define region of interest rectangle
+
+	Mat roi(CameraImage, RoiRec); // clip image to region of interest 
+	Mat HSV;
+	Mat threshold;
+	Mat result;
+
+	cvtColor(roi, HSV, CV_BGR2HSV);
+	//inRange(HSV, Scalar(110, 0, 0), Scalar(130, 255, 255), threshold);
+	//inRange(HSV, Scalar(60, 0, 0), Scalar(130, 255, 255), threshold);
+	inRange(HSV, Scalar(m_lowerBoundGreen, 0, 0), Scalar(m_upperBoundGreen, 255, 255), threshold);
 
 
+	bitwise_and(roi, roi, result, threshold);
+
+
+	IplImage tmp = threshold;
+	int cnt = cvCountNonZero(&tmp);
+
+	if (bDebug)
+	{
+		rectangle(CameraImage, RoiRec, ROI_COLOR3, 3); // draw region of interest on camera image
+		if (!IsPi3) imshow("threshold_startArea", threshold);
+		if (!IsPi3) imshow("result_startArea", result);
+
+		//cout << "area" << RoiRec.area() << " bluepoint:" << cnt << endl;
+		if (!IsPi3) imshow("camera_start", CameraImage);
+	}
+
+	if (cnt > (RoiRec.area()*m_thresBlueAreaOfROI))
+	{
+		if (bDebug) cout << "area " << RoiRec.area() << " greenpoint:" << cnt << endl;
+		ret = true;
+	}
+
+	return ret;
 }
 

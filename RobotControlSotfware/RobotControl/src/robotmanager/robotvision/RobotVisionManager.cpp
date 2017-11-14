@@ -105,6 +105,14 @@ bool RobotVisionManager::FindGoalArea()
 	return m_detector->findGoalArea(cameraimg, m_bDebug);
 }
 
+bool RobotVisionManager::FindStartArea()
+{
+	Mat cameraimg;
+	cap >> cameraimg;
+	//return m_detector->findGoalArea(cameraimg, m_sParameter.thresBlueAreaOfROI, m_bDebug);
+	return m_detector->findStartArea(cameraimg, m_bDebug);
+}
+
 bool RobotVisionManager::FindCrossArea()
 {
 	Mat cameraimg;
@@ -136,6 +144,12 @@ bool RobotVisionManager::FindGoalArea(cv::Mat& cameraimg)
 	return m_detector->findGoalArea(cameraimg,  m_bDebug);
 }
 
+bool RobotVisionManager::FindStartArea(cv::Mat& cameraimg)
+{
+	return m_detector->findStartArea(cameraimg, m_bDebug);
+}
+
+
 bool RobotVisionManager::FindCrossArea(cv::Mat& camimage)
 {
 	Mat cameraimg;
@@ -148,9 +162,9 @@ float RobotVisionManager::FindLineInImageAndComputeOffset(cv::Mat& cameraimg)
 	return m_detector->FindLineInImageAndComputeOffset(cameraimg, m_bDebug);
 }
 
-float RobotVisionManager::FindLineInImageAndComputeOffsetAndWidth(cv::Mat& cameraimg, int& selectedWidth)
+float RobotVisionManager::FindLineInImageAndComputeOffsetAndWidth(cv::Mat& cameraimg, int& selectedWidth, int binParamNum)
 {
-	return m_detector->FindLineInImageAndComputeOffsetAndWidth(cameraimg, selectedWidth,m_bDebug);
+	return m_detector->FindLineInImageAndComputeOffsetAndWidth(cameraimg, selectedWidth, binParamNum, m_bDebug);
 }
 
 float RobotVisionManager::FindLineInImageAndComputeOffsetAndWidth_OTSU(cv::Mat& cameraimg, int& selectedWidth)
