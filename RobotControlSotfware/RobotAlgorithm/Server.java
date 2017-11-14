@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Arrays;
 
 public class Server {
 
@@ -70,7 +69,7 @@ public class Server {
 				solver = new MazeSolver_DepthFirst2();
 				break;
 			case 0x03:
-				solver = new MazeSolver_DepthFirst3();
+				solver = new MazeSolver_StraightFirst();
 				break;
 			default:
 				solver = new MazeSolver_DepthFirst1();
