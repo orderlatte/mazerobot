@@ -157,8 +157,6 @@ void RobotStatusSender::SendRobotModeThread() {
 
 		sender_mutex.lock();
 
-		printf("SendRobotModeThread() Next position : %d, %d\n", PositionX, PositionY);
-
 		if (TcpConnectedPort == NULL) {
 			TcpConnectedPort = OpenTcpConnection((const char *)Hostname, (const char *)Portno);
 		}

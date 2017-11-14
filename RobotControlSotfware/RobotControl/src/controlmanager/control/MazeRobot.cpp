@@ -19,7 +19,6 @@
 // w key - stops the robot (manual control only)
 // e key - increases the speed of the robot (manual control only both wheels move at the same speed)
 //----------------------------------------------------------------------------------------------
-#include <RobotStatusSender.h>
 #include <stdio.h>
 #include <signal.h>
 #include <iostream>
@@ -39,6 +38,7 @@
 #include "FloorFinder.h"
 #include "StartingPoint.h"
 #include "UiCmdHandler.h"
+#include "RobotStatusSender.h"
 
 #define INIT 0
 #define STOP 1

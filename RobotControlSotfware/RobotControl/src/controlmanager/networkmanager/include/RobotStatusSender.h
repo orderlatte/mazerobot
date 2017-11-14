@@ -25,7 +25,7 @@ public:
 	bool Open();
 	void Close();
 	void SendPosition(int positionX, int positionY);
-	void RobotStatusSender::SendMode(int mode);
+	void SendMode(int mode);
 
 private:
 	void SendNextPositionThread();
