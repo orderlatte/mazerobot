@@ -360,6 +360,7 @@ static void CallBabckToGetEWSNDirectionAutomode(int ewsnDirection, T_algorithm_r
 		FullyMappingCompleted = true;
 		Status = AUTOMODE_STATUS_READY;
 		robot_operation_auto(ROBOT_OPERATION_DIRECTION_STOP);
+		NextPosition->SendFullyMap();
 		return;
 	}
 

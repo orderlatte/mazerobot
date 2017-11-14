@@ -20,6 +20,8 @@ static unsigned char 	 *positionBuff = NULL;
 static int 				  positionBuffSize;
 static unsigned char     *modeBuff = NULL;
 static int			      modeBuffSize;
+static unsigned char     *fullyMapBuff = NULL;
+static int				  fullyMapBuffSize;
 static char     		 *Hostname = NULL;
 static char              *Portno = NULL;
 
@@ -36,10 +38,15 @@ RobotStatusSender::RobotStatusSender(char *hostname, char *portno, int mode) {
 	modeBuff = (unsigned char *)malloc(modeBuffSize);
 	memset(modeBuff, 0x00, modeBuffSize);
 
+	fullyMapBuffSize = sizeof(unsigned char) * 2;
+	fullyMapBuff = (unsigned char *)malloc(fullyMapBuffSize);
+	memset(fullyMapBuff, 0x00, fullyMapBuffSize);
+
 	Hostname = hostname;
 	Portno = portno;
 
 	RobotMode = mode + 1;
+	PreviousRobotMode = RobotMode;
 
 	Init();
 }
@@ -47,6 +54,8 @@ RobotStatusSender::RobotStatusSender(char *hostname, char *portno, int mode) {
 void RobotStatusSender::Init() {
 	PositionX = 5;
 	PositionY = 5;
+	PreviousPositionX = 5;
+	PreviousPorisionY = 5;
 }
 
 
@@ -60,6 +69,7 @@ bool RobotStatusSender::Open() {
 
 	// Send map thread
 	TcpThread = new std::thread(&RobotStatusSender::SendNextPositionThread, this);
+	ModeThread = new std::thread(&RobotStatusSender::SendRobotModeThread, this);
 
 	return true;
 }
@@ -84,6 +94,7 @@ void RobotStatusSender::Close() {
 }
 
 void RobotStatusSender::SendNextPositionThread() {
+	int index = 0;
 	short *tmpPosition = 0x0;
 
 	printf("SendNextPositionThread() - Next Position thread is running!!\n");
@@ -99,7 +110,25 @@ void RobotStatusSender::SendNextPositionThread() {
 		tmpPosition = (short *)&positionBuff[4];
 		*tmpPosition = (short)PositionY;
 
-		position_mutex.unlock();
+		if ((PreviousPositionX != PositionX) && (PreviousPorisionY != PositionY)) {
+			// For debugging
+			printf("SendNextPositionThread() - positionBuff: 0x");
+			for (index = 0; index < positionBuffSize; index++) {
+				printf("%1x", positionBuff[index]);
+			}
+			printf("\n");
+
+			PreviousPositionX = PositionX;
+			PreviousPorisionY = PositionY;
+			position_mutex.unlock();
+
+		} else {
+			usleep(250000); // 250 miliseconds
+
+			position_mutex.unlock();
+			continue;
+		}
+
 
 		sender_mutex.lock();
 
@@ -114,13 +143,14 @@ void RobotStatusSender::SendNextPositionThread() {
 
 		if (WriteDataTcp(TcpConnectedPort,positionBuff,positionBuffSize) != positionBuffSize) {
 			printf("SendNextPositionThread() - WriteDataTcp() is failed!\n");
+			goto bailout;
 		}
 
 bailout:
 
 		sender_mutex.unlock();
 
-		usleep(250); // 250 miliseconds
+		usleep(250000); // 250 miliseconds
 	}
 }
 
@@ -136,7 +166,7 @@ void RobotStatusSender::SendPosition(int positionX, int positionY) {
 }
 
 void RobotStatusSender::SendRobotModeThread() {
-
+	int index = 0;
 	printf("SendRobotModeThread() - Next Position thread is running!!\n");
 
 
@@ -148,7 +178,24 @@ void RobotStatusSender::SendRobotModeThread() {
 
 		modeBuff[1] = (unsigned char) RobotMode;
 
-		mode_mutex.unlock();
+		if (PreviousRobotMode != RobotMode) {
+			// For debugging
+			printf("SendRobotModeThread() - modeBuff: 0x");
+			for (index = 0; index < modeBuffSize; index++) {
+				printf("%1x", modeBuff[index]);
+			}
+			printf("\n");
+
+			PreviousRobotMode = RobotMode;
+
+			mode_mutex.unlock();
+		} else {
+			mode_mutex.unlock();
+
+			usleep(250000); // 250 miliseconds
+			continue;
+		}
+
 
 
 		sender_mutex.lock();
@@ -164,12 +211,13 @@ void RobotStatusSender::SendRobotModeThread() {
 
 		if (WriteDataTcp(TcpConnectedPort,modeBuff,modeBuffSize) != modeBuffSize) {
 			printf("SendRobotModeThread() - WriteDataTcp() is failed!\n");
+			goto bailout;
 		}
 
 bailout:
 		sender_mutex.unlock();
 
-		usleep(250); // 300 miliseconds
+		usleep(250000); // 250 miliseconds
 	}
 }
 
@@ -179,6 +227,28 @@ void RobotStatusSender::SendMode(int mode) {
 	RobotMode = mode + 1;
 
 	mode_mutex.unlock();
+}
+
+void RobotStatusSender::SendFullyMap() {
+
+	printf("SendFullyMap() is called.\n");
+
+	fullyMapBuff[0] = 0x6;
+	fullyMapBuff[1] = 0x1;
+
+	if (TcpConnectedPort == NULL) {
+		TcpConnectedPort = OpenTcpConnection((const char *)Hostname, (const char *)Portno);
+	}
+
+	if (TcpConnectedPort == NULL) {
+		printf("SendFullyMap() - OpenTcpConnection() is failed!\n");
+		return;
+	}
+
+	if (WriteDataTcp(TcpConnectedPort,fullyMapBuff,fullyMapBuffSize) != fullyMapBuffSize) {
+		printf("SendFullyMap() - WriteDataTcp() is failed!\n");
+		return;
+	}
 }
 
 //-----------------------------------------------------------------
