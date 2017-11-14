@@ -53,38 +53,38 @@ public class Client {
 		// test(false, true, false, true, (byte) 5, (byte) 3);// 5
 		// test(true, false, false, true, (byte) 6, (byte) 3);// 6
 
-		test(0, 1, 1, 0,(byte)5,(byte)5);// 1
-		test(0, 1, 1, 0,(byte)5,(byte)5);// 1 ==> 이동못하고 같은 장소 다시 보내는 상황
-		test(0, 0, 1, 0,(byte)6,(byte)5);// 2
-		test(0, 0, 1, 0,(byte)7,(byte)5);// 3
-		test(1, 0, 1, 0,(byte)8,(byte)5);// 4
-		test(1, 1, 0, 1,(byte)8,(byte)4);// 5
-		test(1, 0, 1, 0,(byte)8,(byte)5);// 4
-		test(0, 0, 1, 0,(byte)7,(byte)5);// 3
-		test(1, 0, 0, 0,(byte)7,(byte)4);// 6
-		test(0, 0, 0, 1,(byte)6,(byte)4);// 7
-		test(0, 1, 0, 0,(byte)5,(byte)4);// 8
-		test(1, 1, 0, 0,(byte)5,(byte)3);// 9
-		test(1, 1, 0, 0,(byte)5,(byte)2);// 10
-		test(0, 1, 0, 0,(byte)5,(byte)1);// 11
-		test(1, 0, 1, 0,(byte)6,(byte)1);// 12
-		test(0, 0, 0, 1,(byte)6,(byte)0);// 13
-		test(0, 0, 1, 1,(byte)7,(byte)0);// 14
-		test(1, 0, 0, 1,(byte)8,(byte)0);// 15
-		test(1, 1, 1, 0,(byte)8,(byte)1);// 16
-		test(1, 0, 0, 1,(byte)8,(byte)0);// 15
-		test(0, 0, 1, 1,(byte)7,(byte)0);// 14
-		test(0, 0, 0, 1,(byte)6,(byte)0);// 13
-		test(0, 1, 0, 1,(byte)5,(byte)0);// 21
-		test(0, 0, 0, 1,(byte)6,(byte)0);// 13
-		test(1, 0, 1, 0,(byte)6,(byte)1);// 12
-		test(0, 1, 0, 0,(byte)5,(byte)1);// 11
-		test(1, 1, 0, 0,(byte)5,(byte)2);// 10
-		test(1, 1, 0, 0,(byte)5,(byte)3);// 9
-		test(0, 1, 0, 0,(byte)5,(byte)4);// 8
-		test(0, 0, 0, 1,(byte)6,(byte)4);// 7
-		test(1, 0, 0, 0,(byte)7,(byte)4);// 6
-		test(1, 1, 0, 1,(byte)7,(byte)3);// 22
+//		test(0, 1, 1, 0,(byte)5,(byte)5);// 1
+//		test(0, 1, 1, 0,(byte)5,(byte)5);// 1 ==> 이동못하고 같은 장소 다시 보내는 상황
+//		test(0, 0, 1, 0,(byte)6,(byte)5);// 2
+//		test(0, 0, 1, 0,(byte)7,(byte)5);// 3
+//		test(1, 0, 1, 0,(byte)8,(byte)5);// 4
+//		test(1, 1, 0, 1,(byte)8,(byte)4);// 5
+//		test(1, 0, 1, 0,(byte)8,(byte)5);// 4
+//		test(0, 0, 1, 0,(byte)7,(byte)5);// 3
+//		test(1, 0, 0, 0,(byte)7,(byte)4);// 6
+//		test(0, 0, 0, 1,(byte)6,(byte)4);// 7
+//		test(0, 1, 0, 0,(byte)5,(byte)4);// 8
+//		test(1, 1, 0, 0,(byte)5,(byte)3);// 9
+//		test(1, 1, 0, 0,(byte)5,(byte)2);// 10
+//		test(0, 1, 0, 0,(byte)5,(byte)1);// 11
+//		test(1, 0, 1, 0,(byte)6,(byte)1);// 12
+//		test(0, 0, 0, 1,(byte)6,(byte)0);// 13
+//		test(0, 0, 1, 1,(byte)7,(byte)0);// 14
+//		test(1, 0, 0, 1,(byte)8,(byte)0);// 15
+//		test(1, 1, 1, 0,(byte)8,(byte)1);// 16
+//		test(1, 0, 0, 1,(byte)8,(byte)0);// 15
+//		test(0, 0, 1, 1,(byte)7,(byte)0);// 14
+//		test(0, 0, 0, 1,(byte)6,(byte)0);// 13
+//		test(0, 1, 0, 1,(byte)5,(byte)0);// 21
+//		test(0, 0, 0, 1,(byte)6,(byte)0);// 13
+//		test(1, 0, 1, 0,(byte)6,(byte)1);// 12
+//		test(0, 1, 0, 0,(byte)5,(byte)1);// 11
+//		test(1, 1, 0, 0,(byte)5,(byte)2);// 10
+//		test(1, 1, 0, 0,(byte)5,(byte)3);// 9
+//		test(0, 1, 0, 0,(byte)5,(byte)4);// 8
+//		test(0, 0, 0, 1,(byte)6,(byte)4);// 7
+//		test(1, 0, 0, 0,(byte)7,(byte)4);// 6
+//		test(1, 1, 0, 1,(byte)7,(byte)3);// 22
 //		
 //		testGetMapData();
 //		test(0, 0, 0, 0,(byte)5,(byte)5);// 1
@@ -92,7 +92,12 @@ public class Client {
 //		sendReset();
 //		testGetMapData();
 		
-		
+		//직진우선테스트
+		test(1, 1, 1, 0,(byte)5,(byte)5);// 1
+		test(0, 1, 0, 0,(byte)5,(byte)4);// 2
+		test(1, 1, 0, 1,(byte)5,(byte)3);// 3
+		test(0, 1, 0, 0,(byte)5,(byte)4);// 2
+		test(1, 0, 1, 1,(byte)6,(byte)4);// 4
 		
 		System.out.println("The End of Client");
 		
