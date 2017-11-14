@@ -19,6 +19,7 @@
 // w key - stops the robot (manual control only)
 // e key - increases the speed of the robot (manual control only both wheels move at the same speed)
 //----------------------------------------------------------------------------------------------
+#include <RobotStatusSender.h>
 #include <stdio.h>
 #include <signal.h>
 #include <iostream>
@@ -38,7 +39,6 @@
 #include "FloorFinder.h"
 #include "StartingPoint.h"
 #include "UiCmdHandler.h"
-#include "NextPositionSender.h"
 
 #define INIT 0
 #define STOP 1
@@ -72,7 +72,7 @@ static bool			  isResumeAutomode = false;
 static FloorFinder	  *FloorData = NULL;
 static StartingPoint  *StartingData = NULL;
 static UiCmdHandler   *UiCmd = NULL;
-static NextPositionSender	 *PositionSender = NULL;
+static RobotStatusSender	 *RobotStatus = NULL;
 float	      		  ImageOffset = 0.0;	// computed robot deviation from the line
 int 			      linewidth = 0;
 extern T_robot_moving_direction MovingDirection;
@@ -125,12 +125,12 @@ int main(int argc, const char** argv)
 	  printf("main() - Open() is failed!\n");
   }
 
-  PositionSender = new NextPositionSender((char *)argv[1], (char *)argv[5]);
-  if (PositionSender->Open() == false) {
+  RobotStatus = new RobotStatusSender((char *)argv[1], (char *)argv[5], ROBOT_STATUS_MANUAL);
+  if (RobotStatus->Open() == false) {
   	  printf("main() - PositionSender->Open() is failed!\n");
   }
 
-  AutomodeRobot = new Automode(&CurrentPosition, CallBackAutomodeFail, AlgorithmCtrl, FloorData, PositionSender);
+  AutomodeRobot = new Automode(&CurrentPosition, CallBackAutomodeFail, AlgorithmCtrl, FloorData, RobotStatus);
   ManualmodeRobot = new Manualmode(&CurrentPosition, AlgorithmCtrl);
 
 //  AutomodeRobot->setAlgorithmCtrl(AlgorithmCtrl);
@@ -195,7 +195,7 @@ int main(int argc, const char** argv)
 			  continue;
 		  }
 
-		  if (PositionSender->Open() == false) {
+		  if (RobotStatus->Open() == false) {
 			  printf("main() - PositionSender->Open() is failed!\n");
 			  usleep(500000);
 			  continue;
@@ -203,6 +203,8 @@ int main(int argc, const char** argv)
 
 		  CurrentStatus = ROBOT_STATUS_MANUAL;
 	  }
+
+	  RobotStatus->SendMode(CurrentStatus);
 
 	  usleep(2000);			  // sleep 2 milliseconds
   } while (1);
@@ -235,7 +237,7 @@ void CallBackReset(unsigned char algorithm) {
 	isResumeAutomode = false;
 //	isGoalFound = false;
 	FloorData->reset();
-	PositionSender->Init();
+	RobotStatus->Init();
 	ImageOffset = 0.0;
 	linewidth = 0;
 }
@@ -629,6 +631,7 @@ void recognizeFloor(RobotVisionManager *rvm, FloorFinder *floorData) {
 	int positionY = 0;
 	cv::Mat redDotImage;
 	cv::Mat goalImage;
+	cv::Mat startImage;
 
 	floorData->init();
 	CurrentPosition.GetNextPosition(&positionX, &positionY);
@@ -657,6 +660,18 @@ void recognizeFloor(RobotVisionManager *rvm, FloorFinder *floorData) {
 //			isGoalFound = true;
 			floorData->setGoalPosition(positionX, positionY);
 		}
+	}
+
+	if (StartingData->isStartingPoint(positionX, positionY) == false) {
+		// Get new floor image to find goal
+		rvm->GetCamImage(startImage);
+		if (IsPi3 == true) flip(startImage, startImage,-1);       // if running on PI3 flip(-1)=180 degrees
+
+		// TODO: Recognize starting point
+//		if (rvm->FindStr(goalImage) == true) {
+	//		printf("recognizeFloor() - Goal is here!\n");
+//			StartingData->setStringPosition(positionX, positionY);
+//		}
 	}
 }
 

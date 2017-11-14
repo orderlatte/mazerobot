@@ -28,7 +28,7 @@ static AlgorithmController *AlgorithmCtrl = NULL;
 static bool FullyMappingCompleted;
 static fp_automode_fail fpAutomodeFail;
 static FloorFinder *FloorData;
-static NextPositionSender *NextPosition;
+static RobotStatusSender *NextPosition;
 
 //static std::thread	  *TestingThread=NULL;		// For testing
 
@@ -37,7 +37,7 @@ static void CallBackRobotTurned();
 static void CallBackRobotMoved();
 
 
-Automode::Automode(RobotPosition *position, fp_automode_fail fp, AlgorithmController *algCtrl, FloorFinder *floor, NextPositionSender *positionSender) {
+Automode::Automode(RobotPosition *position, fp_automode_fail fp, AlgorithmController *algCtrl, FloorFinder *floor, RobotStatusSender *positionSender) {
 	Position = position;
 	fpAutomodeFail = fp;
 	init();

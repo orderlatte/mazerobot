@@ -11,22 +11,25 @@
 #include <thread>
 #include "NetworkTCP.h"
 
-class NextPositionSender {
+class RobotStatusSender {
 
 private:
 	std::thread *TcpThread = NULL;
 	int PositionX;
 	int PositionY;
+	int RobotMode;
 
 public:
-	NextPositionSender(char *hostname, char *portno);
+	RobotStatusSender(char *hostname, char *portno, int mode);
 	void Init();
 	bool Open();
 	void Close();
 	void SendPosition(int positionX, int positionY);
+	void RobotStatusSender::SendMode(int mode);
 
 private:
-	void SendThread();
+	void SendNextPositionThread();
+	void SendRobotModeThread();
 };
 
 
