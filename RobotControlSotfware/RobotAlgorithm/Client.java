@@ -93,11 +93,23 @@ public class Client {
 //		testGetMapData();
 		
 		//직진우선테스트
-		test(1, 1, 1, 0,(byte)5,(byte)5);// 1
-		test(0, 1, 0, 0,(byte)5,(byte)4);// 2
-		test(1, 1, 0, 1,(byte)5,(byte)3);// 3
-		test(0, 1, 0, 0,(byte)5,(byte)4);// 2
-		test(1, 0, 1, 1,(byte)6,(byte)4);// 4
+//		test(1, 1, 1, 0,(byte)5,(byte)5);// 1
+//		test(0, 1, 0, 0,(byte)5,(byte)4);// 2
+//		test(1, 1, 0, 1,(byte)5,(byte)3);// 3
+//		test(0, 1, 0, 0,(byte)5,(byte)4);// 2
+//		test(1, 0, 1, 1,(byte)6,(byte)4);// 4
+		
+		//skip first 알고리즘 테스트
+		test(1, 1, 0, 0,(byte)5,(byte)5);// 1
+		test(0, 1, 0, 0,(byte)5,(byte)6);// 2
+		test(0, 0, 0, 1,(byte)6,(byte)6);// 3
+		test(1, 0, 0, 1,(byte)7,(byte)6);// 4
+		test(1, 0, 1, 0,(byte)7,(byte)7);// 5
+		test(0, 0, 1, 0,(byte)6,(byte)7);// 6
+		test(0, 1, 1, 0,(byte)5,(byte)7);// 7
+		test(0, 1, 0, 0,(byte)5,(byte)6);// 2
+		test(1, 1, 0, 0,(byte)5,(byte)5);// 1
+		test(1, 1, 0, 1,(byte)5,(byte)4);// 8
 		
 		System.out.println("The End of Client");
 		
