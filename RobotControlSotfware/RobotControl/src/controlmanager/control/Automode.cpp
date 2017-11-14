@@ -438,6 +438,9 @@ void Automode::doRecognizingSign() {
 
 	if(recognize_state == 0)
 	{
+		wallData.Init();
+		wallData.recognizeWall();
+
 		recognize_start_time = micros();
 		recognize_state = 1;
 	}
@@ -461,26 +464,28 @@ void Automode::doRecognizingSign() {
 	}
 	else if(recognize_state == 3)
 	{
-		if(recognize_wall_cnt == 0)
+		if(recognize_wall_cnt == 0 && wallData.getBlockedFrontWall() == true)
 		{
 			robot_operation_cam_manual(ROBOT_CAM_DIRECTION_CENTER);
+			recognize_state = 4;
 		}
-		else if(recognize_wall_cnt == 1)
+		else if(recognize_wall_cnt == 1 && wallData.getBlockedLeftWall() == true)
 		{
 			robot_operation_cam_manual(ROBOT_CAM_DIRECTION_LEFT_SIGN);
+			recognize_state = 4;
 		}
-		else if(recognize_wall_cnt == 2)
+		else if(recognize_wall_cnt == 2 && wallData.getBlockedRightWall() == true)
 		{
 			robot_operation_cam_manual(ROBOT_CAM_DIRECTION_RIGHT_SIGN);
+			recognize_state = 4;
 		}
-		recognize_state = 4;
+		recognize_wall_cnt++;
 	}
 	else if(recognize_state == 4)
 	{
 		if(micros() - recognize_start_time > (2000*1000))
 		{
 			recognize_start_time = micros();
-			recognize_wall_cnt++;
 			recognize_state = 3;
 		}
 	}
