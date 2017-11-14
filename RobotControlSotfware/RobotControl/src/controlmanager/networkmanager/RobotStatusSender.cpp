@@ -22,7 +22,6 @@ static unsigned char     *modeBuff = NULL;
 static int			      modeBuffSize;
 static char     		 *Hostname = NULL;
 static char              *Portno = NULL;
-static int				 *ModeStatus = NULL;
 
 static std::mutex position_mutex;
 static std::mutex mode_mutex;
@@ -40,7 +39,7 @@ RobotStatusSender::RobotStatusSender(char *hostname, char *portno, int mode) {
 	Hostname = hostname;
 	Portno = portno;
 
-	RobotMode = mode;
+	RobotMode = mode + 1;
 
 	Init();
 }
@@ -89,10 +88,8 @@ void RobotStatusSender::SendNextPositionThread() {
 
 	printf("SendNextPositionThread() - Next Position thread is running!!\n");
 
-	positionBuff[0] = 0x3;
-
 	while (1) {
-		// For debugging
+		positionBuff[0] = 0x3;
 
 		position_mutex.lock();
 
@@ -103,9 +100,6 @@ void RobotStatusSender::SendNextPositionThread() {
 		*tmpPosition = (short)PositionY;
 
 		position_mutex.unlock();
-
-
-		printf("SendNextPositionThread() Next position : %d, %d\n", PositionX, PositionY);
 
 		sender_mutex.lock();
 
@@ -118,7 +112,7 @@ void RobotStatusSender::SendNextPositionThread() {
 			goto bailout;
 		}
 
-		if (WriteDataTcp(TcpConnectedPort,positionBuff,positionBuffSize) != sizeof(positionBuffSize)) {
+		if (WriteDataTcp(TcpConnectedPort,positionBuff,positionBuffSize) != positionBuffSize) {
 			printf("SendNextPositionThread() - WriteDataTcp() is failed!\n");
 		}
 
@@ -136,6 +130,8 @@ void RobotStatusSender::SendPosition(int positionX, int positionY) {
 	PositionX = positionX;
 	PositionY = positionY;
 
+	printf("SendPosition() Next position : %d, %d\n", PositionX, PositionY);
+
 	position_mutex.unlock();
 }
 
@@ -143,10 +139,10 @@ void RobotStatusSender::SendRobotModeThread() {
 
 	printf("SendRobotModeThread() - Next Position thread is running!!\n");
 
-	modeBuff[0] = 0x5;
 
 	while (1) {
-		// For debugging
+
+		modeBuff[0] = 0x5;
 
 		mode_mutex.lock();
 
@@ -166,7 +162,7 @@ void RobotStatusSender::SendRobotModeThread() {
 			goto bailout;
 		}
 
-		if (WriteDataTcp(TcpConnectedPort,modeBuff,modeBuffSize) != sizeof(modeBuffSize)) {
+		if (WriteDataTcp(TcpConnectedPort,modeBuff,modeBuffSize) != modeBuffSize) {
 			printf("SendRobotModeThread() - WriteDataTcp() is failed!\n");
 		}
 
@@ -180,7 +176,7 @@ bailout:
 void RobotStatusSender::SendMode(int mode) {
 	mode_mutex.lock();
 
-	RobotMode = mode;
+	RobotMode = mode + 1;
 
 	mode_mutex.unlock();
 }

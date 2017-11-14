@@ -662,17 +662,17 @@ void recognizeFloor(RobotVisionManager *rvm, FloorFinder *floorData) {
 		}
 	}
 
-	if (StartingData->isStartingPoint(positionX, positionY) == false) {
-		// Get new floor image to find goal
-		rvm->GetCamImage(startImage);
-		if (IsPi3 == true) flip(startImage, startImage,-1);       // if running on PI3 flip(-1)=180 degrees
-
-		// TODO: Recognize starting point
-//		if (rvm->FindStr(goalImage) == true) {
-	//		printf("recognizeFloor() - Goal is here!\n");
-//			StartingData->setStringPosition(positionX, positionY);
-//		}
-	}
+//	if (StartingData->isStartingPoint(positionX, positionY) == false) {
+//		// Get new floor image to find goal
+//		rvm->GetCamImage(startImage);
+//		if (IsPi3 == true) flip(startImage, startImage,-1);       // if running on PI3 flip(-1)=180 degrees
+//
+//		// TODO: Recognize starting point
+////		if (rvm->FindStr(goalImage) == true) {
+//	//		printf("recognizeFloor() - Goal is here!\n");
+////			StartingData->setStringPosition(positionX, positionY);
+////		}
+//	}
 }
 
 void creat_image_capture_thread(FloorFinder *floorData)

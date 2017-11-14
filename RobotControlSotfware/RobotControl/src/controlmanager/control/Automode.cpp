@@ -113,10 +113,10 @@ void Automode::doOperation() {
 }
 
 void Automode::doReady() {
-	printf("doReady() is called!\n");
+//	printf("doReady() is called!\n");
 
 	if (FullyMappingCompleted == true) {
-		printf("doReady() - fully mapping is completed.\n");
+//		printf("doReady() - fully mapping is completed.\n");
 		return;
 	}
 
