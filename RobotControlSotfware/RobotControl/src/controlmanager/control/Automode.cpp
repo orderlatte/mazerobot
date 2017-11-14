@@ -20,7 +20,7 @@
 using namespace std;
 
 
-static T_automode_status Status;
+T_automode_status Status;
 static RobotPosition *Position = NULL;
 T_robot_moving_direction MovingDirection;
 static WallFinder wallData;
