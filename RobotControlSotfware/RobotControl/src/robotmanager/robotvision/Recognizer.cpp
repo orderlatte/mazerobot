@@ -46,6 +46,16 @@ int Recognizer::readRefImages(Symbol *symbols)
 	return 0;
 }
 
+int Recognizer::initialize()
+{
+	return -1;
+}
+
+int Recognizer::getRecognitionResult()
+{
+	return -1;
+}
+
 void Recognizer::SetDebug(bool bDebug)
 {
 	m_bDebug = bDebug;

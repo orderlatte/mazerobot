@@ -42,6 +42,9 @@ public:
 	virtual int Recognize(Mat& img)=0;
 	void SetDebug(bool bDebug);
 
+	virtual int initialize();
+	virtual int getRecognitionResult();
+
 protected:
 	Symbol symbols[NumOfSigns];
 	virtual int readRefImages(Symbol *symbols);

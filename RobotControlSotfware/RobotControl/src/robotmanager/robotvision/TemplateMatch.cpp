@@ -9,8 +9,7 @@ void CannyThreshold(int, void*) {
 
 TemplateMatch::TemplateMatch()
 {
-
-
+	initialize();
 }
 
 
@@ -189,5 +188,30 @@ int TemplateMatch::Recognize(Mat& camera)
 
 	if (!IsPi3 && m_bDebug) imshow("A", camera);
 
+	m_mRecogResult[match]++;
 	return match;
+}
+
+int TemplateMatch::initialize()
+{
+	m_mRecogResult[-1] = 0;	// no match
+	for (int i = 0; i < NumOfSigns; i++)
+	{
+		m_mRecogResult[i] = 0;
+	}
+
+	return 0;
+}
+
+
+
+int TemplateMatch::getRecognitionResult()
+{
+	//auto max = std::max_element(m_mRecogResult.begin(), m_mRecogResult.end(), m_mRecogResult.value_comp());
+
+	map<int,int >::iterator max = std::max_element(m_mRecogResult.begin(), m_mRecogResult.end(), m_mRecogResult.value_comp());
+
+	initialize();
+
+	return max->first;
 }

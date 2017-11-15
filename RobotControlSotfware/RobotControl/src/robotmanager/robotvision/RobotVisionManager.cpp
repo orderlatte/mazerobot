@@ -154,7 +154,7 @@ bool RobotVisionManager::FindCrossArea(cv::Mat& camimage)
 {
 	Mat cameraimg;
 	cap >> cameraimg;
-	return m_detector->findCrossArea(cameraimg, m_bDebug);
+	return m_detector->findCrossArea2(cameraimg, m_bDebug);
 }
 
 float RobotVisionManager::FindLineInImageAndComputeOffset(cv::Mat& cameraimg)
@@ -172,6 +172,10 @@ float RobotVisionManager::FindLineInImageAndComputeOffsetAndWidth_OTSU(cv::Mat& 
 	return m_detector->FindLineInImageAndComputeOffsetAndWidth_OTSU(cameraimg, selectedWidth,m_bDebug);
 }
 
+int RobotVisionManager::GetRecogResultMax()
+{
+	return m_recognizer->getRecognitionResult();
+}
 
 void RobotVisionManager::SetDebug(bool bDebug)
 {
@@ -214,5 +218,5 @@ int RobotVisionManager::readParameter()
 
 	inFile.close();
 
-	return m_mParam.size();
+	return (int)m_mParam.size();
 }

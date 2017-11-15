@@ -58,6 +58,8 @@ public:
 
 	int RecognizeImage(cv::Mat& cameraimg);
 
+	int GetRecogResultMax();
+
 private:
 	int readParameter();
 
