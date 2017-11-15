@@ -203,13 +203,19 @@ int TemplateMatch::initialize()
 	return 0;
 }
 
-
-
 int TemplateMatch::getRecognitionResult()
 {
-	//auto max = std::max_element(m_mRecogResult.begin(), m_mRecogResult.end(), m_mRecogResult.value_comp());
+	auto max = std::max_element(m_mRecogResult.begin(), m_mRecogResult.end(), LessBySecond());
 
-	map<int,int >::iterator max = std::max_element(m_mRecogResult.begin(), m_mRecogResult.end(), m_mRecogResult.value_comp());
+	cout << "!!!!!!!!!!!!!!!!!!" << endl;
+	//map<int,int >::iterator max = std::max_element(m_mRecogResult.begin(), m_mRecogResult.end(), m_mRecogResult.value_comp());
+
+	for (int i = 0; i < m_mRecogResult.size()-1; i++)
+	{
+		cout << m_mRecogResult[i] << " ";
+	}
+
+	cout << m_mRecogResult[-1] << endl;
 
 	initialize();
 
