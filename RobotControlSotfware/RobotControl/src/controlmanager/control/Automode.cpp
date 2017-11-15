@@ -189,7 +189,7 @@ void Automode::doTurned() {
 		break;
 
 	case ROBOT_MOVING_DIRECTION_BACK_FORWARD:
-		robot_operation_auto(ROBOT_OPERATION_DIRECTION_FORWARD);	// Backward
+		robot_operation_auto(ROBOT_OPERATION_DIRECTION_BACK_FORWARD);	// Backward
 		printf("doTurned() - Robot is turned back and is moving forward.\n");
 		Status = AUTOMODE_STATUS_MOVING;
 		break;

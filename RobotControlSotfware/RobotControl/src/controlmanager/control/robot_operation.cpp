@@ -50,7 +50,7 @@ extern TPID PID;
 long micros_wrapper();
 
 
-void robot_move_one_cell_foward(void)
+void robot_move_one_cell_foward(T_robot_operation_direction direction)
 {
 	static unsigned char robot_move_one_cell_foward_state = 0;
 	static unsigned long timeoutstart = 0;
@@ -96,9 +96,19 @@ void robot_move_one_cell_foward(void)
 	else if(robot_move_one_cell_foward_state == 1)
 	{
 		robot_mode_setting(ROBOT_LINE_TRACKING, robot_operation_image_info.offset);
-		if(micros_wrapper()-timeoutstart > (400*1000))
+		if(direction == ROBOT_OPERATION_DIRECTION_BACK_FORWARD)
 		{
-			robot_move_one_cell_foward_state = 2;
+			if(micros_wrapper()-timeoutstart > (400*1000))
+			{
+				robot_move_one_cell_foward_state = 2;
+			}
+		}
+		else
+		{
+			if(micros_wrapper()-timeoutstart > (600*1000))
+			{
+				robot_move_one_cell_foward_state = 2;
+			}
 		}
 	}
 	else if(robot_move_one_cell_foward_state == 2)
@@ -263,7 +273,8 @@ void robot_operation_auto_operation(void)
 		switch(robot_operation_info.direction)
 		{
 			case ROBOT_OPERATION_DIRECTION_FORWARD:
-				robot_move_one_cell_foward();
+			case ROBOT_OPERATION_DIRECTION_BACK_FORWARD:
+				robot_move_one_cell_foward(robot_operation_info.direction);
 				break;
 			case ROBOT_OPERATION_DIRECTION_LEFT:
 			case ROBOT_OPERATION_DIRECTION_RIGHT:
