@@ -100,29 +100,35 @@ public class Client {
 //		test(1, 0, 1, 1,(byte)6,(byte)4);// 4
 		
 		//skip first 알고리즘 테스트1
-		test(1, 1, 0, 0,(byte)5,(byte)5);// 1
-		test(0, 1, 0, 0,(byte)5,(byte)6);// 2
-		test(0, 0, 0, 1,(byte)6,(byte)6);// 3
-		test(1, 0, 0, 1,(byte)7,(byte)6);// 4
-		test(1, 0, 1, 0,(byte)7,(byte)7);// 5
-		test(0, 0, 1, 0,(byte)6,(byte)7);// 6
-		test(0, 1, 1, 0,(byte)5,(byte)7);// 7
-		test(0, 1, 0, 0,(byte)5,(byte)6);// 2
-		test(1, 1, 0, 0,(byte)5,(byte)5);// 1
-		test(1, 1, 0, 1,(byte)5,(byte)4);// 8
-		
+//		test(1, 1, 0, 0,(byte)5,(byte)5);// 1
+//		test(0, 1, 0, 0,(byte)5,(byte)6);// 2
+//		test(0, 0, 0, 1,(byte)6,(byte)6);// 3
+//		test(1, 0, 0, 1,(byte)7,(byte)6);// 4
+//		test(1, 0, 1, 0,(byte)7,(byte)7);// 5
+//		test(0, 0, 1, 0,(byte)6,(byte)7);// 6
+//		test(0, 1, 1, 0,(byte)5,(byte)7);// 7
+//		test(0, 1, 0, 0,(byte)5,(byte)6);// 2
+//		test(1, 1, 0, 0,(byte)5,(byte)5);// 1
+//		test(1, 1, 0, 1,(byte)5,(byte)4);// 8
+//		
 		//skip first 알고리즘 테스트2
-//		test(0, 0, 0, 1,(byte)5,(byte)5);// 1
-//		test(1, 0, 0, 1,(byte)6,(byte)5);// 2
-//		test(1, 0, 1, 0,(byte)6,(byte)6);// 3
-//		test(0, 0, 1, 0,(byte)5,(byte)6);// 4
-//		test(0, 0, 1, 0,(byte)4,(byte)6);// 5
-//		test(0, 1, 1, 0,(byte)3,(byte)6);// 6
-//		test(0, 1, 0, 0,(byte)3,(byte)5);// 7
-//		test(0, 0, 0, 1,(byte)4,(byte)5);// 8
-//		test(0, 1, 0, 0,(byte)3,(byte)5);// 7
-//		test(1, 1, 0, 1,(byte)3,(byte)4);// 9
-		
+		test(0, 0, 0, 1,(byte)5,(byte)5);// 1
+		test(1, 0, 0, 0,(byte)6,(byte)5);// 2
+		test(1, 0, 1, 0,(byte)6,(byte)6);// 3
+		test(0, 0, 1, 0,(byte)5,(byte)6);// 4
+		test(0, 0, 1, 0,(byte)4,(byte)6);// 5
+		test(0, 1, 1, 0,(byte)3,(byte)6);// 6
+		test(0, 1, 0, 0,(byte)3,(byte)5);// 7
+		test(0, 0, 0, 1,(byte)4,(byte)5);// 8
+		test(0, 1, 0, 0,(byte)3,(byte)5);// 7
+		test(1, 1, 0, 1,(byte)3,(byte)4);// 9
+		test(0, 1, 0, 0,(byte)3,(byte)5);// 7
+		test(0, 1, 1, 0,(byte)3,(byte)6);// 6
+		test(0, 0, 1, 0,(byte)4,(byte)6);// 5
+		test(0, 0, 1, 0,(byte)5,(byte)6);// 4
+		test(1, 0, 1, 0,(byte)6,(byte)6);// 3
+		test(1, 0, 0, 0,(byte)6,(byte)5);// 2
+		test(1, 1, 0, 1,(byte)6,(byte)4);// 10
 		
 		System.out.println("The End of Client");
 		
