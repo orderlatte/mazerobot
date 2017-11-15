@@ -550,20 +550,46 @@ void Automode::doRecognizingSign() {
 	{
 //		fpAutomodeFail();
 		positon = Position->GetNextEWSNDirection();
-		switch(positon)
+
+		if(wallData.getBlockedRightWall() == true)
 		{
-			case EAST:
-				FloorData->Sign_position = SOUTH;
-				break;
-			case WEST:
-				FloorData->Sign_position = NORTH;
-				break;
-			case SOUTH:
-				FloorData->Sign_position = WEST;
-				break;
-			case NORTH:
-				FloorData->Sign_position = EAST;
-				break;
+			switch(positon)
+			{
+				case EAST:
+					FloorData->Sign_position = SOUTH;
+					break;
+				case WEST:
+					FloorData->Sign_position = NORTH;
+					break;
+				case SOUTH:
+					FloorData->Sign_position = WEST;
+					break;
+				case NORTH:
+					FloorData->Sign_position = EAST;
+					break;
+			}
+		}
+		else if(wallData.getBlockedLeftWall() == true)
+		{
+			switch(positon)
+			{
+				case EAST:
+					FloorData->Sign_position = NORTH;
+					break;
+				case WEST:
+					FloorData->Sign_position = SOUTH;
+					break;
+				case SOUTH:
+					FloorData->Sign_position = EAST;
+					break;
+				case NORTH:
+					FloorData->Sign_position = WEST;
+					break;
+			}
+		}
+		else if(wallData.getBlockedFrontWall() == true)
+		{
+			FloorData->Sign_position = positon;
 		}
 
 		FloorData->Sign_type = 1;
