@@ -154,7 +154,7 @@ bool RobotVisionManager::FindCrossArea(cv::Mat& camimage)
 {
 	Mat cameraimg;
 	cap >> cameraimg;
-	return m_detector->findCrossArea2(cameraimg, m_bDebug);
+	return m_detector->findCrossArea(cameraimg, m_bDebug);
 }
 
 float RobotVisionManager::FindLineInImageAndComputeOffset(cv::Mat& cameraimg)
