@@ -5,6 +5,15 @@
 
 using namespace std;
 
+struct LessBySecond
+{
+	template <typename Lhs, typename Rhs>
+	bool operator()(const Lhs& lhs, const Rhs& rhs) const
+	{
+		return lhs.second < rhs.second;
+	}
+};
+
 class TemplateMatch :
 	public Recognizer
 {
