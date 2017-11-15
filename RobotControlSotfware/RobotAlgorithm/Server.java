@@ -66,7 +66,7 @@ public class Server {
 				solver = new MazeSolver_DepthFirst1();
 				break;
 			case 0x02:
-				solver = new MazeSolver_DepthFirst_skip();
+				solver = new MazeSolver_DepthFirst_skip2();
 				break;
 			case 0x03:
 				solver = new MazeSolver_StraightFirst();

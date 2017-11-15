@@ -14,6 +14,14 @@ class Position {
 		this.x = p.x;
 		this.y = p.y;
 	}
+	
+	public boolean isNear(Position tgt){
+		if(tgt.equals(ofEast())) return true;
+		if(tgt.equals(ofWest())) return true;
+		if(tgt.equals(ofNorth())) return true;
+		if(tgt.equals(ofSouth())) return true;
+		return false;
+	}
 
 	public Position ofEast() {
 		return new Position(x + 1, y);

@@ -6,7 +6,7 @@ import java.util.Set;
 import robot_algorithm.Cell.DirectionWallSet;
 
 //eswn
-public class MazeSolver_DepthFirst_skip implements MazeSolverAlgorithm {
+public class MazeSolver_DepthFirst_skip2 implements MazeSolverAlgorithm {
 
 	private Maze maze;
 	private Set<Node> unvisitedNodes;
@@ -98,56 +98,17 @@ public class MazeSolver_DepthFirst_skip implements MazeSolverAlgorithm {
 			if (this.unvisitedNodes.size() == 0) {// fully mapping 완료
 				return FULLYMAPPED;
 			} else {// 부모노드로 back 이동
+				// 알고리즘
+				// 해당 노드의 부모에서 root까지 올라가면서 아래의 조건을 검사한다.
+				// 노드가 처음 노드의 near이고 아직 안간곳이 있으면 바로 해당 노드로 결정
+				// 노드가 처음 노드의 near이고 더 갈 곳이 없으면 저장하고 다시 부모 검사
+				
+				Node nodeTogo = this.getNodeAsSmartskip(curNode, curNode.parent);
 				
 				curPosition = curNode.position;
-				directionTogo = curNode.getParentDirectionAsByte();
-				positionTogo = curNode.parent.position;
+				directionTogo = curNode.getDirectionAsByte(nodeTogo);
+				positionTogo = nodeTogo.position;
 
-				int maxGen = 0;
-				if (!ds.east) {
-					Node east = getNodeFromSet(p.ofEast(), visitedNodes);
-					if (east != null) {
-						Integer genNum = this.getGeneraionOfParent(curNode, east, 0);
-						if (genNum != null && genNum > maxGen) {
-							maxGen = genNum;
-							directionTogo = EAST;
-							positionTogo = east.position;
-						}
-					}
-				}
-				if (!ds.south) {
-					Node south = getNodeFromSet(p.ofSouth(), visitedNodes);
-					if (south != null) {
-						Integer genNum = this.getGeneraionOfParent(curNode, south, 0);
-						if (genNum != null && genNum > maxGen) {
-							maxGen = genNum;
-							directionTogo = SOUTH;
-							positionTogo = south.position;
-						}
-					}
-				}
-				if (!ds.west) {
-					Node west = getNodeFromSet(p.ofWest(), visitedNodes);
-					if (west != null) {
-						Integer genNum = this.getGeneraionOfParent(curNode, west, 0);
-						if (genNum != null && genNum > maxGen) {
-							maxGen = genNum;
-							directionTogo = WEST;
-							positionTogo = west.position;
-						}
-					}
-				}
-				if (!ds.north) {
-					Node north = getNodeFromSet(p.ofNorth(), visitedNodes);
-					if (north != null) {
-						Integer genNum = this.getGeneraionOfParent(curNode, north, 0);
-						if (genNum != null && genNum > maxGen) {
-							maxGen = genNum;
-							directionTogo = NORTH;
-							positionTogo = north.position;
-						}
-					}
-				}
 				return directionTogo;
 			}
 		} else {// 새로운 노드로 이동
@@ -158,6 +119,36 @@ public class MazeSolver_DepthFirst_skip implements MazeSolverAlgorithm {
 			curPosition = curNode.position;
 			return togoValue;
 		}
+	}
+
+	private boolean hasUnvisitedNodeNear(Node src, Set<Node> unvisitedNodes) {
+		for (Node n : unvisitedNodes) {
+			if (src.isNearNode(n))
+				return true;
+		}
+		return false;
+	}
+
+	//startNode를 기준으로 target노드를 계속 부모로 바꿔가면서 가야할 노드를 찾아낸다.
+	private Node getNodeAsSmartskip(Node startNode, Node targetNode) {
+		Node candidate = null;
+		
+		while(true){
+			if(targetNode==null) break;
+			if (startNode.isNearNode(targetNode)) {
+
+				if (hasUnvisitedNodeNear(targetNode, unvisitedNodes)){
+					candidate = targetNode;
+					return targetNode;
+				}
+
+				if (this.getGeneraionOfParent(startNode, targetNode, 0) > 0) {
+					candidate = targetNode;
+				}
+			}
+			targetNode = targetNode.parent;
+		}
+		return candidate;
 	}
 
 	// src와 target간 세대 값. 세대가 아니라면 null 리턴. 부모-자식 관계는 1 리턴.

@@ -16,6 +16,26 @@ class Node {
 		position = p;
 	}
 
+	public boolean isNearNode(Node tgt) {
+		return this.position.isNear(tgt.position);
+	}
+
+	public byte[] getDirectionAsByte(Node tgt){
+		int px = tgt.position.x;
+		int py = tgt.position.y;
+		if (px == position.x) {
+			if (py > position.y)
+				return MazeSolverAlgorithm.SOUTH;
+			else
+				return MazeSolverAlgorithm.NORTH;
+		} else {
+			if (px > position.x)
+				return MazeSolverAlgorithm.EAST;
+			else
+				return MazeSolverAlgorithm.WEST;
+		}
+	}
+	
 	public byte[] getParentDirectionAsByte() {
 		int px = parent.position.x;
 		int py = parent.position.y;

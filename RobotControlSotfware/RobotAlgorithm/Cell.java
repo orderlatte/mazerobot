@@ -27,6 +27,10 @@ public class Cell {
 	public void clearRobotInfo(){
 		data[0] = 0x0;
 	}
+	
+	public int getNumOfToGo(){
+		return 4-getWall().getNumOfWall();
+	}
 
 	public DirectionWallSet getWall() {
 		DirectionWallSet ds = new DirectionWallSet();
@@ -52,6 +56,15 @@ public class Cell {
 		@Override
 		public String toString() {
 			return "DirectionSet [east=" + east + ", west=" + west + ", south=" + south + ", north=" + north + "]";
+		}
+		
+		public int getNumOfWall(){
+			int num = 0;
+			if(east) num++;
+			if(west) num++;
+			if(south) num++;
+			if(north) num++;
+			return num;
 		}
 
 	}
