@@ -110,24 +110,24 @@ void RobotStatusSender::SendNextPositionThread() {
 		tmpPosition = (short *)&positionBuff[4];
 		*tmpPosition = (short)PositionY;
 
-		if ((PreviousPositionX != PositionX) || (PreviousPorisionY != PositionY)) {
+//		if ((PreviousPositionX != PositionX) || (PreviousPorisionY != PositionY)) {
 			// For debugging
-			printf("SendNextPositionThread() - positionBuff: 0x");
-			for (index = 0; index < positionBuffSize; index++) {
-				printf("%1x", positionBuff[index]);
-			}
-			printf("\n");
-
-			PreviousPositionX = PositionX;
-			PreviousPorisionY = PositionY;
+//			printf("SendNextPositionThread() - positionBuff: 0x");
+//			for (index = 0; index < positionBuffSize; index++) {
+//				printf("%1x", positionBuff[index]);
+//			}
+//			printf("\n");
+//
+//			PreviousPositionX = PositionX;
+//			PreviousPorisionY = PositionY;
 //			position_mutex.unlock();
 
-		} else {
-			usleep(250000); // 250 miliseconds
+//		} else {
+//			usleep(250000); // 250 miliseconds
 
 //			position_mutex.unlock();
-			continue;
-		}
+//			continue;
+//		}
 
 
 		sender_mutex.lock();
@@ -150,7 +150,7 @@ bailout:
 
 		sender_mutex.unlock();
 
-		usleep(250000); // 250 miliseconds
+		usleep(500000); // 500 miliseconds
 	}
 }
 
@@ -178,23 +178,23 @@ void RobotStatusSender::SendRobotModeThread() {
 
 		modeBuff[1] = (unsigned char) RobotMode;
 
-		if (PreviousRobotMode != RobotMode) {
+//		if (PreviousRobotMode != RobotMode) {
 			// For debugging
-			printf("SendRobotModeThread() - modeBuff: 0x");
-			for (index = 0; index < modeBuffSize; index++) {
-				printf("%1x", modeBuff[index]);
-			}
-			printf("\n");
-
-			PreviousRobotMode = RobotMode;
-
+//			printf("SendRobotModeThread() - modeBuff: 0x");
+//			for (index = 0; index < modeBuffSize; index++) {
+//				printf("%1x", modeBuff[index]);
+//			}
+//			printf("\n");
+//
+//			PreviousRobotMode = RobotMode;
+//
 //			mode_mutex.unlock();
-		} else {
+//		} else {
 //			mode_mutex.unlock();
-
-			usleep(250000); // 250 miliseconds
-			continue;
-		}
+//
+//			usleep(250000); // 250 miliseconds
+//			continue;
+//		}
 
 
 
@@ -217,7 +217,7 @@ void RobotStatusSender::SendRobotModeThread() {
 bailout:
 		sender_mutex.unlock();
 
-		usleep(250000); // 250 miliseconds
+		usleep(500000); // 500 miliseconds
 	}
 }
 

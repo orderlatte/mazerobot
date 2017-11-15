@@ -21,33 +21,33 @@ StartingPoint::StartingPoint(int initialPositionX, int initialPositionY) {
 }
 
 void StartingPoint::reset(int robotEWSNDirection, int robotPositionX, int robotPositionY) {
-//	PositionX = -1;
-//	PositionY = -1;
+	PositionX = 5;
+	PositionY = 5;
 
-	int relativePositionX = PositionX - robotPositionX;
-	int relativePositionY = PositionY - robotPositionY;
-
-	switch (robotEWSNDirection) {
-	case EAST:
-		PositionX = PositionX + relativePositionY;
-		PositionY = PositionY - relativePositionX;
-		break;
-	case WEST:
-		PositionX = PositionX - relativePositionY;
-		PositionY = PositionY + relativePositionX;
-		break;
-	case SOUTH:
-		PositionX = PositionX - relativePositionX;
-		PositionY = PositionY - relativePositionY;
-		break;
-	case NORTH:
-		PositionX = PositionX + relativePositionX;
-		PositionY = PositionY + relativePositionY;
-		break;
-	default:
-		printf("reset() - This is not supported direction. (%d)\n", robotEWSNDirection);
-		break;
-	}
+//	int relativePositionX = PositionX - robotPositionX;
+//	int relativePositionY = PositionY - robotPositionY;
+//
+//	switch (robotEWSNDirection) {
+//	case EAST:
+//		PositionX = PositionX + relativePositionY;
+//		PositionY = PositionY - relativePositionX;
+//		break;
+//	case WEST:
+//		PositionX = PositionX - relativePositionY;
+//		PositionY = PositionY + relativePositionX;
+//		break;
+//	case SOUTH:
+//		PositionX = PositionX - relativePositionX;
+//		PositionY = PositionY - relativePositionY;
+//		break;
+//	case NORTH:
+//		PositionX = PositionX + relativePositionX;
+//		PositionY = PositionY + relativePositionY;
+//		break;
+//	default:
+//		printf("reset() - This is not supported direction. (%d)\n", robotEWSNDirection);
+//		break;
+//	}
 }
 
 bool StartingPoint::isStartingPoint(int robotPositionX, int robotPositionY) {

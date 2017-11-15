@@ -339,7 +339,7 @@ void robot_operation_cam_manual(T_robot_operation_direction direction)
 			Tilt = 150;
 			break;
 		case ROBOT_CAM_DIRECTION_RIGHT_SIGN:
-			Pan = 68;
+			Pan = 72;
 			Tilt = 167;
 			break;
 		case ROBOT_CAM_DIRECTION_LINE:
