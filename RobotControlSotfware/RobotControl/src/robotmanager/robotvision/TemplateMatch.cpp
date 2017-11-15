@@ -77,7 +77,7 @@ int TemplateMatch::Recognize(Mat& camera)
 
 	for (size_t i = 0; i < contours.size(); i++) {
 		approxPolyDP(contours[i], approxRect,
-			arcLength(Mat(contours[i]), true) * 0.05, true);
+			arcLength(Mat(contours[i]), true) * 0.01, true);
 		if (approxRect.size() == 4) {
 			float area = contourArea(contours[i]);
 

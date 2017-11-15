@@ -101,6 +101,24 @@ bool Detector::findGoalArea(cv::Mat& CameraImage, bool bDebug)
 
 	bitwise_and(roi, roi, result, threshold);
 
+	/////////////////////////////////////////////////////////
+	// must split all channels to get Hue only
+	//std::vector<cv::Mat> hsvPlanes;
+	//cv::split(roi, hsvPlanes);
+
+	// compute statistics for Hue value
+	//Mat target = HSV.clone();
+	//cv::Scalar mean, stddev;
+	//cv::meanStdDev(target, mean, stddev);
+
+	// ensure we get 95% of all valid Hue samples (statistics 3*sigma rule)
+	//float minHue = mean[0] - stddev[0] * 3;
+	//float maxHue = mean[0] + stddev[0] * 3;
+
+	//cout << "minHue: " << minHue << "maxHue: " << maxHue << endl;
+
+	/////////////////////////////////////////////////////////
+
 
 	IplImage tmp = threshold;
 	int cnt = cvCountNonZero(&tmp);
