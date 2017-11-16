@@ -76,6 +76,7 @@ static RobotStatusSender	 *RobotStatus = NULL;
 float	      		  ImageOffset = 0.0;	// computed robot deviation from the line
 int 			      linewidth = 0;
 extern 	T_automode_status Status;
+extern unsigned char recognize_flag;
 
 
 static void  Setup_Control_C_Signal_Handler_And_Keyboard_No_Enter(void);
@@ -599,7 +600,19 @@ void *image_capture_thread(void *value) {
 			rvm.GetCamImage(image);  // Get Camera image
 			if (IsPi3 == true) flip(image, image,-1);       // if running on PI3 flip(-1)=180 degrees
 
-			sign_type = rvm.RecognizeImage(image);
+			rvm.RecognizeImage(image);
+
+			if(recognize_flag == 1)
+			{
+				rvm.GetRecogResultMax();
+				recognize_flag = 2;
+			}
+			else if(recognize_flag == 3)
+			{
+				sign_type = rvm.GetRecogResultMax();
+				printf("sign_type = %d\n", sign_type);
+				recognize_flag = 4;
+			}
 
 			switch(sign_type)
 			{

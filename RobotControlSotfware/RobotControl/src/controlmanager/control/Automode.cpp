@@ -29,6 +29,7 @@ static bool FullyMappingCompleted;
 static fp_automode_fail fpAutomodeFail;
 static FloorFinder *FloorData;
 static RobotStatusSender *NextPosition;
+unsigned char recognize_flag;
 
 //static std::thread	  *TestingThread=NULL;		// For testing
 
@@ -484,14 +485,23 @@ void Automode::doRecognizingSign() {
 	}
 	else if(recognize_state == 4)
 	{
-		if(micros() - recognize_start_time > (2000*1000))
+		if(recognize_flag == 0)
 		{
-			recognize_start_time = micros();
-			recognize_state = 3;
+			if(micros() - recognize_start_time > (500*1000))
+			{
+				recognize_flag = 1;
+			}
+		}
+		else if(recognize_flag == 2)
+		{
+			if(micros() - recognize_start_time > (1500*1000))
+			{
+				recognize_flag = 3;
+			}
 		}
 	}
 
-	if((FloorData->Sign_type != 0) && (recognize_state == 4) && (micros() - recognize_start_time > (500*1000)))
+	if((FloorData->Sign_type != 0) && (recognize_state == 4) && (recognize_flag == 4))
 	{
 		positon = Position->GetNextEWSNDirection();
 		if(recognize_wall_cnt == 1)
@@ -539,11 +549,18 @@ void Automode::doRecognizingSign() {
 		Status = AUTOMODE_STATUS_RESUME_TRAVLE;
 		recognize_state = 0;
 		recognize_wall_cnt = 0;
+		recognize_flag = 0;
 
 		Position->GetNextPosition(&nextPositionX, &nextPositionY);
 		if (FloorData->setRedDotSign(nextPositionX, nextPositionY) == false) {
 			printf("doRecognizingSign() - setRedDotSign() is failed! (%d, %d)\n", nextPositionX, nextPositionY);
 		}
+	}
+	else if((FloorData->Sign_type == 0) && (recognize_state == 4) && (recognize_flag == 4))
+	{
+		recognize_start_time = micros();
+		recognize_state = 3;
+		recognize_flag = 0;
 	}
 
 	if(recognize_wall_cnt > 4)
@@ -597,6 +614,7 @@ void Automode::doRecognizingSign() {
 		Status = AUTOMODE_STATUS_RESUME_TRAVLE;
 		recognize_state = 0;
 		recognize_wall_cnt = 0;
+		recognize_flag = 0;
 
 		Position->GetNextPosition(&nextPositionX, &nextPositionY);
 		if (FloorData->setRedDotSign(nextPositionX, nextPositionY) == false) {
