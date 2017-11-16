@@ -572,7 +572,7 @@ void *image_capture_thread(void *value) {
 
 	RobotVisionManager rvm;
 
-	int sign_type;
+	int sign_type = 0;
 
 	rvm.SetDebug(true);	// For debugging
 
@@ -611,27 +611,28 @@ void *image_capture_thread(void *value) {
 			{
 				sign_type = rvm.GetRecogResultMax();
 				printf("sign_type = %d\n", sign_type);
+				switch(sign_type)
+				{
+					case 0:
+						floor->Sign_type = 1;
+						break;
+					case 1:
+						floor->Sign_type = 2;
+						break;
+					case 2:
+						floor->Sign_type = 4;
+						break;
+					case 3:
+						floor->Sign_type = 8;
+						break;
+					default:
+						//floor->Sign_type = 0;
+						break;
+				}
 				recognize_flag = 4;
 			}
 
-			switch(sign_type)
-			{
-				case 0:
-					floor->Sign_type = 1;
-					break;
-				case 1:
-					floor->Sign_type = 2;
-					break;
-				case 2:
-					floor->Sign_type = 4;
-					break;
-				case 3:
-					floor->Sign_type = 8;
-					break;
-				default:
-					//floor->Sign_type = 0;
-					break;
-			}
+			
 		}
 	
 		VideoSender.SetImage(&image);

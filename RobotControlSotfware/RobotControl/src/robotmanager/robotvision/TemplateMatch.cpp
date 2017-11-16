@@ -176,9 +176,14 @@ int TemplateMatch::Recognize(Mat& camera)
 					putText(camera, symbols[match].name, Point(320, 30), 1,
 						2, Scalar(0, 255, 0), 2);
 					printf("Match %s\n", symbols[match].name.c_str());
+					m_mRecogResult[match]++;
 
 				}
-				else printf("No Match\n");
+				else 
+					{
+						printf("No Match\n");
+						m_mRecogResult[match]++;
+					}
 
 				//break;
 			}
@@ -188,7 +193,6 @@ int TemplateMatch::Recognize(Mat& camera)
 
 	if (!IsPi3 && m_bDebug) imshow("A", camera);
 
-	m_mRecogResult[match]++;
 	return match;
 }
 
@@ -208,6 +212,6 @@ int TemplateMatch::getRecognitionResult()
 	auto max = std::max_element(m_mRecogResult.begin(), m_mRecogResult.end(), LessBySecond());
 
 	initialize();
-
+	
 	return max->first;
 }
