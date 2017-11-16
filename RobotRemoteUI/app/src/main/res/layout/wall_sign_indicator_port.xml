@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:mobilian="http://schemas.mobilian.kr/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/wall_sign_counter"
+        android:layout_width="@dimen/sign_icon_size"
+        android:layout_height="@dimen/sign_icon_size"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/wall_sign_red_dot"
+        android:gravity="center"
+        android:textSize="15dp" />
+
+    <LinearLayout
+        android:id="@+id/wall_signs"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+
+</LinearLayout>

@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:mobilian="http://schemas.mobilian.kr/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="kr.mobilian.maze_rui.MainActivity" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="10dp"
+        android:orientation="vertical"
+        android:background="#000000" >
+
+        <kr.mobilian.maze_rui.MazeDisplayLayout
+            android:layout_width="@dimen/maze_width"
+            android:layout_height="@dimen/maze_height"
+            mobilian:layoutID="@layout/maze_display" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/hidden_setting"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="bottom|center_horizontal"
+                android:layout_marginLeft="20dp"
+                android:layout_marginBottom="20dp"
+                android:src="@drawable/hidden_setting_icon" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <kr.mobilian.maze_rui.CameraImageView
+                android:layout_width="@dimen/camera_display_size"
+                android:layout_height="@dimen/camera_display_size"
+                android:layout_gravity="center_horizontal"
+                android:foreground="@drawable/camera_frame"
+                android:background="@drawable/disconnected" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/robot_setting"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="bottom|center_horizontal"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="20dp"
+                android:src="@drawable/robot_setting_icon" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:background="@drawable/information_background" >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <kr.mobilian.maze_rui.NetworkInformationTextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="10dp"
+                    android:textSize="@dimen/camera_display_text_size" />
+
+                <kr.mobilian.maze_rui.RobotConnectionStateImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp" />
+
+            </LinearLayout>
+
+            <kr.mobilian.maze_rui.CommandStateTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp" />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <kr.mobilian.maze_rui.RobotModeSelectLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+
+                <Button
+                    android:id="@+id/auto_mode_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Auto Mode" />
+
+                <Button
+                    android:id="@+id/manual_mode_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Manual Mode" />
+
+                <Button
+                    android:id="@+id/reset_mode_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Reset" />
+
+            </kr.mobilian.maze_rui.RobotModeSelectLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <kr.mobilian.maze_rui.RobotRemoteControlLayout
+                android:layout_width="@dimen/remote_size"
+                android:layout_height="@dimen/remote_size"
+                mobilian:layoutID="@layout/remote_control_camera" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <kr.mobilian.maze_rui.RobotRemoteControlLayout
+                android:layout_width="@dimen/remote_size"
+                android:layout_height="@dimen/remote_size"
+                mobilian:layoutID="@layout/remote_control_robot" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <kr.mobilian.maze_rui.WindowNetworkDisconnected
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#CC000000"
+        mobilian:layoutID="@layout/window_network_disconnected" />
+
+    <kr.mobilian.maze_rui.SettingRobotLayout
+        android:id="@+id/robot_setting_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/backroung_menu"
+        android:visibility="gone"
+        mobilian:layoutID="@layout/setting_robot" />
+
+    <kr.mobilian.maze_rui.SettingDebugRobotLayout
+        android:id="@+id/hidden_setting_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/backroung_menu"
+        android:visibility="gone"
+        mobilian:layoutID="@layout/setting_robot_debug" />
+
+    <kr.mobilian.maze_rui.WindowStartingLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#FF000000"
+        mobilian:layoutID="@layout/window_starting" />
+
+    <kr.mobilian.maze_rui.WindowCongraturationLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        mobilian:layoutID="@layout/window_congraturation" />
+
+</FrameLayout>

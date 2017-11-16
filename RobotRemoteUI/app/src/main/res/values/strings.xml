@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Maze-RUI</string>
+    <string name="network_disconnected">Network Disconnected</string>
+</resources>

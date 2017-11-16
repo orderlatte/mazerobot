@@ -1,0 +1,9 @@
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="false">
+    <item android:drawable="@drawable/kimhanseop_02" android:duration="200" />
+    <item android:drawable="@drawable/kimhanseop_03" android:duration="200" />
+    <item android:drawable="@drawable/kimhanseop_04" android:duration="200" />
+    <item android:drawable="@drawable/kimhanseop_05" android:duration="200" />
+    <item android:drawable="@drawable/kimhanseop_06" android:duration="200" />
+    <item android:drawable="@drawable/kimhanseop_01" android:duration="200" />
+</animation-list>

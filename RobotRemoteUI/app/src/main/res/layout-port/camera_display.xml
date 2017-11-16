@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:mobilian="http://schemas.mobilian.kr/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <kr.mobilian.maze_rui.CameraImageView
+        android:layout_width="@dimen/camera_display_size"
+        android:layout_height="@dimen/camera_display_size"
+        android:foreground="@drawable/camera_frame"
+        android:background="@drawable/disconnected" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_weight="1" >
+
+        <kr.mobilian.maze_rui.NetworkInformationTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/camera_display_text_size" />
+
+        <kr.mobilian.maze_rui.WallSignIndicatorLayout
+            android:layout_width="@dimen/camera_display_size"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            mobilian:autoHide="false"
+            mobilian:collapsable="true"
+            mobilian:layoutID="@layout/wall_sign_indicator_land" />
+
+    </LinearLayout>
+
+</LinearLayout>

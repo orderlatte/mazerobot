@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<kr.mobilian.maze_rui.RobotRemoteControlButtonLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/background_remote_control" >
+
+    <kr.mobilian.maze_rui.RobotRemoteControlButton
+        android:id="@+id/remote_view_center"
+        android:layout_width="@dimen/remote_button_size"
+        android:layout_height="@dimen/remote_button_size"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_margin="@dimen/remote_button_margin"
+        android:background="@drawable/remote_view_center"
+        android:clickable="false" />
+
+    <kr.mobilian.maze_rui.RobotRemoteControlButton
+        android:id="@+id/remote_view_up"
+        android:layout_width="@dimen/remote_button_size"
+        android:layout_height="@dimen/remote_button_size"
+        android:layout_above="@+id/remote_view_center"
+        android:layout_alignStart="@+id/remote_view_center"
+        android:background="@drawable/remote_view_up" />
+
+    <kr.mobilian.maze_rui.RobotRemoteControlButton
+        android:id="@+id/remote_view_right"
+        android:layout_width="@dimen/remote_button_size"
+        android:layout_height="@dimen/remote_button_size"
+        android:layout_alignTop="@+id/remote_view_center"
+        android:layout_toEndOf="@+id/remote_view_center"
+        android:background="@drawable/remote_view_right" />
+
+    <kr.mobilian.maze_rui.RobotRemoteControlButton
+        android:id="@+id/remote_view_down"
+        android:layout_width="@dimen/remote_button_size"
+        android:layout_height="@dimen/remote_button_size"
+        android:layout_alignStart="@+id/remote_view_center"
+        android:layout_below="@+id/remote_view_center"
+        android:background="@drawable/remote_view_down" />
+
+    <kr.mobilian.maze_rui.RobotRemoteControlButton
+        android:id="@+id/remote_view_left"
+        android:layout_width="@dimen/remote_button_size"
+        android:layout_height="@dimen/remote_button_size"
+        android:layout_alignTop="@+id/remote_view_center"
+        android:layout_toStartOf="@+id/remote_view_center"
+        android:background="@drawable/remote_view_left" />
+
+</kr.mobilian.maze_rui.RobotRemoteControlButtonLayout>

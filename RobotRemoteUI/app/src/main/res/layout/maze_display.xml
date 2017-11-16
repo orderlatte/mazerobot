@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:mobilian="http://schemas.mobilian.kr/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <kr.mobilian.maze_rui.MazeMapGridLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:columnCount="11" />
+
+    <kr.mobilian.maze_rui.WallSignIndicatorLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        mobilian:collapsable="true"
+        mobilian:layoutID="@layout/wall_sign_indicator_port" />
+
+    <kr.mobilian.maze_rui.NextCellTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:textColor="#FFFFFF" />
+
+    <kr.mobilian.maze_rui.MazeSolvingHistoryLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        mobilian:layoutID="@layout/maze_solving_history" />
+
+</RelativeLayout>

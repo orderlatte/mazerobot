@@ -1,0 +1,9 @@
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="false">
+    <item android:drawable="@drawable/chokyutae_03" android:duration="200" />
+    <item android:drawable="@drawable/chokyutae_04" android:duration="200" />
+    <item android:drawable="@drawable/chokyutae_05" android:duration="200" />
+    <item android:drawable="@drawable/chokyutae_06" android:duration="200" />
+    <item android:drawable="@drawable/chokyutae_01" android:duration="200" />
+    <item android:drawable="@drawable/chokyutae_02" android:duration="200" />
+</animation-list>

@@ -1,0 +1,9 @@
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="false">
+    <item android:drawable="@drawable/parksangjoo_03" android:duration="200" />
+    <item android:drawable="@drawable/parksangjoo_04" android:duration="200" />
+    <item android:drawable="@drawable/parksangjoo_05" android:duration="200" />
+    <item android:drawable="@drawable/parksangjoo_06" android:duration="200" />
+    <item android:drawable="@drawable/parksangjoo_01" android:duration="200" />
+    <item android:drawable="@drawable/parksangjoo_02" android:duration="200" />
+</animation-list>
